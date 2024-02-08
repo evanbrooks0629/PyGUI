@@ -6,8 +6,6 @@ class DashboardFrame(QFrame):
     def __init__(self):
         super().__init__()
 
-        # Set tab style
-        # frame = QFrame()
         self.setStyleSheet("""
             background-color: #464545; 
             border-radius: 20;
@@ -23,23 +21,14 @@ class DashboardFrame(QFrame):
 
         ### ADD CONTENT TO CHATVBOX HERE ###
 
-        chatBox = QLabel("Hi, I’m Sparky, your AI assistant. Type the task you’d like our engineering team to complete, and I’ll make sure everything is done perfectly! To get started, just type below.")
+        chatBox = QLabel("Welcome to TaskForceAI. Type the task you’d like our engineering team to complete, and we’ll make sure everything is done perfectly! To get started, just type below.")
         chatBox.setStyleSheet("""
             background-color: #464545; 
             border-radius: 20;
-            padding: 20; 
+            padding: 20;
         """)
         chatBox.setFixedHeight(200)
         chatBox.setWordWrap(True)
-
-        sparkyFrame = QFrame()
-        sparkyHBox = QHBoxLayout()
-        sparky = QLabel(self)
-        sparkyPixmap = QPixmap('./assets/Spark.png')
-        sparkyPixmapScaled = sparkyPixmap.scaled(250, 250)
-        sparky.setPixmap(sparkyPixmapScaled)
-        sparkyHBox.addWidget(sparky, alignment=Qt.AlignmentFlag.AlignCenter)
-        sparkyFrame.setLayout(sparkyHBox)
 
         textBox = QPlainTextEdit()
         textBox.setStyleSheet("""
@@ -48,10 +37,8 @@ class DashboardFrame(QFrame):
             padding: 20;
         """)
         textBox.setPlaceholderText("Type anything...")
-        # textBox.setFixedHeight(200)
 
         chatVBox.addWidget(chatBox)
-        chatVBox.addWidget(sparkyFrame)
         chatVBox.addWidget(textBox)
 
         chatFrame.setLayout(chatVBox)
@@ -73,4 +60,15 @@ class DashboardFrame(QFrame):
             color: #ffffff;
         """)
         employeesFrame.setFixedWidth(400)
-        employeesHBox.addWidget(employ
+        employeesHBox.addWidget(employeesLabel)
+        employeesFrame.setLayout(employeesHBox)
+        employeesTasksVBox.addWidget(employeesFrame)
+
+        tasksLabel = QLabel("Tasks")
+
+        employeesTasksVBox.addWidget(tasksLabel)
+        employeesTasksFrame.setLayout(employeesTasksVBox)
+
+        mainhbox.addWidget(chatFrame)
+        mainhbox.addWidget(employeesTasksFrame)
+        self.setLayout(mainhbox)
