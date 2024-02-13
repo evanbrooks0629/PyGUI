@@ -4,7 +4,7 @@ from PyQt6.QtGui import *
 from PyQt6.QtCore import *
 from components.customTabBar import CustomTabBar
 from components.dashboard import DashboardFrame
-from components.employees import EmployeesFrame
+from components.agents import AgentsFrame
 from components.chats import ChatsFrame
 from components.settings import SettingsFrame
 
@@ -44,14 +44,14 @@ class App(QMainWindow):
             color: #75DBE9;
         """)
 
-        # Top Bar With Logo - Employees
-        employeesLogoLabel = QLabel("TaskForceAI - Employees")
-        employeesLogoLabel.setFixedHeight(80)
-        employeesLogoLabel.setStyleSheet("""
+        # Top Bar With Logo - Agents
+        agentsLogoLabel = QLabel("TaskForceAI - Agents")
+        agentsLogoLabel.setFixedHeight(80)
+        agentsLogoLabel.setStyleSheet("""
             background-color: #464545; 
             border-radius: 20; 
             padding-left: 20; 
-            font-weight: bold; 
+            font-weight: bold; \
             color: #75DBE9;
         """)
 
@@ -90,18 +90,18 @@ class App(QMainWindow):
 
         dashboard.setLayout(dashboardLayout)
 
-        # Employees Tab
-        employees = QWidget()
-        employees.setStyleSheet("background-color: #5E5E5E")
+        # Agents Tab
+        agents = QWidget()
+        agents.setStyleSheet("background-color: #5E5E5E")
 
-        employeesLayout = QVBoxLayout()
-        employeesLayout.setSpacing(20)
-        employeesLayout.addWidget(employeesLogoLabel)
+        agentsLayout = QVBoxLayout()
+        agentsLayout.setSpacing(20)
+        agentsLayout.addWidget(agentsLogoLabel)
 
-        employeesFrame = EmployeesFrame()
-        employeesLayout.addWidget(employeesFrame)
+        agentsFrame = AgentsFrame()
+        agentsLayout.addWidget(agentsFrame)
 
-        employees.setLayout(employeesLayout)
+        agents.setLayout(agentsLayout)
 
         # Chats Tab
         chats = QWidget()
@@ -131,7 +131,7 @@ class App(QMainWindow):
 
         # Add tabs to the QTabWidget
         self.tab_widget.addTab(dashboard, "Dashboard")
-        self.tab_widget.addTab(employees, "Employees")
+        self.tab_widget.addTab(agents, "Agents")
         self.tab_widget.addTab(chats, "Chats")
         self.tab_widget.addTab(settings, "Settings")
 

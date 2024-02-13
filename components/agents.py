@@ -2,7 +2,7 @@ from PyQt6.QtWidgets import *
 from PyQt6.QtGui import *
 from PyQt6.QtCore import *
 
-class EmployeesFrame(QFrame):
+class AgentsFrame(QFrame):
     def __init__(self):
         super().__init__()
 
@@ -16,13 +16,13 @@ class EmployeesFrame(QFrame):
         chatVBox = QVBoxLayout()
         chatFrame.setLayout(chatVBox)
 
-        employeesTasksFrame = QFrame()
-        employeesTasksFrame.setStyleSheet("background-color: #5E5E5E; border-radius: 20;")
-        employeesTasksVBox = QVBoxLayout()
-        employeesTasksFrame.setLayout(employeesTasksVBox)
+        agentsTasksFrame = QFrame()
+        agentsTasksFrame.setStyleSheet("background-color: #5E5E5E; border-radius: 20;")
+        agentsTasksVBox = QVBoxLayout()
+        agentsTasksFrame.setLayout(agentsTasksVBox)
 
         mainhbox.addWidget(chatFrame)
-        mainhbox.addWidget(employeesTasksFrame)
+        mainhbox.addWidget(agentsTasksFrame)
         self.setLayout(mainhbox)
 
 
