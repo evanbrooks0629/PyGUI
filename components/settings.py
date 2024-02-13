@@ -16,13 +16,13 @@ class SettingsFrame(QFrame):
         chatVBox = QVBoxLayout()
         chatFrame.setLayout(chatVBox)
 
-        employeesTasksFrame = QFrame()
-        employeesTasksFrame.setStyleSheet("background-color: #5E5E5E; border-radius: 20;")
-        employeesTasksVBox = QVBoxLayout()
-        employeesTasksFrame.setLayout(employeesTasksVBox)
+        agentsTasksFrame = QFrame()
+        agentsTasksFrame.setStyleSheet("background-color: #5E5E5E; border-radius: 20;")
+        agentsTasksVBox = QVBoxLayout()
+        agentsTasksFrame.setLayout(agentsTasksVBox)
 
         mainhbox.addWidget(chatFrame)
-        mainhbox.addWidget(employeesTasksFrame)
+        mainhbox.addWidget(agentsTasksFrame)
         self.setLayout(mainhbox)
 
 ### TODO:
