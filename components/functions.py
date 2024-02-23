@@ -1,8 +1,9 @@
 from PyQt6.QtWidgets import *
 from PyQt6.QtGui import *
 from PyQt6.QtCore import *
+import json
 
-class SettingsFrame(QFrame):
+class FunctionsFrame(QFrame):
     def __init__(self):
         super().__init__()
 
@@ -24,6 +25,18 @@ class SettingsFrame(QFrame):
         mainhbox.addWidget(chatFrame)
         mainhbox.addWidget(agentsTasksFrame)
         self.setLayout(mainhbox)
+
+    def functionBox(self, list_of_function_objects):
+        # return a small box for recent chat
+        return []
+
+    def loadFunctions(self):
+        # parse json data and get all chats
+        file = open('./data/functions.json')
+        data = json.load(file)
+        functions = self.functionBox(data["functions"])
+        return functions
+    
 
 ### TODO:
     # [ ] Rename variables

@@ -1,0 +1,83 @@
+{
+    "chats": [
+        {
+            "name": "Rearch About Monkeys",
+            "id": "11111111",
+            "date": "02/20/2024",
+            "team": "18183843",
+            "conversation": [
+                {
+                    "user": {
+                        "text": "Create a 5 paragraph essay about monkeys"
+                    },
+                    "agent": {
+                        "id": "53412553",
+                        "text": "Here is the essay"
+                    }
+                },
+                {
+                    "user": {
+                        "text": "Make the text reflect xyz"
+                    },
+                    "agent": {
+                        "id": "53412553",
+                        "text": "Here is the blah blah blah"
+                    }
+                },
+                {
+                    "user": {
+                        "text": "Finally add the current date to the top and number the pages"
+                    },
+                    "agent": {
+                        "id": "53412553",
+                        "text": "Here is your final report"
+                    }
+                }
+            ]
+        },
+        {
+            "name": "React Calendar Widget",
+            "id": "22222222",
+            "date": "02/21/2024",
+            "team": "59493944",
+            "conversation": [
+                {
+                    "user": {
+                        "text": "Create Python code to make a calendar in Flask"
+                    },
+                    "agent": {
+                        "id": "53276573",
+                        "text": "Here is the code you requested: <...>"
+                    }
+                },
+                {
+                    "user": {
+                        "text": "Make the boxes bigger"
+                    },
+                    "agent": {
+                        "id": "53276573",
+                        "text": "Here is the code you requested: <...>"
+                    }
+                },
+                {
+                    "user": {
+                        "text": "Make the backend now"
+                    },
+                    "agent": {
+                        "id": "55576553",
+                        "text": "Here is the code you requested: <...>"
+                    }
+                },
+                {
+                    "user": {
+                        "text": "Write some tests"
+                    },
+                    "agent": {
+                        "id": "53479993",
+                        "text": "Here are the test results: <...>"
+                    }
+                }
+            ]
+        }
+    ]
+}

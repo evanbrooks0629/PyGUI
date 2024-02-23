@@ -1,0 +1,93 @@
+{
+    "agents": [
+        {
+            "id": "53489553",
+            "name": "User",
+            "code_execution_config": {
+                "work_dir": "coding",
+                "use_docker": false
+            },  
+            "description": "User",
+            "termination_msg": "finished",
+            "human_input_mode": "NEVER",
+            "max_consecutive_auto_reply": 1,
+            "system_message": "",
+            "skills": ["Input"]
+        },
+        {
+            "id": "53412553",
+            "name": "Researcher",
+            "description": "Searches the web for information",
+            "max_consecutive_auto_reply": 8,
+            "default_auto_reply": "",
+            "llm_config": {
+                "model": "Mistral-7B Chat Int4",
+                "base_url": "127.0.0.1:8081",
+                "api_type": "openai",
+                "api_key": "NULL"
+            },
+            "skills": ["Write", "Search"],
+            "system_message": "You are great at digging into the depths of the internet and finding hard-to-get data."
+        },
+        {
+            "id": "53476553",
+            "name": "Writer",
+            "description": "Is great at writing",
+            "max_consecutive_auto_reply": 8,
+            "default_auto_reply": "",
+            "llm_config": {
+                "model": "Mistral-7B Chat Int4",
+                "base_url": "127.0.0.1:8081",
+                "api_type": "openai",
+                "api_key": "NULL"
+            },
+            "skills": ["Write", "Search"],
+            "system_message": "You are a professional writer, known for your insightful and engaging articles. You transform complex concepts into compelling narratives. Reply 'TERMINATE' in the end when everything is done."
+        },
+        {
+            "id": "53276573",
+            "name": "Front End Developer",
+            "description": "Is great at writing front-end code",
+            "max_consecutive_auto_reply": 8,
+            "default_auto_reply": "",
+            "llm_config": {
+                "model": "Mistral-7B Chat Int4",
+                "base_url": "127.0.0.1:8081",
+                "api_type": "openai",
+                "api_key": "NULL"
+            },
+            "skills": ["Design", "Code"],
+            "system_message": "You are a professional front-end developer, specializing in React.js."
+        },
+        {
+            "id": "55576553",
+            "name": "Back End Developer",
+            "description": "Is great at writing back-end code",
+            "max_consecutive_auto_reply": 8,
+            "default_auto_reply": "",
+            "llm_config": {
+                "model": "Mistral-7B Chat Int4",
+                "base_url": "127.0.0.1:8081",
+                "api_type": "openai",
+                "api_key": "NULL"
+            },
+            "skills": ["Design", "Code"],
+            "system_message": "You are a professional back-end developer, specializing in Express.js."
+        },
+        {
+            "id": "53479993",
+            "name": "Tester",
+            "description": "Is great at testing",
+            "max_consecutive_auto_reply": 8,
+            "default_auto_reply": "",
+            "llm_config": {
+                "model": "Mistral-7B Chat Int4",
+                "base_url": "127.0.0.1:8081",
+                "api_type": "openai",
+                "api_key": "NULL"
+            },
+            "skills": ["Test"],
+            "system_message": "You are a professional application tester, specializing in Jest for automation tests."
+        }
+    ]
+}
