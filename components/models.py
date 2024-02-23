@@ -26,4 +26,16 @@ class ModelsFrame(QFrame):
         mainhbox.addWidget(agentsTasksFrame)
         self.setLayout(mainhbox)
 
-    def modelBox(self, lis
+    def modelBox(self, list_of_model_objects):
+        # return a small box for recent chat
+        return []
+
+    def loadModels(self):
+        # parse json data and get all chats
+        file = open('./data/models.json')
+        data = json.load(file)
+        models = self.functionBox(data["models"])
+        return models
+
+### TODO:
+    # [ ] Rename variables

@@ -26,4 +26,17 @@ class TeamsFrame(QFrame):
         mainhbox.addWidget(agentsTasksFrame)
         self.setLayout(mainhbox)
 
-    def teamBox(self, list_
+    def teamBox(self, list_of_team_objects):
+        # return a small box for recent chat
+        return []
+
+    def loadTeams(self):
+        # parse json data and get all chats
+        file = open('./data/teams.json')
+        data = json.load(file)
+        teams = self.teamBox(data["teams"])
+        return teams
+    
+
+### TODO:
+    # [ ] Rename variables

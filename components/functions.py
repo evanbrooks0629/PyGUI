@@ -26,4 +26,17 @@ class FunctionsFrame(QFrame):
         mainhbox.addWidget(agentsTasksFrame)
         self.setLayout(mainhbox)
 
-    def functionBox(sel
+    def functionBox(self, list_of_function_objects):
+        # return a small box for recent chat
+        return []
+
+    def loadFunctions(self):
+        # parse json data and get all chats
+        file = open('./data/functions.json')
+        data = json.load(file)
+        functions = self.functionBox(data["functions"])
+        return functions
+    
+
+### TODO:
+    # [ ] Rename variables
