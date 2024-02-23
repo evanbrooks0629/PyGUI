@@ -1,8 +1,9 @@
 from PyQt6.QtWidgets import *
 from PyQt6.QtGui import *
 from PyQt6.QtCore import *
+import json
 
-class SettingsFrame(QFrame):
+class TeamsFrame(QFrame):
     def __init__(self):
         super().__init__()
 
@@ -25,5 +26,4 @@ class SettingsFrame(QFrame):
         mainhbox.addWidget(agentsTasksFrame)
         self.setLayout(mainhbox)
 
-### TODO:
-    # [ ] Rename variables
+    def teamBox(self, list_

@@ -125,6 +125,11 @@ class DashboardFrame(QFrame):
         row, col = 1, 0
         for i in range(1, numTasks + 1):
             button = QPushButton(f"Button {i}", tasksFrame)
+            button.setStyleSheet("""
+                background-color: #5E5E5E;
+                height: 30;
+                border-radius: 10;
+            """)
             tasksLayout.addWidget(button, row, col)
             col = 0
             row += 1
