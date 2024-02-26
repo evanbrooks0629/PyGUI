@@ -1,3 +1,4 @@
+from PyQt6.QtGui import QMouseEvent
 from PyQt6.QtWidgets import *
 from PyQt6.QtGui import *
 from PyQt6.QtCore import *
@@ -36,6 +37,23 @@ class ClickableFrame(QFrame):
             pen.setJoinStyle(Qt.PenJoinStyle.RoundJoin)  # For rounded corners
             painter.setPen(pen)
             painter.drawRoundedRect(1, 1, self.width() - 2, self.height() - 2, 10, 10)  
+
+class AddButton(QPushButton):
+    def __init__(self):
+        super().__init__()
+        self.setCursor(QCursor(Qt.CursorShape.PointingHandCursor))
+        self.clicked = False
+        self.setStyleSheet("""
+            background-color: transparent;
+            border: 2px solid #75DBE9;
+            height: 50;
+            border-radius: 10;
+            color: #75DBE9;
+        """)
+        self.setText("Add Agent")
+    
+    def mousePressEvent(self, event):
+        print("Adding Agent Clicked")
 
 
 class AgentsFrame(QFrame):
@@ -89,16 +107,20 @@ class AgentsFrame(QFrame):
         agentsLabel.setAlignment(Qt.AlignmentFlag.AlignCenter)
         agentsLabel.setFont(bold)
         agentsFrame.setStyleSheet("background-color: #5E5E5E; border-radius: 20;")
-        # agentsFrame.setFixedWidth(650)
         agentsLayout.addWidget(agentsLabel, 0, 0, 1, 3)  # Span label across 3 columns
+
+        addButton = AddButton()
+        # addButton.setFixedSize(80, 40)
+        agentsLayout.addWidget(addButton, 0, 2, 1, 1)
 
         row, col = 1, 0
         for currentAgent in list_of_agent_objects:
             obj = currentAgent
             #print(obj)
             agentBox = ClickableFrame(obj, self)
-            agentBox.setFixedWidth(190)
+            # agentBox.stretch
             agentBox.setFixedHeight(200)
+            # agentBox.setS
             agentBox.setStyleSheet("""
                 background-color: #464545;
                 border-radius: 10;
@@ -111,16 +133,47 @@ class AgentsFrame(QFrame):
             nameLabel = QLabel(name)
             nameLabel.setAlignment(Qt.AlignmentFlag.AlignCenter)
             nameLabel.setFont(bold)
+            nameLabel.setFixedHeight(25)
             descriptionLabel = QLabel(description)
+            descriptionLabel.setWordWrap(True)
             # descriptionLabel.setAlignment(Qt.AlignmentFlag.AlignCenter)
-            systemMessageLabel = QLabel(system_message)
+            # systemMessageLabel = QLabel(system_message)
             # systemMessageLabel.setAlignment(Qt.AlignmentFlag.AlignCenter)
-            skillsLabel = QLabel(skills[0])
-            skillsLabel.setAlignment(Qt.AlignmentFlag.AlignCenter)
             agentVBox.addWidget(nameLabel)
+            nameLine = QLabel()
+            nameLine.setStyleSheet("""
+                background-color: #5E5E5E;
+                border-radius: 0;
+            """)
+            nameLine.setFixedHeight(2)
+            agentVBox.addWidget(nameLine)
+            descriptionLine = QLabel()
+            descriptionLine.setStyleSheet("""
+                background-color: #5E5E5E;
+                border-radius: 0;
+            """)
+            descriptionLine.setFixedHeight(2)
             agentVBox.addWidget(descriptionLabel)
-            agentVBox.addWidget(systemMessageLabel)
-            agentVBox.addWidget(skillsLabel)
+            agentVBox.addWidget(descriptionLine)
+            # agentVBox.addWidget(systemMessageLabel)
+
+            skillsText = QLabel("Functions:")
+            agentVBox.addWidget(skillsText)
+
+
+            for i in range(len(skills)):
+                skillsLabel = QLabel(skills[i])
+                skillsLabel.setAlignment(Qt.AlignmentFlag.AlignCenter)
+                skillsLabel.setStyleSheet("""
+                    border: 1px solid white;
+                    padding-left: 2;
+                    padding-right: 2;
+                    border-radius: 5;
+                    font-size: 24;
+                """)
+                skillsLabel.setFixedHeight(25)
+                agentVBox.addWidget(skillsLabel)
+
             agentBox.setLayout(agentVBox)
             self.allBoxes.append(agentBox)
             agentsLayout.addWidget(agentBox, row, col)
@@ -128,6 +181,7 @@ class AgentsFrame(QFrame):
             if col == 3:
                 col = 0
                 row += 1
+
         agentsLayout.setAlignment(Qt.AlignmentFlag.AlignTop)
         agentsFrame.setLayout(agentsLayout)
         return agentsFrame

@@ -7,7 +7,7 @@
                 "work_dir": "coding",
                 "use_docker": false
             },  
-            "description": "User",
+            "description": "User Proxy Agent",
             "termination_msg": "finished",
             "human_input_mode": "NEVER",
             "max_consecutive_auto_reply": 1,

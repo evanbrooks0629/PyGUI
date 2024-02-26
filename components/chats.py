@@ -3,6 +3,7 @@ from PyQt6.QtGui import *
 from PyQt6.QtCore import *
 from components.agents import AgentsFrame
 import json
+from datetime import datetime
 
 class ChatsFrame(QFrame):
     def __init__(self):
@@ -13,6 +14,20 @@ class ChatsFrame(QFrame):
             border-radius: 20;
         """)
         mainhbox = QHBoxLayout()
+
+        chatHistoryFrame = QFrame()
+        chatHistoryFrame.setStyleSheet("""
+            background-color: #5E5E5E; 
+            border-radius: 20;              
+        """)
+        chatHistoryFrame.setFixedWidth(200)
+        vlay = QVBoxLayout()
+        
+        pastChats = self.loadChats()
+        for i in range(len(pastChats)):
+            vlay.addWidget(pastChats[i])
+        vlay.addStretch()
+        chatHistoryFrame.setLayout(vlay)
 
         chatFrame = QFrame()
         chatFrame.setStyleSheet("""
@@ -48,12 +63,28 @@ class ChatsFrame(QFrame):
 
         chatFrame.setLayout(chatVBox)
 
+        mainhbox.addWidget(chatHistoryFrame)
         mainhbox.addWidget(chatFrame)
         self.setLayout(mainhbox)
 
     def chatBox(self, list_of_chat_objects):
         # return a small box for recent chat
-        return []
+        chatBoxes = []
+        N = range(len(list_of_chat_objects))[::-1]
+        for i in N:
+            box = QFrame()
+            name = QLabel(list_of_chat_objects[i]["name"])
+            date = QLabel(list_of_chat_objects[i]["date"])
+            vlay = QVBoxLayout()
+            vlay.addWidget(name)
+            vlay.addWidget(date)
+            box.setLayout(vlay)
+            box.setStyleSheet("""
+                background-color: #464545;
+                border-radius: 10;
+            """)
+            chatBoxes.append(box)
+        return chatBoxes
 
     def loadChats(self):
         # parse json data and get all chats
