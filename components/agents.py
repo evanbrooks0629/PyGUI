@@ -238,24 +238,24 @@ class AgentsFrame(QFrame):
         scroll_area.setWidgetResizable(True)
         scroll_bar = scroll_area.verticalScrollBar()
         scroll_bar.setStyleSheet("QScrollBar:vertical { background: #5E5E5E; width: 14px;}")
-        scroll_area.setStyleSheet("QScrollArea { margin-right: 100px; }")
+        scroll_area.setStyleSheet("QScrollArea { margin-left: 20px; margin-right: 40px; max-height: 10em; max-width: 20em }")
 
         checkbox_widget = QWidget()
         checkbox_layout = QVBoxLayout(checkbox_widget)
-        checkbox_layout.setContentsMargins(100, 0, 0, 0)
+        checkbox_layout.setContentsMargins(80, 0, 0, 0)
 
         file = open('./data/functions.json')
         data = json.load(file)
         functions = data["functions"]
 
-        # for currentFunction in functions:
-        #     checkbox = QCheckBox(currentFunction['name'])
-        #     checkbox_layout.addWidget(checkbox)
-        #     self.checkboxes.append(checkbox)
-        for i in range(20):
-            checkbox = QCheckBox(f"Checkbox {i+1}")
+        for currentFunction in functions:
+            checkbox = QCheckBox('   ' + currentFunction['name'])
             checkbox_layout.addWidget(checkbox)
             self.checkboxes.append(checkbox)
+        # for i in range(20):
+        #     checkbox = QCheckBox(f"Checkbox {i+1}")
+        #     checkbox_layout.addWidget(checkbox)
+        #     self.checkboxes.append(checkbox)
 
         # select_all_checkbox = QCheckBox("Select All")
         # deselect_all_checkbox = QCheckBox("Deselect All")
@@ -304,7 +304,7 @@ class AgentsFrame(QFrame):
         deselect_all_button.clicked.connect(self.deselect_all_checkboxes)
         #selectDeselect = self.alignHorizontal(select_all_button, deselect_all_button)
         allWidget = QWidget()
-        allLayout = QVBoxLayout()
+        allLayout = QHBoxLayout()
         allLayout.addWidget(select_all_button)
         allLayout.addWidget(deselect_all_button)
         allWidget.setLayout(allLayout)
@@ -319,15 +319,26 @@ class AgentsFrame(QFrame):
         skillsWidget = QWidget()
         skillLayout = QHBoxLayout()
         skillLabel = self.setLabel('Skills')
-        skillLayout.addWidget(skillLabel)
-        skillLayout.addWidget(scroll_area)
-        skillLayout.addWidget(allWidget)
-        # skillLayout.setStretchFactor(scroll_area, 4) 
-        # skillLayout.setStretchFactor(scroll_area, 3) 
-        # skillLayout.setStretchFactor(allWidget, 1)
-        skillsWidget.setLayout(skillLayout)
-        #skillSection = self.alignHorizontal(self.setLabel('Skills'), skillsWidget)
+        #skillLabel.setContentsMargins(0,0,50,0)
 
+        checksWidget = QWidget()
+        checksWidget.setContentsMargins(0,0,125,0)
+        checksLayout = QVBoxLayout()
+        separateLine = QLabel()
+        separateLine.setStyleSheet("""
+            background-color: #5E5E5E;
+            border-radius: 0;
+        """)
+        separateLine.setFixedHeight(2)
+        checksLayout.addWidget(scroll_area)
+        checksLayout.addWidget(separateLine)
+        checksLayout.addWidget(allWidget)
+        checksWidget.setLayout(checksLayout)
+        skillLabel.setAlignment(Qt.AlignmentFlag.AlignTop)
+        skillLayout.addWidget(skillLabel)
+        skillLayout.addWidget(checksWidget)
+        skillsWidget.setLayout(skillLayout)
+        skillsWidget.setFixedHeight(250)
         contentLayout.addWidget(skillsWidget)
 
 
@@ -335,7 +346,7 @@ class AgentsFrame(QFrame):
             text=" Create Agent", icon=QIcon('./assets/Sparkling.png')
         )
         createButton.setFixedWidth(150)
-        createButton.setFixedHeight(40)
+        createButton.setFixedHeight(50)
         createButton.setStyleSheet('''
             QPushButton {
                 border: 0px solid #ffffff;
