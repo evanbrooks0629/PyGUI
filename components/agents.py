@@ -5,6 +5,7 @@ import json
 
 class ClickableFrame(QFrame):
     # acts as a button
+    # note: we could implement multi-select functionality in the future for team creation?
     def __init__(self, currentAgent, widget):
         super().__init__()
 
@@ -14,6 +15,7 @@ class ClickableFrame(QFrame):
         self.setCursor(QCursor(Qt.CursorShape.PointingHandCursor))
 
         # import any information needed from the agent for editing
+        self.agent = currentAgent #raw json information
         self.name = currentAgent['name']
         self.description = currentAgent['description']
         self.system_message = currentAgent['system_message']
@@ -23,7 +25,8 @@ class ClickableFrame(QFrame):
 
     def mousePressEvent(self, event):
         print(self.name ,"Frame Clicked!")
-        self.widget.resetBorders(self)
+        self.widget.resetBorders(self) #unmark the borders of the previously clicked agent
+        self.widget.editAgent(self.agent) #change the right panel to match the clicked agent's json info
         self.clicked = not self.clicked
         self.update()
 
@@ -45,8 +48,10 @@ class AgentsFrame(QFrame):
         # Keep track of all agent boxes
         self.allBoxes = []
 
+        #Keep track of all checkboxes
+        self.checkboxes = []
+
         # Set tab style
-        # frame = QFrame()
         self.setStyleSheet("background-color: #464545; border-radius: 20;")
         mainhbox = QHBoxLayout()
 
@@ -66,16 +71,13 @@ class AgentsFrame(QFrame):
         viewVBox.addWidget(agentScroll)
         viewFrame.setLayout(viewVBox)
        
-        agentsTasksFrame = QFrame()
-        agentsTasksFrame.setStyleSheet("background-color: #5E5E5E; border-radius: 20;")
-        agentsTasksVBox = QVBoxLayout()
-        agentsTasksFrame.setLayout(agentsTasksVBox)
+        agentsBuildFrame = self.buildAgent() #initialize right panel to build a new agent
 
         mainhbox.addWidget(viewFrame)
-        mainhbox.addWidget(agentsTasksFrame)
+        mainhbox.addWidget(agentsBuildFrame)
 
         mainhbox.setStretchFactor(viewFrame, 1) #equally sized left and right panels
-        mainhbox.setStretchFactor(agentsTasksFrame, 1)
+        mainhbox.setStretchFactor(agentsBuildFrame, 1)
         self.setLayout(mainhbox)
         
 
@@ -89,7 +91,6 @@ class AgentsFrame(QFrame):
         agentsLabel.setAlignment(Qt.AlignmentFlag.AlignCenter)
         agentsLabel.setFont(bold)
         agentsFrame.setStyleSheet("background-color: #5E5E5E; border-radius: 20;")
-        # agentsFrame.setFixedWidth(650)
         agentsLayout.addWidget(agentsLabel, 0, 0, 1, 3)  # Span label across 3 columns
 
         row, col = 1, 0
@@ -112,9 +113,7 @@ class AgentsFrame(QFrame):
             nameLabel.setAlignment(Qt.AlignmentFlag.AlignCenter)
             nameLabel.setFont(bold)
             descriptionLabel = QLabel(description)
-            # descriptionLabel.setAlignment(Qt.AlignmentFlag.AlignCenter)
             systemMessageLabel = QLabel(system_message)
-            # systemMessageLabel.setAlignment(Qt.AlignmentFlag.AlignCenter)
             skillsLabel = QLabel(skills[0])
             skillsLabel.setAlignment(Qt.AlignmentFlag.AlignCenter)
             agentVBox.addWidget(nameLabel)
@@ -131,6 +130,290 @@ class AgentsFrame(QFrame):
         agentsLayout.setAlignment(Qt.AlignmentFlag.AlignTop)
         agentsFrame.setLayout(agentsLayout)
         return agentsFrame
+
+    def editAgent(self, clicked_agent):
+        bold = QFont()
+        bold.setBold(True)
+
+        editFrame = QFrame()
+        editLayout = QVBoxLayout()
+        editLabel = QLabel("Edit Your Agent")
+        editLabel.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        editLabel.setFont(bold)
+        editFrame.setStyleSheet("background-color: #5E5E5E; border-radius: 20;")
+        editLayout.addWidget(editLabel)
+
+        return editFrame
+
+    def buildAgent(self):
+        bold = QFont() #font for title
+        bold.setBold(True)
+        text_color = QColor(117, 219, 233)  # blue for field labels
+
+        #lighter outer box
+        editFrame = QFrame()
+        editLayout = QVBoxLayout()
+        editLabel = QLabel("Build Your Agent")
+        editLabel.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        editLabel.setFont(bold)
+        editFrame.setStyleSheet("background-color: #5E5E5E; border-radius: 20;")
+        editLayout.addWidget(editLabel)
+        editLayout.setAlignment(Qt.AlignmentFlag.AlignCenter)
+
+        #darker box
+        contentBox = QFrame()
+        contentLayout = QVBoxLayout()
+        contentBox.setStyleSheet("""
+                background-color: #464545;
+                border-radius: 10;
+            """)
+
+        #text fields
+        contentLayout.addWidget(self.alignTextEditFields("Role", "Ex. Backend Engineer"))
+        contentLayout.addWidget(self.alignTextEditFields("Description", "Ex. ..."))
+        contentLayout.addWidget(self.alignTextEditFields("System Message", "Ex. ..."))
+
+        # LLM dropdown
+        LLM_label = self.setLabel('LLM')
+        LLMcombobox = QComboBox()
+        LLMcombobox.setStyleSheet("QComboBox { background-color: #5E5E5E; border-radius: 10px; padding: 5px; }")
+        
+        #pull from models.json
+        file = open('./data/models.json')
+        data = json.load(file)
+        models = data["models"]
+
+        for currentModel in models:
+            LLMcombobox.addItem(currentModel['model'])
+
+        importButton = QPushButton(
+            text=" Import", icon=QIcon('./assets/Vector.png')
+        )
+        #importButton.setFixedWidth(0)
+        importButton.setFixedHeight(30)
+        importButton.setStyleSheet('''
+            QPushButton {
+                border: 0px solid #ffffff;
+                border-radius: 10px;
+                padding: 5px;
+                background-color: #5E5E5E;
+                color: #ffffff;
+                font: 12px;
+            }
+
+            QPushButton:hover {
+                background-color: #ffffff;
+            }
+
+            QPushButton:pressed {
+                background-color: #5E5E5E;
+            }
+        ''')
+
+        box = QFrame()
+        layout = QHBoxLayout()
+        layout.addWidget(LLM_label)
+        layout.addWidget(LLMcombobox)
+        layout.addWidget(importButton)
+        box.setLayout(layout)
+
+        contentLayout.addWidget(box)
+
+        # Max consec auto reply
+        max_label = self.setLabel('Max. Consecutive Auto Reply')
+        max_label.setFixedWidth(200)
+        maxInput = QLineEdit()
+        maxInput.setPlaceholderText("Enter an integer 0-8")  # Set example text
+        maxInput.setStyleSheet("QLineEdit { background-color: #5E5E5E; border-radius: 10px; padding: 5px; }")
+
+        onlyInt = QIntValidator()
+        onlyInt.setRange(0, 8)
+        maxInput.setValidator(onlyInt)
+
+        contentLayout.addWidget(self.alignHorizontal(max_label, maxInput))
+
+        #skills checkbox section
+        widge = QWidget()
+        scroll_area = QScrollArea(widge)
+        scroll_area.setWidgetResizable(True)
+        scroll_bar = scroll_area.verticalScrollBar()
+        scroll_bar.setStyleSheet("QScrollBar:vertical { background: #5E5E5E; width: 14px;}")
+        scroll_area.setStyleSheet("QScrollArea { margin-right: 100px; }")
+
+        checkbox_widget = QWidget()
+        checkbox_layout = QVBoxLayout(checkbox_widget)
+        checkbox_layout.setContentsMargins(100, 0, 0, 0)
+
+        file = open('./data/functions.json')
+        data = json.load(file)
+        functions = data["functions"]
+
+        # for currentFunction in functions:
+        #     checkbox = QCheckBox(currentFunction['name'])
+        #     checkbox_layout.addWidget(checkbox)
+        #     self.checkboxes.append(checkbox)
+        for i in range(20):
+            checkbox = QCheckBox(f"Checkbox {i+1}")
+            checkbox_layout.addWidget(checkbox)
+            self.checkboxes.append(checkbox)
+
+        # select_all_checkbox = QCheckBox("Select All")
+        # deselect_all_checkbox = QCheckBox("Deselect All")
+        select_all_button = QPushButton("Select All")
+        select_all_button.setStyleSheet('''
+            QPushButton {
+                border: 0px solid #ffffff;
+                border-radius: 10px;
+                padding: 5px;
+                background-color: #5E5E5E;
+                color: #ffffff;
+                font: 12px;
+            }
+
+            QPushButton:hover {
+                background-color: #ffffff;
+            }
+
+            QPushButton:pressed {
+                background-color: #5E5E5E;
+            }
+        ''')
+        deselect_all_button = QPushButton("Deselect All")
+        deselect_all_button.setStyleSheet('''
+            QPushButton {
+                border: 0px solid #ffffff;
+                border-radius: 10px;
+                padding: 5px;
+                background-color: #5E5E5E;
+                color: #ffffff;
+                font: 12px;
+            }
+
+            QPushButton:hover {
+                background-color: #ffffff;
+            }
+
+            QPushButton:pressed {
+                background-color: #5E5E5E;
+            }
+        ''')
+
+        # select_all_checkbox.stateChanged.connect(self.select_all_checkboxes)
+        # deselect_all_checkbox.stateChanged.connect(self.deselect_all_checkboxes)
+        select_all_button.clicked.connect(self.select_all_checkboxes)
+        deselect_all_button.clicked.connect(self.deselect_all_checkboxes)
+        #selectDeselect = self.alignHorizontal(select_all_button, deselect_all_button)
+        allWidget = QWidget()
+        allLayout = QVBoxLayout()
+        allLayout.addWidget(select_all_button)
+        allLayout.addWidget(deselect_all_button)
+        allWidget.setLayout(allLayout)
+        # allWidget.setStyleSheet("QWidget { margin-right: 50px; }")
+
+        # selectDeselect = self.alignHorizontal(select_all_checkbox, deselect_all_checkbox)
+        # for i in range(20):
+        #     checkbox = QCheckBox(f"Checkbox {i+1}")
+        #     checkbox_layout.addWidget(checkbox)
+
+        scroll_area.setWidget(checkbox_widget)
+        skillsWidget = QWidget()
+        skillLayout = QHBoxLayout()
+        skillLabel = self.setLabel('Skills')
+        skillLayout.addWidget(skillLabel)
+        skillLayout.addWidget(scroll_area)
+        skillLayout.addWidget(allWidget)
+        # skillLayout.setStretchFactor(scroll_area, 4) 
+        # skillLayout.setStretchFactor(scroll_area, 3) 
+        # skillLayout.setStretchFactor(allWidget, 1)
+        skillsWidget.setLayout(skillLayout)
+        #skillSection = self.alignHorizontal(self.setLabel('Skills'), skillsWidget)
+
+        contentLayout.addWidget(skillsWidget)
+
+
+        createButton = QPushButton(
+            text=" Create Agent", icon=QIcon('./assets/Sparkling.png')
+        )
+        createButton.setFixedWidth(150)
+        createButton.setFixedHeight(40)
+        createButton.setStyleSheet('''
+            QPushButton {
+                border: 0px solid #ffffff;
+                border-radius: 10px;
+                padding: 5px;
+                background-color: #5E5E5E;
+                color: #75DBE9;
+                font: 15px;
+            }
+
+            QPushButton:hover {
+                background-color: #ffffff;
+            }
+
+            QPushButton:pressed {
+                background-color: #5E5E5E;
+            }
+        ''')
+        
+        contentLayout.addWidget(createButton, alignment=Qt.AlignmentFlag.AlignCenter)
+        contentLayout.setAlignment(Qt.AlignmentFlag.AlignTop)
+        contentBox.setLayout(contentLayout)
+
+        editLayout.addWidget(contentBox)
+        editLayout.setStretchFactor(contentBox, 1)
+        editFrame.setLayout(editLayout)
+
+
+        #edit json file
+        # file = open('./data/agents.json')
+        # data = json.load(file)
+
+        return editFrame
+
+    def select_all_checkboxes(self):
+        for checkbox in self.checkboxes:
+            checkbox.setChecked(True)
+
+    def deselect_all_checkboxes(self):
+        for checkbox in self.checkboxes:
+            checkbox.setChecked(False)
+    # def select_all_checkboxes(self, state):
+    #     for checkbox in self.checkboxes:
+    #         checkbox.setChecked(state == Qt.CheckState.Checked)
+
+    # def deselect_all_checkboxes(self, state):
+    #     for checkbox in self.checkboxes:
+    #         checkbox.setChecked(state != Qt.CheckState.Checked)
+
+    def alignTextEditFields(self, label, fieldInput):
+        fieldLabel = self.setLabel(label)
+        # fieldLabel.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        field_input = QLineEdit()
+        field_input.setPlaceholderText(fieldInput)  # Set example text
+        field_input.setStyleSheet("QLineEdit { background-color: #5E5E5E; border-radius: 10px; padding: 5px; }")
+
+        box = self.alignHorizontal(fieldLabel, field_input)
+        return box
+    
+    def alignHorizontal(self, content1, content2):
+        box = QFrame()
+        layout = QHBoxLayout()
+        layout.addWidget(content1)
+        layout.addWidget(content2)
+        box.setLayout(layout)
+        return box
+    
+    def setLabel(self, label):
+        bold = QFont() #font for title
+        bold.setBold(True)
+        text_color = QColor(117, 219, 233)  # blue for field labels
+
+        fieldLabel = QLabel(label)
+        fieldLabel.setFont(bold)
+        fieldLabel.setStyleSheet(f"color: {text_color.name()};")
+        fieldLabel.setFixedWidth(110)  # Set a fixed width for the label
+
+        return fieldLabel
 
     def resetBorders(self, clicked_frame):
         # Reset borders of all clickable frames except the clicked frame
