@@ -38,7 +38,7 @@ class ClickableFrame(QFrame):
             painter.setPen(pen)
             painter.drawRoundedRect(1, 1, self.width() - 2, self.height() - 2, 10, 10)  
 
-class AddButton(QPushButton):
+class AddAgentButton(QPushButton):
     def __init__(self):
         super().__init__()
         self.setCursor(QCursor(Qt.CursorShape.PointingHandCursor))
@@ -109,7 +109,7 @@ class AgentsFrame(QFrame):
         agentsFrame.setStyleSheet("background-color: #5E5E5E; border-radius: 20;")
         agentsLayout.addWidget(agentsLabel, 0, 0, 1, 3)  # Span label across 3 columns
 
-        addButton = AddButton()
+        addButton = AddAgentButton()
         # addButton.setFixedSize(80, 40)
         agentsLayout.addWidget(addButton, 0, 2, 1, 1)
 

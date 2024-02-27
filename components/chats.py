@@ -5,6 +5,41 @@ from components.agents import AgentsFrame
 import json
 from datetime import datetime
 
+class NewChatButton(QPushButton):
+    def __init__(self):
+        super().__init__()
+        self.setCursor(QCursor(Qt.CursorShape.PointingHandCursor))
+        self.clicked = False
+        self.setStyleSheet("""
+            background-color: transparent;
+            border: 2px solid #75DBE9;
+            height: 50;
+            border-radius: 10;
+            color: #75DBE9;
+        """)
+        self.setText("New Chat")
+    
+    def mousePressEvent(self, event):
+        print("New Chat Clicked")
+
+class SendChatButton(QPushButton):
+    def __init__(self):
+        super().__init__()
+        self.setCursor(QCursor(Qt.CursorShape.PointingHandCursor))
+        self.clicked = False
+        self.setStyleSheet("""
+            background-color: transparent;
+            border: 2px solid #75DBE9;
+            height: 50;
+            border-radius: 10;
+            color: #75DBE9;
+        """)
+        self.setText("Send")
+        self.setFixedWidth(100)
+    
+    def mousePressEvent(self, event):
+        print("New Chat Clicked")
+
 class ChatsFrame(QFrame):
     def __init__(self):
         super().__init__()
@@ -13,6 +48,7 @@ class ChatsFrame(QFrame):
             background-color: #464545; 
             border-radius: 20;
         """)
+
         mainhbox = QHBoxLayout()
 
         chatHistoryFrame = QFrame()
@@ -22,7 +58,21 @@ class ChatsFrame(QFrame):
         """)
         chatHistoryFrame.setFixedWidth(200)
         vlay = QVBoxLayout()
+
+        # top of chats
+        # new chat button and line
+        newChatButton = NewChatButton()
+        newChatLine = QLabel()
+        newChatLine.setStyleSheet("""
+            background-color: #464545;
+            border-radius: 0;
+        """)
+        newChatLine.setFixedHeight(2)
+
+        vlay.addWidget(newChatButton)
+        vlay.addWidget(newChatLine)
         
+        # chat boxes
         pastChats = self.loadChats()
         for i in range(len(pastChats)):
             vlay.addWidget(pastChats[i])
@@ -47,19 +97,31 @@ class ChatsFrame(QFrame):
             border-radius: 20;
             padding: 20;
         """)
-        chatBox.setFixedHeight(200)
+        # chatBox.setFixedHeight(200)
         chatBox.setWordWrap(True)
 
+        bottom = QFrame()
+        bottom.setFixedHeight(150)
+        bottomlay = QHBoxLayout()
+        
         textBox = QPlainTextEdit()
         textBox.setStyleSheet("""
             background-color: #464545;
             color: #ffffff;
             padding: 20;
         """)
+        # textBox.setFixedHeight(50)
         textBox.setPlaceholderText("Type anything...")
 
+        sendChatButton = SendChatButton()
+
+        bottomlay.addWidget(textBox)
+        bottomlay.addWidget(sendChatButton)
+        bottom.setLayout(bottomlay)
+
         chatVBox.addWidget(chatBox)
-        chatVBox.addWidget(textBox)
+        chatVBox.addWidget(bottom)
+        
 
         chatFrame.setLayout(chatVBox)
 
