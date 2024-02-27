@@ -51,6 +51,8 @@ class AddAgentButton(QPushButton):
             color: #75DBE9;
         """)
         self.setText("Add Agent")
+        self.setIcon(QIcon('./assets/AddAgentIcon.png'))
+        self.setIconSize(QSize(48, 24))
     
     def mousePressEvent(self, event):
         print("Adding Agent Clicked")

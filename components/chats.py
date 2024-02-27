@@ -18,6 +18,8 @@ class NewChatButton(QPushButton):
             color: #75DBE9;
         """)
         self.setText("New Chat")
+        self.setIcon(QIcon('./assets/NewChatIcon.png'))
+        self.setIconSize(QSize(48, 24))
     
     def mousePressEvent(self, event):
         print("New Chat Clicked")
@@ -29,16 +31,16 @@ class SendChatButton(QPushButton):
         self.clicked = False
         self.setStyleSheet("""
             background-color: transparent;
-            border: 2px solid #75DBE9;
             height: 50;
             border-radius: 10;
             color: #75DBE9;
         """)
-        self.setText("Send")
         self.setFixedWidth(100)
+        self.setIcon(QIcon('./assets/SendIcon.png'))
+        self.setIconSize(QSize(48, 48))
     
     def mousePressEvent(self, event):
-        print("New Chat Clicked")
+        print("Send Chat Clicked")
 
 class ChatsFrame(QFrame):
     def __init__(self):
@@ -99,10 +101,12 @@ class ChatsFrame(QFrame):
         """)
         # chatBox.setFixedHeight(200)
         chatBox.setWordWrap(True)
+        chatBox.setAlignment(Qt.AlignmentFlag.AlignTop)
 
         bottom = QFrame()
         bottom.setFixedHeight(150)
         bottomlay = QHBoxLayout()
+        bottomlay.setContentsMargins(0, 0, 10, 0)
         
         textBox = QPlainTextEdit()
         textBox.setStyleSheet("""
