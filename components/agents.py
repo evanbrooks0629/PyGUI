@@ -200,4 +200,4 @@ class AgentsFrame(QFrame):
         return agents
         # loop through agents and display accordingly
 ### TODO:
-    # [ ] Rename variables
+    # [ ] Rename
