@@ -199,4 +199,7 @@ class AgentsFrame(QFrame):
         file = open('./data/agents.json')
         data = json.load(file)
         agents = self.agentBox(data["agents"])
-     
+        return agents
+        # loop through agents and display accordingly
+### TODO:
+    # [ ] Rename variables
