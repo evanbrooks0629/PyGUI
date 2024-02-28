@@ -40,6 +40,21 @@ class ClickableFrame(QFrame):
             painter.setPen(pen)
             painter.drawRoundedRect(1, 1, self.width() - 2, self.height() - 2, 10, 10)  
 
+# class AgentValues(QFrame):
+#     def __init__(self, currentAgent, widget):
+#         super().__init__()
+
+#         self.widget = widget # Keeps track of associated Agents class
+
+#         self.setFrameStyle(QFrame.Shape.StyledPanel | QFrame.Shadow.Raised)
+#         self.setCursor(QCursor(Qt.CursorShape.PointingHandCursor))
+
+#         # import any information needed from the agent for editing
+#         self.agent = currentAgent #raw json information
+#         self.name = currentAgent['name']
+#         self.description = currentAgent['description']
+#         self.system_message = currentAgent['system_message']
+#         self.skills = currentAgent['skills']
 
 class AgentsFrame(QFrame):
     def __init__(self):
@@ -222,15 +237,20 @@ class AgentsFrame(QFrame):
         # Max consec auto reply
         max_label = self.setLabel('Max. Consecutive Auto Reply')
         max_label.setFixedWidth(200)
-        maxInput = QLineEdit()
-        maxInput.setPlaceholderText("Enter an integer 0-8")  # Set example text
-        maxInput.setStyleSheet("QLineEdit { background-color: #5E5E5E; border-radius: 10px; padding: 5px; }")
-
-        onlyInt = QIntValidator()
-        onlyInt.setRange(0, 8)
-        maxInput.setValidator(onlyInt)
-
-        contentLayout.addWidget(self.alignHorizontal(max_label, maxInput))
+        slider = QSlider(Qt.Orientation.Horizontal)
+        
+        # Set slider properties
+        slider.setRange(0, 8)  # Set the range of integers
+        slider.setSingleStep(1)  # Set the step size to 1
+        slider.setValue(0)      # Set initial value
+        slider.setContentsMargins(0,100,0,0)
+        slider.setFixedHeight(50)
+        slider.setTickPosition(QSlider.TickPosition.TicksBelow)  # Display ticks above and below the slider handle
+        slider.setTickPosition(QSlider.TickPosition.TicksBelow)
+        slider.setTickInterval(1)  # Set the interval between tick values
+    
+        #slider.valueChanged.connect()
+        contentLayout.addWidget(self.alignHorizontal(max_label, slider))
 
         #skills checkbox section
         widge = QWidget()
@@ -252,13 +272,7 @@ class AgentsFrame(QFrame):
             checkbox = QCheckBox('   ' + currentFunction['name'])
             checkbox_layout.addWidget(checkbox)
             self.checkboxes.append(checkbox)
-        # for i in range(20):
-        #     checkbox = QCheckBox(f"Checkbox {i+1}")
-        #     checkbox_layout.addWidget(checkbox)
-        #     self.checkboxes.append(checkbox)
-
-        # select_all_checkbox = QCheckBox("Select All")
-        # deselect_all_checkbox = QCheckBox("Deselect All")
+    
         select_all_button = QPushButton("Select All")
         select_all_button.setStyleSheet('''
             QPushButton {
@@ -298,22 +312,13 @@ class AgentsFrame(QFrame):
             }
         ''')
 
-        # select_all_checkbox.stateChanged.connect(self.select_all_checkboxes)
-        # deselect_all_checkbox.stateChanged.connect(self.deselect_all_checkboxes)
         select_all_button.clicked.connect(self.select_all_checkboxes)
         deselect_all_button.clicked.connect(self.deselect_all_checkboxes)
-        #selectDeselect = self.alignHorizontal(select_all_button, deselect_all_button)
         allWidget = QWidget()
         allLayout = QHBoxLayout()
         allLayout.addWidget(select_all_button)
         allLayout.addWidget(deselect_all_button)
         allWidget.setLayout(allLayout)
-        # allWidget.setStyleSheet("QWidget { margin-right: 50px; }")
-
-        # selectDeselect = self.alignHorizontal(select_all_checkbox, deselect_all_checkbox)
-        # for i in range(20):
-        #     checkbox = QCheckBox(f"Checkbox {i+1}")
-        #     checkbox_layout.addWidget(checkbox)
 
         scroll_area.setWidget(checkbox_widget)
         skillsWidget = QWidget()
@@ -341,7 +346,6 @@ class AgentsFrame(QFrame):
         skillsWidget.setFixedHeight(250)
         contentLayout.addWidget(skillsWidget)
 
-
         createButton = QPushButton(
             text=" Create Agent", icon=QIcon('./assets/Sparkling.png')
         )
@@ -365,7 +369,6 @@ class AgentsFrame(QFrame):
                 background-color: #5E5E5E;
             }
         ''')
-        
         contentLayout.addWidget(createButton, alignment=Qt.AlignmentFlag.AlignCenter)
         contentLayout.setAlignment(Qt.AlignmentFlag.AlignTop)
         contentBox.setLayout(contentLayout)
@@ -388,17 +391,9 @@ class AgentsFrame(QFrame):
     def deselect_all_checkboxes(self):
         for checkbox in self.checkboxes:
             checkbox.setChecked(False)
-    # def select_all_checkboxes(self, state):
-    #     for checkbox in self.checkboxes:
-    #         checkbox.setChecked(state == Qt.CheckState.Checked)
-
-    # def deselect_all_checkboxes(self, state):
-    #     for checkbox in self.checkboxes:
-    #         checkbox.setChecked(state != Qt.CheckState.Checked)
-
+  
     def alignTextEditFields(self, label, fieldInput):
         fieldLabel = self.setLabel(label)
-        # fieldLabel.setAlignment(Qt.AlignmentFlag.AlignCenter)
         field_input = QLineEdit()
         field_input.setPlaceholderText(fieldInput)  # Set example text
         field_input.setStyleSheet("QLineEdit { background-color: #5E5E5E; border-radius: 10px; padding: 5px; }")
@@ -438,6 +433,3 @@ class AgentsFrame(QFrame):
         data = json.load(file)
         agents = self.agentBox(data["agents"])
         return agents
-        # loop through agents and display accordingly
-### TODO:
-    # [ ] Rename variables
