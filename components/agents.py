@@ -17,6 +17,31 @@ class ClickableFrame(QFrame):
         # import any information needed from the agent for editing
         self.agent = currentAgent #raw json information
         self.clicked = False #variable to keep tracked of click
+        self.setFixedWidth(190)
+        self.setFixedHeight(200)
+        self.setStyleSheet("""
+            background-color: #464545;
+            border-radius: 10;
+        """)
+        bold = QFont()
+        bold.setBold(True)
+        agentVBox = QVBoxLayout()
+        self.name = currentAgent['name']
+        self.description = currentAgent['description']
+        self.system_message = currentAgent["system_message"]
+        self.skills = currentAgent["skills"]
+        self.nameLabel = QLabel(self.name)
+        self.nameLabel.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        self.nameLabel.setFont(bold)
+        self.descriptionLabel = QLabel(self.description)
+        self.systemMessageLabel = QLabel(self.system_message)
+        #self.skillsLabel = QLabel(self.skills[0])
+        #self.skillsLabel.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        agentVBox.addWidget(self.nameLabel)
+        agentVBox.addWidget(self.descriptionLabel)
+        agentVBox.addWidget(self.systemMessageLabel)
+        #agentVBox.addWidget(self.skillsLabel)
+        self.setLayout(agentVBox)
 
     def mousePressEvent(self, event):
         print(self.agent['name'] ,"Frame Clicked!")
@@ -45,12 +70,12 @@ class AgentValues(QFrame):
         super().__init__()
 
         #parent frame
-        self.agentFrame = frame
+        self.agentFrame = frame #can actually make parent eventually
 
         #Keep track of all skills checkboxes
         self.checkboxes = []
         self.currentAgent = {
-            "id": "",
+            "id": '',
             "name": "",
             "description": "",
             "max_consecutive_auto_reply": 0,
@@ -325,19 +350,25 @@ class AgentValues(QFrame):
             found_agent['llm_config'] = self.currentAgent['llm_config'] #same issue as above
             found_agent['skills'] = self.currentAgent['skills']
             found_agent['system_message'] = self.sys_input.text()
-            self.agentFrame.agentInfo = data
-            self.agentFrame.agents.update()
-            #self.agentFrame.agents.update()
+ 
         else:
             #Create new agent
             print('new added')
+            self.currentAgent['id'] = str(int(self.agentFrame.agentInfo[-1]['id']) + 1)  #add id functionality
+            self.currentAgent['name'] = self.name_input.text()
+            self.currentAgent['description'] = self.descrip_input.text()
+            self.currentAgent['max_consecutive_auto_reply'] = self.slider.value()
+            self.currentAgent['default_auto_reply'] = self.currentAgent['default_auto_reply'] #have to check if json has these fields (threw error on first one)
+            self.currentAgent['llm_config'] = self.currentAgent['llm_config'] #same issue as above
+            self.currentAgent['skills'] = self.currentAgent['skills']
+            self.currentAgent['system_message'] = self.sys_input.text()
             data['agents'].append(self.currentAgent)
-            self.agentFrame.loadAgents()
 
         with open('./data/agents.json', 'w') as file:
                 # Write the updated data back to the file
                 json.dump(data, file, indent=2)
-        
+        #call for a new AgentsFrame QFrame
+        self.agentFrame.refreshFrame()
 
     def select_all_checkboxes(self):
         for checkbox in self.checkboxes:
@@ -373,8 +404,8 @@ class AgentValues(QFrame):
         return fieldLabel
 
 class AgentsFrame(QFrame):
-    def __init__(self):
-        super().__init__()
+    def __init__(self, parent=None):
+        super().__init__(parent)
 
         # Keep track of all agent boxes
         self.allBoxes = []
@@ -384,82 +415,66 @@ class AgentsFrame(QFrame):
 
         # Set tab style
         self.setStyleSheet("background-color: #464545; border-radius: 20;")
-        mainhbox = QHBoxLayout()
+        self.mainhbox = QHBoxLayout()
 
         # Fixed frame to embed the scroll section in
-        viewFrame = QFrame()
-        viewFrame.setStyleSheet("background-color: #5E5E5E; border-radius: 20;")
-        viewVBox = QVBoxLayout()
+        self.viewFrame = QFrame()
+        self.viewFrame.setStyleSheet("background-color: #5E5E5E; border-radius: 20;")
+        self.viewVBox = QVBoxLayout()
+        self.agentsLabel = QLabel()
 
         # Scroll section
         self.agentInfo = self.loadAgents()
-        self.agents = self.agentBox(self.agentInfo)
-        agentScroll = QScrollArea()
-        agentScroll.setWidgetResizable(True)
-        agentScroll.setWidget(self.agents)
-        agentScroll.setVerticalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
-        agentScroll.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
+        self.agents = QFrame()
+        self.clickables = []
+        self.agentsLayout = QGridLayout()
+        self.agentBox(self.agentInfo)
+        self.agentScroll = QScrollArea()
+        self.agentScroll.setWidgetResizable(True)
+        self.agentScroll.setWidget(self.agents)
+        self.agentScroll.setVerticalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
+        self.agentScroll.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
         # Embed scroll into view agents section
-        viewVBox.addWidget(agentScroll)
-        viewFrame.setLayout(viewVBox)
+        self.viewVBox.addWidget(self.agentScroll)
+        self.viewFrame.setLayout(self.viewVBox)
 
-        mainhbox.addWidget(viewFrame)
-        mainhbox.addWidget(self.editPanel)
+        self.mainhbox.addWidget(self.viewFrame)
+        self.mainhbox.addWidget(self.editPanel)
 
-        mainhbox.setStretchFactor(viewFrame, 1) #equally sized left and right panels
-        mainhbox.setStretchFactor(self.editPanel, 1)
-        self.setLayout(mainhbox)
+        self.mainhbox.setStretchFactor(self.viewFrame, 1) #equally sized left and right panels
+        self.mainhbox.setStretchFactor(self.editPanel, 1)
+        self.setLayout(self.mainhbox)
+
+    def refreshFrame(self):
+        new_frame = AgentsFrame(parent=self.parent())
+
+        self.parent().layout().replaceWidget(self, new_frame)
+        self.deleteLater()
         
 
     def agentBox(self, list_of_agent_objects):
         bold = QFont()
         bold.setBold(True)
-
-        agentsFrame = QFrame()
-        agentsLayout = QGridLayout()
-        agentsLabel = QLabel("Agents")
-        agentsLabel.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        agentsLabel.setFont(bold)
-        agentsFrame.setStyleSheet("background-color: #5E5E5E; border-radius: 20;")
-        agentsLayout.addWidget(agentsLabel, 0, 0, 1, 3)  # Span label across 3 columns
+        self.agentsLabel = QLabel('Agents')
+        self.agentsLabel.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        self.agentsLabel.setFont(bold)
+        self.agents.setStyleSheet("background-color: #5E5E5E; border-radius: 20;")
+        self.agentsLayout.addWidget(self.agentsLabel, 0, 0, 1, 3)  # Span label across 3 columns
 
         row, col = 1, 0
         for currentAgent in list_of_agent_objects:
             obj = currentAgent
             #print(obj)
             agentBox = ClickableFrame(obj, self)
-            agentBox.setFixedWidth(190)
-            agentBox.setFixedHeight(200)
-            agentBox.setStyleSheet("""
-                background-color: #464545;
-                border-radius: 10;
-            """)
-            agentVBox = QVBoxLayout()
-            name = obj['name']
-            description = obj['description']
-            system_message = obj["system_message"]
-            skills = obj["skills"]
-            nameLabel = QLabel(name)
-            nameLabel.setAlignment(Qt.AlignmentFlag.AlignCenter)
-            nameLabel.setFont(bold)
-            descriptionLabel = QLabel(description)
-            systemMessageLabel = QLabel(system_message)
-            skillsLabel = QLabel(skills[0])
-            skillsLabel.setAlignment(Qt.AlignmentFlag.AlignCenter)
-            agentVBox.addWidget(nameLabel)
-            agentVBox.addWidget(descriptionLabel)
-            agentVBox.addWidget(systemMessageLabel)
-            agentVBox.addWidget(skillsLabel)
-            agentBox.setLayout(agentVBox)
+            print(obj['name'], 'created')
             self.allBoxes.append(agentBox)
-            agentsLayout.addWidget(agentBox, row, col)
+            self.agentsLayout.addWidget(agentBox, row, col)
             col += 1
             if col == 3:
                 col = 0
                 row += 1
-        agentsLayout.setAlignment(Qt.AlignmentFlag.AlignTop)
-        agentsFrame.setLayout(agentsLayout)
-        return agentsFrame
+        self.agentsLayout.setAlignment(Qt.AlignmentFlag.AlignTop)
+        self.agents.setLayout(self.agentsLayout)
 
     def resetBorders(self, clicked_frame):
         # Reset borders of all clickable frames except the clicked frame

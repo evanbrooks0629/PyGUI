@@ -36,7 +36,7 @@
     },
     {
       "id": "53476553",
-      "name": "Writer",
+      "name": "WriterKels",
       "description": "Is great at writing",
       "max_consecutive_auto_reply": 8,
       "default_auto_reply": "",
@@ -104,6 +104,36 @@
         "Test"
       ],
       "system_message": "You are a professional application tester, specializing in Jest for automation tests."
+    },
+    {
+      "id": "53479994",
+      "name": "new test",
+      "description": "new ",
+      "max_consecutive_auto_reply": 2,
+      "default_auto_reply": "",
+      "llm_config": {
+        "model": "Mistral-7B Chat Int4",
+        "base_url": "127.0.0.1:8081",
+        "api_type": "openai",
+        "api_key": "NULL"
+      },
+      "skills": [],
+      "system_message": "newnew"
+    },
+    {
+      "id": "53479995",
+      "name": "another new",
+      "description": "newer",
+      "max_consecutive_auto_reply": 1,
+      "default_auto_reply": "",
+      "llm_config": {
+        "model": "Mistral-7B Chat Int4",
+        "base_url": "127.0.0.1:8081",
+        "api_type": "openai",
+        "api_key": "NULL"
+      },
+      "skills": [],
+      "system_message": "hi"
     }
   ]
 }
