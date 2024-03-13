@@ -6,10 +6,10 @@ import json
 class ClickableFrame(QFrame):
     # acts as a button
     # note: we could implement multi-select functionality in the future for team creation?
-    def __init__(self, currentAgent, widget):
+    def __init__(self, currentAgent, mainFrame):
         super().__init__()
 
-        self.widget = widget # Keeps track of associated AgentsFrame class
+        self.mainFrame = panel # Keeps track of associated AgentsPanel class
 
         self.setFrameStyle(QFrame.Shape.StyledPanel | QFrame.Shadow.Raised)
         self.setCursor(QCursor(Qt.CursorShape.PointingHandCursor))
@@ -45,15 +45,16 @@ class ClickableFrame(QFrame):
 
     def mousePressEvent(self, event):
         print(self.agent['name'] ,"Frame Clicked!")
-        self.widget.resetBorders(self) #unmark the borders of the previously clicked agent
+        self.agentPanel.resetBorders(self) #unmark the borders of the previously clicked agent
         self.clicked = not self.clicked
-        self.widget.editPanel.currentAgent = self.agent #self.widget.editPanel is AgentValues class
-        self.widget.editPanel.name_input.setText(self.agent['name'])
-        self.widget.editPanel.descrip_input.setText(self.agent['description'])
-        self.widget.editPanel.sys_input.setText(self.agent['system_message'])
-        self.widget.editPanel.slider.setValue(self.agent['max_consecutive_auto_reply'])     
-        self.widget.editPanel.update() # = AgentValues(self.agent).buildAgent() #change the right panel to reflect the current agent
-        self.update()
+        self.mainFrame.editPanel.currentAgent = self.agent #self.widget.editPanel is AgentValues class
+        self.mainFrame.editPanel.currentClickable = self #for updating UI after edited
+        self.mainFrame.editPanel.name_input.setText(self.agent['name'])
+        self.mainFrame.editPanel.descrip_input.setText(self.agent['description'])
+        self.mainFrame.editPanel.sys_input.setText(self.agent['system_message'])
+        self.mainFrame.editPanel.slider.setValue(self.agent['max_consecutive_auto_reply'])     
+        # self.widget.editPanel.update() # = AgentValues(self.agent).buildAgent() #change the right panel to reflect the current agent
+        # self.update()
 
     def paintEvent(self, event):
         super().paintEvent(event)
@@ -64,13 +65,21 @@ class ClickableFrame(QFrame):
             pen.setJoinStyle(Qt.PenJoinStyle.RoundJoin)  # For rounded corners
             painter.setPen(pen)
             painter.drawRoundedRect(1, 1, self.width() - 2, self.height() - 2, 10, 10)  
+    
+    def refreshFrame(self, currentAgent, widget):
+        #replacing only a single agent on edit agent
+        new_frame = ClickableFrame(currentAgent, widget, parent=self.parent())
+        self.parent().layout().replaceWidget(self, new_frame)
+        self.deleteLater()
+        # self.widget.clickableAgents
 
 class AgentValues(QFrame):
-    def __init__(self, frame):
+    def __init__(self, parent):
         super().__init__()
 
         #parent frame
-        self.agentFrame = frame #can actually make parent eventually
+        self.agentFrame = parent
+        self.currentClickable = QFrame()
 
         #Keep track of all skills checkboxes
         self.checkboxes = []
@@ -367,8 +376,15 @@ class AgentValues(QFrame):
         with open('./data/agents.json', 'w') as file:
                 # Write the updated data back to the file
                 json.dump(data, file, indent=2)
-        #call for a new AgentsFrame QFrame
-        self.agentFrame.refreshFrame()
+                #implement check if json dump successful here
+        
+        if found_agent:
+            #replace only clickable frame (agent button)
+            print('clickable replaced')
+            self.currentClickable.refreshFrame(found_agent, self.agentFrame)
+        else:
+            #call for a new AgentsFrame QFrame
+            self.agentFrame.refreshFrame()
 
     def select_all_checkboxes(self):
         for checkbox in self.checkboxes:
@@ -403,71 +419,46 @@ class AgentValues(QFrame):
 
         return fieldLabel
 
-class AgentsFrame(QFrame):
-    def __init__(self, parent=None):
-        super().__init__(parent)
-
+class AgentsPanel(QFrame):
+    def __init__(self, parent):
+        super().__init__()
         # Keep track of all agent boxes
-        self.allBoxes = []
-
-        #for changing contents of right panel
-        self.editPanel = AgentValues(self)
-
-        # Set tab style
-        self.setStyleSheet("background-color: #464545; border-radius: 20;")
-        self.mainhbox = QHBoxLayout()
-
-        # Fixed frame to embed the scroll section in
-        self.viewFrame = QFrame()
-        self.viewFrame.setStyleSheet("background-color: #5E5E5E; border-radius: 20;")
+        self.mainFrame = parent
+        self.clickableAgents = []
+        self.clickedAgent = QFrame()
+        self.setStyleSheet("background-color: #5E5E5E; border-radius: 20;")
         self.viewVBox = QVBoxLayout()
         self.agentsLabel = QLabel()
+        bold = QFont()
+        bold.setBold(True)
+        self.agentsLabel = QLabel('Agents')
+        self.agentsLabel.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        self.agentsLabel.setFont(bold)
 
         # Scroll section
-        self.agentInfo = self.loadAgents()
         self.agents = QFrame()
-        self.clickables = []
         self.agentsLayout = QGridLayout()
+        self.agentInfo = self.loadAgents()
         self.agentBox(self.agentInfo)
         self.agentScroll = QScrollArea()
         self.agentScroll.setWidgetResizable(True)
         self.agentScroll.setWidget(self.agents)
         self.agentScroll.setVerticalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
         self.agentScroll.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
+
         # Embed scroll into view agents section
         self.viewVBox.addWidget(self.agentScroll)
-        self.viewFrame.setLayout(self.viewVBox)
-
-        self.mainhbox.addWidget(self.viewFrame)
-        self.mainhbox.addWidget(self.editPanel)
-
-        self.mainhbox.setStretchFactor(self.viewFrame, 1) #equally sized left and right panels
-        self.mainhbox.setStretchFactor(self.editPanel, 1)
-        self.setLayout(self.mainhbox)
-
-    def refreshFrame(self):
-        new_frame = AgentsFrame(parent=self.parent())
-
-        self.parent().layout().replaceWidget(self, new_frame)
-        self.deleteLater()
-        
+        self.setLayout(self.viewVBox)
 
     def agentBox(self, list_of_agent_objects):
-        bold = QFont()
-        bold.setBold(True)
-        self.agentsLabel = QLabel('Agents')
-        self.agentsLabel.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        self.agentsLabel.setFont(bold)
         self.agents.setStyleSheet("background-color: #5E5E5E; border-radius: 20;")
         self.agentsLayout.addWidget(self.agentsLabel, 0, 0, 1, 3)  # Span label across 3 columns
 
         row, col = 1, 0
         for currentAgent in list_of_agent_objects:
             obj = currentAgent
-            #print(obj)
-            agentBox = ClickableFrame(obj, self)
-            print(obj['name'], 'created')
-            self.allBoxes.append(agentBox)
+            agentBox = ClickableFrame(obj, self.mainFrame)
+            self.clickableAgents.append(agentBox)
             self.agentsLayout.addWidget(agentBox, row, col)
             col += 1
             if col == 3:
@@ -475,10 +466,17 @@ class AgentsFrame(QFrame):
                 row += 1
         self.agentsLayout.setAlignment(Qt.AlignmentFlag.AlignTop)
         self.agents.setLayout(self.agentsLayout)
+    
+    def add_agent(self):
+        #set obj to new json
+        new_box = ClickableFrame(obj, self.mainFrame)
+        self.widgets.append(new_box)
+        self.layout().insertWidget(len(self.clickableAgents) - 1, new_box)
 
     def resetBorders(self, clicked_frame):
         # Reset borders of all clickable frames except the clicked frame
-        for current in self.allBoxes:
+        # causes error bc we must update self.clickableAgents when refreshClickable frame
+        for current in self.clickableAgents:
             if current != clicked_frame:
                 current.clicked = False
                 current.update()
@@ -488,8 +486,31 @@ class AgentsFrame(QFrame):
         data = json.load(file)
         agents = data['agents']
         return agents
+    
+    def refreshFrame(self):
+        new_frame = AgentsPanel(parent=self.parent())
 
-    # @pyqtSlot(str)
-    # def updateParent(self, new_value):
-    #     # Update the parent widget based on the new value
-    #     self.label.setText("Value in Parent Widget: " + new_value)
+        self.parent().layout().replaceWidget(self, new_frame)
+        self.deleteLater()
+
+
+class AgentsFrame(QFrame):
+    def __init__(self, parent=None):
+        super().__init__()
+
+        # for agents display on left panel
+        self.agentPanel = AgentsPanel(self)
+
+        #for changing contents of right panel
+        self.editPanel = AgentValues(self)
+        
+        # Set tab style
+        self.setStyleSheet("background-color: #464545; border-radius: 20;")
+        self.mainhbox = QHBoxLayout()
+
+        self.mainhbox.addWidget(self.agentPanel)
+        self.mainhbox.addWidget(self.editPanel)
+
+        self.mainhbox.setStretchFactor(self.agentPanel, 1) #equally sized left and right panels
+        self.mainhbox.setStretchFactor(self.editPanel, 1)
+        self.setLayout(self.mainhbox)

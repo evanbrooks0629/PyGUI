@@ -122,7 +122,7 @@
     },
     {
       "id": "53479995",
-      "name": "another new",
+      "name": "kelsnew",
       "description": "newer",
       "max_consecutive_auto_reply": 1,
       "default_auto_reply": "",
@@ -134,6 +134,36 @@
       },
       "skills": [],
       "system_message": "hi"
+    },
+    {
+      "id": "53479996",
+      "name": "Kelsey",
+      "description": "ahdjkls",
+      "max_consecutive_auto_reply": 2,
+      "default_auto_reply": "",
+      "llm_config": {
+        "model": "Mistral-7B Chat Int4",
+        "base_url": "127.0.0.1:8081",
+        "api_type": "openai",
+        "api_key": "NULL"
+      },
+      "skills": [],
+      "system_message": "hjdoebjo"
+    },
+    {
+      "id": "53479997",
+      "name": "new agent",
+      "description": "another one",
+      "max_consecutive_auto_reply": 2,
+      "default_auto_reply": "",
+      "llm_config": {
+        "model": "Mistral-7B Chat Int4",
+        "base_url": "127.0.0.1:8081",
+        "api_type": "openai",
+        "api_key": "NULL"
+      },
+      "skills": [],
+      "system_message": "fehjfoebfw"
     }
   ]
 }
