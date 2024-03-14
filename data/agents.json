@@ -36,7 +36,7 @@
     },
     {
       "id": "53476553",
-      "name": "WriterK",
+      "name": "Writer",
       "description": "Is great at writing",
       "max_consecutive_auto_reply": 8,
       "default_auto_reply": "",
@@ -167,53 +167,8 @@
     },
     {
       "id": "53479998",
-      "name": "Newer",
-      "description": "vhjvk",
-      "max_consecutive_auto_reply": 1,
-      "default_auto_reply": "",
-      "llm_config": {
-        "model": "Mistral-7B Chat Int4",
-        "base_url": "127.0.0.1:8081",
-        "api_type": "openai",
-        "api_key": "NULL"
-      },
-      "skills": [],
-      "system_message": "edbwjk"
-    },
-    {
-      "id": "53479999",
-      "name": "KelseyNew",
-      "description": "ahdjkls",
-      "max_consecutive_auto_reply": 2,
-      "default_auto_reply": "",
-      "llm_config": {
-        "model": "Mistral-7B Chat Int4",
-        "base_url": "127.0.0.1:8081",
-        "api_type": "openai",
-        "api_key": "NULL"
-      },
-      "skills": [],
-      "system_message": "hjdoebjo"
-    },
-    {
-      "id": "53480000",
-      "name": "New",
-      "description": "dejnb",
-      "max_consecutive_auto_reply": 2,
-      "default_auto_reply": "",
-      "llm_config": {
-        "model": "Mistral-7B Chat Int4",
-        "base_url": "127.0.0.1:8081",
-        "api_type": "openai",
-        "api_key": "NULL"
-      },
-      "skills": [],
-      "system_message": "nkfeow"
-    },
-    {
-      "id": "53480001",
-      "name": "NewTest",
-      "description": "fjowjbfw",
+      "name": "NewInit",
+      "description": "mdkedpw",
       "max_consecutive_auto_reply": 3,
       "default_auto_reply": "",
       "llm_config": {
@@ -223,7 +178,7 @@
         "api_key": "NULL"
       },
       "skills": [],
-      "system_message": "ekjwofhh"
+      "system_message": "dnewkoef"
     }
   ]
 }
