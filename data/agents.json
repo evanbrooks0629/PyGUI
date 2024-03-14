@@ -36,7 +36,7 @@
     },
     {
       "id": "53476553",
-      "name": "Writer",
+      "name": "WriterK",
       "description": "Is great at writing",
       "max_consecutive_auto_reply": 8,
       "default_auto_reply": "",
@@ -149,36 +149,6 @@
       },
       "skills": [],
       "system_message": "hjdoebjo"
-    },
-    {
-      "id": "53479997",
-      "name": "new agent",
-      "description": "another one",
-      "max_consecutive_auto_reply": 2,
-      "default_auto_reply": "",
-      "llm_config": {
-        "model": "Mistral-7B Chat Int4",
-        "base_url": "127.0.0.1:8081",
-        "api_type": "openai",
-        "api_key": "NULL"
-      },
-      "skills": [],
-      "system_message": "fehjfoebfw"
-    },
-    {
-      "id": "53479998",
-      "name": "NewInit",
-      "description": "mdkedpw",
-      "max_consecutive_auto_reply": 3,
-      "default_auto_reply": "",
-      "llm_config": {
-        "model": "Mistral-7B Chat Int4",
-        "base_url": "127.0.0.1:8081",
-        "api_type": "openai",
-        "api_key": "NULL"
-      },
-      "skills": [],
-      "system_message": "dnewkoef"
     }
   ]
 }
