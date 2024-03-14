@@ -6,9 +6,10 @@ import json
 class ClickableFrame(QFrame):
     # acts as a button
     # note: we could implement multi-select functionality in the future for team creation?
-    def __init__(self, currentAgent, widget):
-        super().__init__()
-
+    def __init__(self, currentAgent, widget, pos, parent=None):
+        super().__init__(parent)
+        self.agentPanel = parent
+        self.position = pos
         self.widget = widget # Keeps track of associated AgentsFrame class
 
         self.setFrameStyle(QFrame.Shape.StyledPanel | QFrame.Shadow.Raised)
@@ -47,13 +48,15 @@ class ClickableFrame(QFrame):
         print(self.agent['name'] ,"Frame Clicked!")
         self.widget.agentPanel.resetBorders(self) #unmark the borders of the previously clicked agent
         self.clicked = not self.clicked
-        self.widget.editPanel.currentAgent = self.agent #self.widget.editPanel is AgentValues class
-        self.widget.editPanel.name_input.setText(self.agent['name'])
-        self.widget.editPanel.descrip_input.setText(self.agent['description'])
-        self.widget.editPanel.sys_input.setText(self.agent['system_message'])
-        self.widget.editPanel.slider.setValue(self.agent['max_consecutive_auto_reply'])     
-        self.widget.editPanel.update() # = AgentValues(self.agent).buildAgent() #change the right panel to reflect the current agent
-        self.update()
+        if self.clicked:
+            self.widget.editPanel.clickedAgent = self
+            self.widget.editPanel.currentAgent = self.agent #self.widget.editPanel is AgentValues class
+            self.widget.editPanel.name_input.setText(self.agent['name'])
+            self.widget.editPanel.descrip_input.setText(self.agent['description'])
+            self.widget.editPanel.sys_input.setText(self.agent['system_message'])
+            self.widget.editPanel.slider.setValue(self.agent['max_consecutive_auto_reply'])     
+            self.widget.editPanel.update() 
+            self.update()
 
     def paintEvent(self, event):
         super().paintEvent(event)
@@ -65,15 +68,23 @@ class ClickableFrame(QFrame):
             painter.setPen(pen)
             painter.drawRoundedRect(1, 1, self.width() - 2, self.height() - 2, 10, 10)  
 
+    def refreshFrame(self, obj):
+        #for editing agents, only replace the one agent box instead of the entire AgentsPanel
+        new_box = ClickableFrame(obj, self.widget, self.position, self.agentPanel)
+        self.agentPanel.clickableAgents[self.position] = new_box
+        self.parent().layout().replaceWidget(self, new_box)
+        self.deleteLater()
+
 class AgentValues(QFrame):
     def __init__(self, frame):
         super().__init__()
 
-        #parent frame
+        #agent panel (left side)
         self.agentFrame = frame.agentPanel 
 
         #Keep track of all skills checkboxes
         self.checkboxes = []
+        self.clickedAgent = QFrame()
         self.currentAgent = {
             "id": '',
             "name": "",
@@ -367,8 +378,33 @@ class AgentValues(QFrame):
         with open('./data/agents.json', 'w') as file:
                 # Write the updated data back to the file
                 json.dump(data, file, indent=2)
-        #call for a new AgentsFrame QFrame
-        self.agentFrame.refreshFrame()
+        
+        if found_agent:
+            self.clickedAgent.refreshFrame(found_agent)
+            self.clickedAgent = QFrame()
+        else:
+            self.agentFrame.refreshFrame()
+        
+        self.currentAgent = {
+            "id": '',
+            "name": "",
+            "description": "",
+            "max_consecutive_auto_reply": 0,
+            "default_auto_reply": "",
+            "llm_config": {
+                "model": "Mistral-7B Chat Int4",
+                "base_url": "127.0.0.1:8081",
+                "api_type": "openai",
+                "api_key": "NULL"
+            },
+            "skills": [],
+            "system_message": ""
+        }  
+        self.name_input.setText(self.currentAgent['name'])
+        self.descrip_input.setText(self.currentAgent['description'])
+        self.sys_input.setText(self.currentAgent['system_message'])
+        self.slider.setValue(self.currentAgent['max_consecutive_auto_reply'])     
+        self.update()
 
     def select_all_checkboxes(self):
         for checkbox in self.checkboxes:
@@ -439,9 +475,11 @@ class AgentsPanel(QFrame):
         self.agentsLayout.addWidget(self.agentsLabel, 0, 0, 1, 3)  # Span label across 3 columns
 
         row, col = 1, 0
+        ind = 0
         for currentAgent in list_of_agent_objects:
             obj = currentAgent
-            agentBox = ClickableFrame(obj, self.mainFrame)
+            agentBox = ClickableFrame(obj, self.mainFrame, ind, self)
+            ind = ind + 1
             self.clickableAgents.append(agentBox)
             self.agentsLayout.addWidget(agentBox, row, col)
             col += 1
@@ -453,8 +491,8 @@ class AgentsPanel(QFrame):
     
     def add_agent(self):
         #set obj to new json
-        new_box = ClickableFrame(obj, self.mainFrame)
-        self.widgets.append(new_box)
+        new_box = ClickableFrame(obj, self.mainFrame, self)
+        self.clickableAgents.append(new_box)
         self.layout().insertWidget(len(self.clickableAgents) - 1, new_box)
 
     def resetBorders(self, clicked_frame):
@@ -472,10 +510,11 @@ class AgentsPanel(QFrame):
         return agents
         
     def refreshFrame(self):
-        # for each clickable frame, delete
-        # for current in self.clickableAgents:
-        #     current.setParent(None)  # Remove from layout
-        #     current.deleteLater()  # Delete widget
+        #for each clickable frame, delete (works without - may be redundant since clickable is child of panel so it deletes when panel deletes, but safer to delete than leave it hanging)
+        for current in self.clickableAgents:
+            current.setParent(None)  # Remove from layout
+            current.deleteLater()  # Delete widget
+
         new_frame = AgentsPanel(parent=self.parent())
         self.mainFrame.editPanel.agentFrame = new_frame
         self.mainFrame.agentPanel = new_frame

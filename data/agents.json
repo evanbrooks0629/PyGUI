@@ -137,7 +137,7 @@
     },
     {
       "id": "53479996",
-      "name": "KelseyNew",
+      "name": "Kelsey",
       "description": "ahdjkls",
       "max_consecutive_auto_reply": 2,
       "default_auto_reply": "",
@@ -179,6 +179,51 @@
       },
       "skills": [],
       "system_message": "edbwjk"
+    },
+    {
+      "id": "53479999",
+      "name": "KelseyNew",
+      "description": "ahdjkls",
+      "max_consecutive_auto_reply": 2,
+      "default_auto_reply": "",
+      "llm_config": {
+        "model": "Mistral-7B Chat Int4",
+        "base_url": "127.0.0.1:8081",
+        "api_type": "openai",
+        "api_key": "NULL"
+      },
+      "skills": [],
+      "system_message": "hjdoebjo"
+    },
+    {
+      "id": "53480000",
+      "name": "New",
+      "description": "dejnb",
+      "max_consecutive_auto_reply": 2,
+      "default_auto_reply": "",
+      "llm_config": {
+        "model": "Mistral-7B Chat Int4",
+        "base_url": "127.0.0.1:8081",
+        "api_type": "openai",
+        "api_key": "NULL"
+      },
+      "skills": [],
+      "system_message": "nkfeow"
+    },
+    {
+      "id": "53480001",
+      "name": "NewTest",
+      "description": "fjowjbfw",
+      "max_consecutive_auto_reply": 3,
+      "default_auto_reply": "",
+      "llm_config": {
+        "model": "Mistral-7B Chat Int4",
+        "base_url": "127.0.0.1:8081",
+        "api_type": "openai",
+        "api_key": "NULL"
+      },
+      "skills": [],
+      "system_message": "ekjwofhh"
     }
   ]
 }
