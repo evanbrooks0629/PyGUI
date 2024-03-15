@@ -36,9 +36,9 @@
     },
     {
       "id": "53476553",
-      "name": "WriterK",
-      "description": "Is great at writing",
-      "max_consecutive_auto_reply": 8,
+      "name": "WriterKelseyyyy",
+      "description": "Is great at writing books",
+      "max_consecutive_auto_reply": 2,
       "default_auto_reply": "",
       "llm_config": {
         "model": "Mistral-7B Chat Int4",
@@ -51,104 +51,6 @@
         "Search"
       ],
       "system_message": "You are a professional writer, known for your insightful and engaging articles. You transform complex concepts into compelling narratives. Reply 'TERMINATE' in the end when everything is done."
-    },
-    {
-      "id": "53276573",
-      "name": "Front End Developer",
-      "description": "Is great at writing front-end code",
-      "max_consecutive_auto_reply": 8,
-      "default_auto_reply": "",
-      "llm_config": {
-        "model": "Mistral-7B Chat Int4",
-        "base_url": "127.0.0.1:8081",
-        "api_type": "openai",
-        "api_key": "NULL"
-      },
-      "skills": [
-        "Design",
-        "Code"
-      ],
-      "system_message": "You are a professional front-end developer, specializing in React.js."
-    },
-    {
-      "id": "55576553",
-      "name": "Back End Developer",
-      "description": "Is great at writing back-end code",
-      "max_consecutive_auto_reply": 8,
-      "default_auto_reply": "",
-      "llm_config": {
-        "model": "Mistral-7B Chat Int4",
-        "base_url": "127.0.0.1:8081",
-        "api_type": "openai",
-        "api_key": "NULL"
-      },
-      "skills": [
-        "Design",
-        "Code"
-      ],
-      "system_message": "You are a professional back-end developer, specializing in Express.js."
-    },
-    {
-      "id": "53479993",
-      "name": "TesterKels",
-      "description": "Is great at testing",
-      "max_consecutive_auto_reply": 8,
-      "default_auto_reply": "",
-      "llm_config": {
-        "model": "Mistral-7B Chat Int4",
-        "base_url": "127.0.0.1:8081",
-        "api_type": "openai",
-        "api_key": "NULL"
-      },
-      "skills": [
-        "Test"
-      ],
-      "system_message": "You are a professional application tester, specializing in Jest for automation tests."
-    },
-    {
-      "id": "53479994",
-      "name": "new test",
-      "description": "new ",
-      "max_consecutive_auto_reply": 2,
-      "default_auto_reply": "",
-      "llm_config": {
-        "model": "Mistral-7B Chat Int4",
-        "base_url": "127.0.0.1:8081",
-        "api_type": "openai",
-        "api_key": "NULL"
-      },
-      "skills": [],
-      "system_message": "newnew"
-    },
-    {
-      "id": "53479995",
-      "name": "kelsnew",
-      "description": "newer",
-      "max_consecutive_auto_reply": 1,
-      "default_auto_reply": "",
-      "llm_config": {
-        "model": "Mistral-7B Chat Int4",
-        "base_url": "127.0.0.1:8081",
-        "api_type": "openai",
-        "api_key": "NULL"
-      },
-      "skills": [],
-      "system_message": "hi"
-    },
-    {
-      "id": "53479996",
-      "name": "Kelsey",
-      "description": "ahdjkls",
-      "max_consecutive_auto_reply": 2,
-      "default_auto_reply": "",
-      "llm_config": {
-        "model": "Mistral-7B Chat Int4",
-        "base_url": "127.0.0.1:8081",
-        "api_type": "openai",
-        "api_key": "NULL"
-      },
-      "skills": [],
-      "system_message": "hjdoebjo"
     }
   ]
 }
