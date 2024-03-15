@@ -675,7 +675,8 @@ class AgentValues(QFrame):
         else:
             #Create new agent
             print('new added')
-            self.currentAgent['id'] = str(int(self.agentFrame.agentInfo[-1]['id']) + 1)  #add id functionality
+            self.currentAgent['id'] = str(int(data.get('agents', [])[-1]['id']) + 1)  #add id functionality
+            print(str(int(data.get('agents', [])[-1]['id'])))
             self.currentAgent['name'] = self.name_input.text()
             self.currentAgent['description'] = self.descrip_input.text()
             self.currentAgent['max_consecutive_auto_reply'] = self.slider.value()
