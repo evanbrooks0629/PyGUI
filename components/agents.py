@@ -4,6 +4,53 @@ from PyQt6.QtGui import *
 from PyQt6.QtCore import *
 import json
 
+class DeleteDialog(QDialog):
+    def __init__(self):
+        super().__init__()
+        self.setWindowTitle("Are You Sure You Want to Delete?")
+        self.setStyleSheet("background-color: #464545;") 
+        self.setGeometry(((QGuiApplication.primaryScreen().size().width()//2) - 150), ((QGuiApplication.primaryScreen().size().height()//2) - 75), 300, 150)
+        layout = QVBoxLayout()
+        label = QLabel("Delete this agent?")
+        layout.addWidget(label)
+
+        # Add a button to the dialog
+        deleteButton = QPushButton("Yes, Delete")
+        deleteButton.setStyleSheet("""
+            background-color: transparent;
+            text-decoration: underline;
+        """)
+        deleteButton.setCursor(QCursor(Qt.CursorShape.PointingHandCursor))
+        
+        noButton = QPushButton("Cancel")
+        noButton.setStyleSheet("""
+            background-color: #5E5E5E;
+            border-radius: 10px;
+            padding: 5px;
+        """)
+        noButton.setFixedHeight(30)
+        noButton.setCursor(QCursor(Qt.CursorShape.PointingHandCursor))
+        
+        layout.addWidget(deleteButton)
+        layout.addWidget(noButton)
+
+        # Set the layout for the dialog
+        self.setLayout(layout)
+
+        self.willDelete = False
+
+        # Connect the button to a slot
+        deleteButton.clicked.connect(self.on_delete_button_clicked)
+        noButton.clicked.connect(self.on_no_button_clicked)
+
+    def on_no_button_clicked(self):
+        self.close()
+
+    def on_delete_button_clicked(self):
+        print('delete clicked')
+        self.willDelete = True
+        self.close()
+
 #mainframe (holds rest of classes -> left side = AgentsPanel (which holds one AddAgentButton and a ClickableFrame for each agent), right side = AgentValues)
 class AgentsFrame(QFrame):
     def __init__(self, parent=None):
@@ -121,11 +168,21 @@ class AddAgentButton(QPushButton):
         self.setCursor(QCursor(Qt.CursorShape.PointingHandCursor))
         self.clicked = False
         self.setStyleSheet("""
-            background-color: transparent;
-            border: 2px solid #75DBE9;
-            height: 50;
-            border-radius: 10;
-            color: #75DBE9;
+            QPushButton {
+                background-color: transparent;
+                border: 2px solid #75DBE9;
+                height: 50;
+                border-radius: 10;
+                color: #75DBE9;
+            }
+                           
+            QPushButton:hover {
+                background-color: #111111;
+            }
+
+            QPushButton:pressed {
+                background-color: #5E5E5E;
+            }
         """)
         self.setText("Add Agent")
         self.setIcon(QIcon('./assets/AddAgentIcon.png'))
@@ -133,6 +190,30 @@ class AddAgentButton(QPushButton):
 
     def mousePressEvent(self, event):
         print("Adding Agent Clicked")
+        newAgent = {
+            "id": '',
+            "name": "",
+            "description": "",
+            "max_consecutive_auto_reply": 0,
+            "default_auto_reply": "",
+            "llm_config": {
+                "model": "Mistral-7B Chat Int4",
+                "base_url": "127.0.0.1:8081",
+                "api_type": "openai",
+                "api_key": "NULL"
+            },
+            "skills": [],
+            "system_message": ""
+        }
+
+        # Update current agent, text, and borders 
+        # if theres a better way to do this that would be great, but this is working well
+        self.parent().parent().parent().parent().mainFrame.editPanel.currentAgent = newAgent
+        self.parent().parent().parent().parent().mainFrame.editPanel.setFields(newAgent)
+        self.parent().parent().parent().parent().mainFrame.editPanel.editLabel.setText("Build Your Agent")
+        self.parent().parent().parent().parent().mainFrame.editPanel.createButton.setText("Create Agent")
+        self.parent().parent().parent().parent().mainFrame.editPanel.deleteButton.hide()
+        self.parent().parent().parent().parent().mainFrame.agentPanel.resetBorders(self)
 
 #button box class for holding/selecting an agent
 class ClickableFrame(QFrame):
@@ -171,13 +252,13 @@ class ClickableFrame(QFrame):
         self.descriptionLabel.setWordWrap(True)
         self.systemMessageLabel = QLabel(self.system_message)
 
-        nameLine = QLabel()
-        nameLine.setStyleSheet("""
-            background-color: #5E5E5E;
-            border-radius: 0;
-        """)
-        nameLine.setFixedHeight(2)
-        agentVBox.addWidget(nameLine)
+        # nameLine = QLabel()
+        # nameLine.setStyleSheet("""
+        #     background-color: #5E5E5E;
+        #     border-radius: 0;
+        # """)
+        # nameLine.setFixedHeight(2)
+        # agentVBox.addWidget(nameLine)
         descriptionLine = QLabel()
         descriptionLine.setStyleSheet("""
             background-color: #5E5E5E;
@@ -219,6 +300,9 @@ class ClickableFrame(QFrame):
             self.widget.editPanel.currentAgent = self.agent #self.widget.editPanel is AgentValues class
             self.widget.editPanel.setFields(self.agent)    
             self.widget.editPanel.update() 
+            self.widget.editPanel.editLabel.setText("Edit Your Agent")
+            self.widget.editPanel.createButton.setText("Edit Agent")
+            self.widget.editPanel.deleteButton.show()
         self.update()
 
     def paintEvent(self, event):
@@ -242,7 +326,7 @@ class ClickableFrame(QFrame):
 class AgentValues(QFrame):
     def __init__(self, frame):
         super().__init__()
-
+        
         #agent panel (left side)
         self.agentFrame = frame.agentPanel 
 
@@ -265,14 +349,16 @@ class AgentValues(QFrame):
             "system_message": ""
         }
 
-        if self.currentAgent['name'] == '':
-            print('new agent')
-            editLabel = QLabel("Build Your Agent")
-            #can set placeholder values
-            #ex. field_input.setPlaceholderText(fieldInput)
-        else:
-            print(self.currentAgent['name'])
-            editLabel = QLabel("Edit Your Agent")
+        self.editLabel = QLabel("Build Your Agent")
+        # doesnt do anything
+        # if isEdit:
+        #     print('new agent')
+        #     self.editLabel = QLabel("Build Your Agent")
+        #     #can set placeholder values
+        #     #ex. field_input.setPlaceholderText(fieldInput)
+        # else:
+        #     print(self.currentAgent['name'])
+        #     self.editLabel = QLabel("Edit Your Agent")
         bold = QFont() #font for title
         bold.setBold(True)
         text_color = QColor(117, 219, 233)  # blue for field labels
@@ -281,10 +367,10 @@ class AgentValues(QFrame):
         editFrame = QFrame()
         editLayout = QVBoxLayout()
         
-        editLabel.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        editLabel.setFont(bold)
+        self.editLabel.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        self.editLabel.setFont(bold)
         editFrame.setStyleSheet("background-color: #5E5E5E; border-radius: 20;")
-        editLayout.addWidget(editLabel)
+        editLayout.addWidget(self.editLabel)
         editLayout.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
         #darker box
@@ -314,6 +400,7 @@ class AgentValues(QFrame):
         LLM_label = self.setLabel('LLM')
         LLMcombobox = QComboBox()
         LLMcombobox.setStyleSheet("QComboBox { background-color: #5E5E5E; border-radius: 10px; padding: 5px; }")
+        LLMcombobox.setCursor(QCursor(Qt.CursorShape.PointingHandCursor))
         
         #pull from models.json
         file = open('./data/models.json')
@@ -328,6 +415,7 @@ class AgentValues(QFrame):
             text=" Import", icon=QIcon('./assets/Vector.png')
         )
         importButton.setFixedHeight(30)
+        importButton.setCursor(QCursor(Qt.CursorShape.PointingHandCursor))
         importButton.setStyleSheet('''
             QPushButton {
                 border: 0px solid #ffffff;
@@ -339,7 +427,7 @@ class AgentValues(QFrame):
             }
 
             QPushButton:hover {
-                background-color: #ffffff;
+                background-color: #111111;
             }
 
             QPushButton:pressed {
@@ -357,9 +445,15 @@ class AgentValues(QFrame):
         contentLayout.addWidget(box)
 
         # Max consec auto reply
-        max_label = self.setLabel('Max. Consecutive Auto Reply')
-        max_label.setFixedWidth(200)
+        self.sliderValue = 0
+        self.max_label = QLabel('Max. Consecutive Auto Reply: [' + str(self.sliderValue) + ']')
+        self.max_label.setFixedWidth(220)
+        self.max_label.setStyleSheet("""
+            color: #75DBE9;
+            font-weight: bold;
+        """)
         self.slider = QSlider(Qt.Orientation.Horizontal)
+        self.slider.setCursor(QCursor(Qt.CursorShape.PointingHandCursor))
         
         # Set slider properties
         self.slider.setRange(0, 8)  # Set the range of integers
@@ -370,9 +464,10 @@ class AgentValues(QFrame):
         self.slider.setTickPosition(QSlider.TickPosition.TicksBelow)  # Display ticks above and below the slider handle
         self.slider.setTickPosition(QSlider.TickPosition.TicksBelow)
         self.slider.setTickInterval(1)  # Set the interval between tick values
-    
+        self.slider.valueChanged[int].connect(self.updateSlider)
+
         #slider.valueChanged.connect()
-        contentLayout.addWidget(self.alignHorizontal(max_label, self.slider))
+        contentLayout.addWidget(self.alignHorizontal(self.max_label, self.slider))
 
         #skills checkbox section
         widge = QWidget()
@@ -398,6 +493,7 @@ class AgentValues(QFrame):
             self.checkboxes.append(checkbox)
     
         select_all_button = QPushButton("Select All")
+        select_all_button.setCursor(QCursor(Qt.CursorShape.PointingHandCursor))
         select_all_button.setStyleSheet('''
             QPushButton {
                 border: 0px solid #ffffff;
@@ -409,7 +505,7 @@ class AgentValues(QFrame):
             }
 
             QPushButton:hover {
-                background-color: #ffffff;
+                background-color: #111111;
             }
 
             QPushButton:pressed {
@@ -417,6 +513,7 @@ class AgentValues(QFrame):
             }
         ''')
         deselect_all_button = QPushButton("Deselect All")
+        deselect_all_button.setCursor(QCursor(Qt.CursorShape.PointingHandCursor))
         deselect_all_button.setStyleSheet('''
             QPushButton {
                 border: 0px solid #ffffff;
@@ -428,7 +525,7 @@ class AgentValues(QFrame):
             }
 
             QPushButton:hover {
-                background-color: #ffffff;
+                background-color: #111111;
             }
 
             QPushButton:pressed {
@@ -470,12 +567,27 @@ class AgentValues(QFrame):
         skillsWidget.setFixedHeight(250)
         contentLayout.addWidget(skillsWidget)
 
-        createButton = QPushButton(
+        self.deleteButton = QPushButton("Delete Agent")
+        self.deleteButton.setCursor(QCursor(Qt.CursorShape.PointingHandCursor))
+        self.deleteButton.setFixedWidth(150)
+        self.deleteButton.setFixedHeight(50)
+        self.deleteButton.setStyleSheet("""
+            padding: 5px;
+            background-color: transparent;
+            font: 15px;
+            text-decoration: underline;
+            color: #ffffff;
+        """)
+        self.deleteButton.clicked.connect(self.deleteClicked)
+        self.deleteButton.hide()
+
+        self.createButton = QPushButton(
             text=" Create Agent", icon=QIcon('./assets/Sparkling.png')
         )
-        createButton.setFixedWidth(150)
-        createButton.setFixedHeight(50)
-        createButton.setStyleSheet('''
+        self.createButton.setCursor(QCursor(Qt.CursorShape.PointingHandCursor))
+        self.createButton.setFixedWidth(150)
+        self.createButton.setFixedHeight(50)
+        self.createButton.setStyleSheet('''
             QPushButton {
                 border: 0px solid #ffffff;
                 border-radius: 10px;
@@ -486,21 +598,34 @@ class AgentValues(QFrame):
             }
 
             QPushButton:hover {
-                background-color: #ffffff;
+                background-color: #111111;
             }
 
             QPushButton:pressed {
                 background-color: #5E5E5E;
             }
         ''')
-        createButton.clicked.connect(self.createClicked)
-        contentLayout.addWidget(createButton, alignment=Qt.AlignmentFlag.AlignCenter)
+        self.createButton.clicked.connect(self.createClicked)
+
+        self.bottomButtonFrame = QFrame()
+        self.bottomButtonBox = QHBoxLayout()
+
+        self.bottomButtonBox.addWidget(self.deleteButton)
+        self.bottomButtonBox.addWidget(self.createButton)
+        self.bottomButtonFrame.setLayout(self.bottomButtonBox)
+
+        contentLayout.addWidget(self.bottomButtonFrame, alignment=Qt.AlignmentFlag.AlignCenter)
         contentLayout.setAlignment(Qt.AlignmentFlag.AlignTop)
         contentBox.setLayout(contentLayout)
 
         editLayout.addWidget(contentBox)
         editLayout.setStretchFactor(contentBox, 1)
         self.setLayout(editLayout)
+
+    def updateSlider(self, newValue):
+        print("slider: " + str(newValue))
+        self.sliderValue = newValue
+        self.max_label.setText('Max. Consecutive Auto Reply: [' + str(self.sliderValue) + ']')
 
     def setFields(self, agent):
         self.name_input.setText(agent['name'])
@@ -552,7 +677,7 @@ class AgentValues(QFrame):
             self.clickedAgent = QFrame()
         else:
             self.agentFrame.refreshFrame()
-        
+
         self.currentAgent = {
             "id": '',
             "name": "",
@@ -569,7 +694,54 @@ class AgentValues(QFrame):
             "system_message": ""
         }  
         self.setFields(self.currentAgent)
+        self.editLabel.setText("Build Your Agent")
+        self.createButton.setText("Create Agent")
+        self.deleteButton.hide()
         self.update()
+
+    def deleteClicked(self):
+        dialog = DeleteDialog()
+        dialog.exec()
+        willDelete = dialog.willDelete
+        print(willDelete)
+
+        if willDelete:
+            print('delete clicked')
+            agentId = self.currentAgent["id"]
+
+            file = open('./data/agents.json')
+            data = json.load(file)
+            # data['agents]
+            updatedAgents = []
+            for agent in data["agents"]:
+                if agent["id"] != agentId:
+                    updatedAgents.append(agent)
+            data["agents"] = updatedAgents
+            with open('./data/agents.json', 'w') as file:
+                # Write the updated data back to the file
+                json.dump(data, file, indent=2)
+
+            self.agentFrame.refreshFrame()
+            self.currentAgent = {
+                "id": '',
+                "name": "",
+                "description": "",
+                "max_consecutive_auto_reply": 0,
+                "default_auto_reply": "",
+                "llm_config": {
+                    "model": "Mistral-7B Chat Int4",
+                    "base_url": "127.0.0.1:8081",
+                    "api_type": "openai",
+                    "api_key": "NULL"
+                },
+                "skills": [],
+                "system_message": ""
+            }  
+            self.setFields(self.currentAgent)
+            self.editLabel.setText("Build Your Agent")
+            self.createButton.setText("Create Agent")
+            self.deleteButton.hide()
+            self.update()
 
     def select_all_checkboxes(self):
         for checkbox in self.checkboxes:
