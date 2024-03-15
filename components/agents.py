@@ -132,7 +132,8 @@ class AgentsPanel(QFrame):
     
     def add_agent(self, obj):
         #set obj to new json
-        new_box = ClickableFrame(obj, self.mainFrame, self.clickableAgents[-1].position + 1, self)
+        #self.clickableAgents[-1].position + 1
+        new_box = ClickableFrame(obj, self.mainFrame, len(self.clickableAgents), self)
         self.clickableAgents.append(new_box)
         self.agentsLayout.addWidget(new_box, self.row, self.col)
         self.col += 1
@@ -667,8 +668,10 @@ class AgentValues(QFrame):
             found_agent['name'] = self.name_input.text()
             found_agent['description'] = self.descrip_input.text()
             found_agent['max_consecutive_auto_reply'] = self.slider.value()
-            found_agent['default_auto_reply'] = self.currentAgent['default_auto_reply'] #have to check if json has these fields (threw error on first one)
-            found_agent['llm_config'] = self.currentAgent['llm_config'] #same issue as above
+            if hasattr(self.currentAgent, 'default_auto_reply'):
+                found_agent['default_auto_reply'] = self.currentAgent['default_auto_reply'] #have to check if json has these fields (threw error on first one)
+            if hasattr(self.currentAgent, 'llm_config'):
+                found_agent['llm_config'] = self.currentAgent['llm_config'] #same issue as above
             found_agent['skills'] = self.currentAgent['skills']
             found_agent['system_message'] = self.sys_input.text()
  
