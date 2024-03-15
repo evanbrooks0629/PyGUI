@@ -89,6 +89,8 @@ class AgentsPanel(QFrame):
         self.agentsLabel = QLabel('Agents')
         self.agentsLabel.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.agentsLabel.setFont(bold)
+        self.row = 1
+        self.col = 0
         
         # Scroll section and add agent button
         self.agents = QFrame()
@@ -114,27 +116,41 @@ class AgentsPanel(QFrame):
         # addButton.setFixedSize(80, 40)
         self.agentsLayout.addWidget(addButton, 0, 2, 1, 1)
 
-        row, col = 1, 0
         ind = 0
         for currentAgent in list_of_agent_objects:
             obj = currentAgent
             agentBox = ClickableFrame(obj, self.mainFrame, ind, self)
             ind = ind + 1
             self.clickableAgents.append(agentBox)
-            self.agentsLayout.addWidget(agentBox, row, col)
-            col += 1
-            if col == 3:
-                col = 0
-                row += 1
+            self.agentsLayout.addWidget(agentBox, self.row, self.col)
+            self.col += 1
+            if self.col == 3:
+                self.col = 0
+                self.row += 1
         self.agentsLayout.setAlignment(Qt.AlignmentFlag.AlignTop)
         self.agents.setLayout(self.agentsLayout)
     
-    #below can be customized to add a ClickableFrame instead of refreshing entire AgentPanel on add new agent -> but haven't tested whether it would lengthen the AgentPanel frame to the correct size
-    # def add_agent(self):
-    #     #set obj to new json
-    #     new_box = ClickableFrame(obj, self.mainFrame, self)
-    #     self.clickableAgents.append(new_box)
-    #     self.layout().insertWidget(len(self.clickableAgents) - 1, new_box)
+    def add_agent(self, obj):
+        #set obj to new json
+        new_box = ClickableFrame(obj, self.mainFrame, len(self.clickableAgents) - 1, self)
+        self.clickableAgents.append(new_box)
+        self.agentsLayout.addWidget(new_box, self.row, self.col)
+        self.col += 1
+        if self.col == 3:
+            self.col = 0
+            self.row += 1
+
+    # def delete_agent(self, agent):
+    #     #agent is the ClickableFrame widget
+    #     del self.clickableAgents[agent.position]
+    #     ind = 0
+    #     for i in self.clickableAgents:
+    #         i.position = ind
+    #         ind = ind + 1
+    #     self.agentsLayout.removeWidget(agent)
+    #     self.parent().layout().removeWidget(agent)
+    #     agent.deleteLater()
+    #     return QFrame()
 
     def resetBorders(self, clicked_frame):
         # Reset borders of all clickable frames except the clicked frame
@@ -150,6 +166,7 @@ class AgentsPanel(QFrame):
         return agents
         
     def refreshFrame(self):
+        #not in use rn (bc of add_agent), but useful to keep around for retrieving a refreshed display of the json
         #for each clickable frame, delete (works without - may be redundant since clickable is child of panel so it deletes when panel deletes, but safer to delete than leave it hanging)
         for current in self.clickableAgents:
             current.setParent(None)  # Remove from layout
@@ -676,7 +693,7 @@ class AgentValues(QFrame):
             self.clickedAgent.refreshFrame(found_agent)
             self.clickedAgent = QFrame()
         else:
-            self.agentFrame.refreshFrame()
+            self.agentFrame.add_agent(self.currentAgent)
 
         self.currentAgent = {
             "id": '',
@@ -721,6 +738,7 @@ class AgentValues(QFrame):
                 # Write the updated data back to the file
                 json.dump(data, file, indent=2)
 
+            # self.clickedAgent = self.agentFrame.delete_agent(self.clickedAgent)
             self.agentFrame.refreshFrame()
             self.currentAgent = {
                 "id": '',
