@@ -132,7 +132,7 @@ class AgentsPanel(QFrame):
     
     def add_agent(self, obj):
         #set obj to new json
-        new_box = ClickableFrame(obj, self.mainFrame, len(self.clickableAgents) - 1, self)
+        new_box = ClickableFrame(obj, self.mainFrame, self.clickableAgents[-1].position + 1, self)
         self.clickableAgents.append(new_box)
         self.agentsLayout.addWidget(new_box, self.row, self.col)
         self.col += 1
