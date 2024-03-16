@@ -3,26 +3,265 @@ from PyQt6.QtGui import *
 from PyQt6.QtCore import *
 from components.agents import AgentsFrame
 import json
+from datetime import datetime
+
+class ClickableFrame(QFrame):
+    def __init__(self, currentChat, widget, pos, parent=None):
+        super().__init__(parent)
+        self.chatPanel = parent
+        self.position = pos
+        self.widget = widget # Keeps track of associated AgentsFrame class
+
+        self.setFrameStyle(QFrame.Shape.StyledPanel | QFrame.Shadow.Raised)
+        self.setCursor(QCursor(Qt.CursorShape.PointingHandCursor))
+
+        # import any information needed from the agent for editing
+        self.chat = currentChat #raw json information
+        self.clicked = False #variable to keep tracked of click
+        #self.setFixedWidth(190)
+        # self.setFixedHeight(200)
+        self.setStyleSheet("""
+            background-color: #464545;
+            border-radius: 10;
+        """)
+        bold = QFont()
+        bold.setBold(True)
+        chatVBox = QVBoxLayout()
+        self.name = currentChat['name']
+        self.date = currentChat['date']
+        self.teamID = currentChat['team']
+        self.conversation = currentChat['conversation']
+        self.nameLabel = QLabel(self.name)
+        self.nameLabel.setWordWrap(True)
+        self.dateLabel = QLabel(self.date)
+        
+        chatVBox.addWidget(self.nameLabel)
+        chatVBox.addWidget(self.dateLabel)
+
+        self.setLayout(chatVBox)
+
+    def mousePressEvent(self, event):
+        print(self.chat['name'] ,"Frame Clicked!")
+        print(self.conversation)
+        self.widget.resetBorders(self) #unmark the borders of the previously clicked agent
+        self.clicked = not self.clicked
+        if self.clicked:
+            self.widget.clickedChat = self
+            self.widget.currentChat = self.chat
+
+        # load chat in parent window
+        # in form of :
+        # <title> at top
+        # then conversation in chunks with scroll
+        # each chunk (interaction between user / agent) will have two boxes for each
+
+        self.update()
+        self.widget.loadChat(self.chat)
+
+    def paintEvent(self, event):
+        super().paintEvent(event)
+        if self.clicked:
+            painter = QPainter(self)
+            color = QColor(117, 219, 233)  # From Figma
+            pen = QPen(color, 3, Qt.PenStyle.SolidLine)
+            pen.setJoinStyle(Qt.PenJoinStyle.RoundJoin)  # For rounded corners
+            painter.setPen(pen)
+            painter.drawRoundedRect(1, 1, self.width() - 2, self.height() - 2, 10, 10)  
+
+
+class NewChatButton(QPushButton):
+    def __init__(self):
+        super().__init__()
+        self.setCursor(QCursor(Qt.CursorShape.PointingHandCursor))
+        self.setStyleSheet("""
+            QPushButton {  
+                background-color: transparent;
+                border: 2px solid #75DBE9;
+                height: 50;
+                border-radius: 10;
+                color: #75DBE9;
+            }
+                           
+            QPushButton:hover {
+                background-color: #111111;
+            }
+
+            QPushButton:pressed {
+                background-color: #5E5E5E;
+            }
+        """)
+        self.setText("New Chat")
+        self.setIcon(QIcon('./assets/NewChatIcon.png'))
+        self.setIconSize(QSize(48, 24))
+
+class SendChatButton(QPushButton):
+    def __init__(self):
+        super().__init__()
+        self.setCursor(QCursor(Qt.CursorShape.PointingHandCursor))
+        self.clicked = False
+        self.setStyleSheet("""
+            QPushButton {  
+                background-color: transparent;
+                border: 2px solid #75DBE9;
+                border-radius: 10;
+                color: #75DBE9;
+            }
+                           
+            QPushButton:hover {
+                background-color: #111111;
+            }
+
+            QPushButton:pressed {
+                background-color: #5E5E5E;
+            }
+        """)
+        self.setFixedWidth(100)
+        self.setFixedHeight(100)
+        self.setIcon(QIcon('./assets/SendIcon.png'))
+        self.setIconSize(QSize(48, 48))
+    
+    def mousePressEvent(self, event):
+        print("Send Chat Clicked")
 
 class ChatsFrame(QFrame):
     def __init__(self):
         super().__init__()
 
+        self.clickableChats = []
+        self.currentChat = {}
+
         self.setStyleSheet("""
             background-color: #464545; 
             border-radius: 20;
         """)
-        mainhbox = QHBoxLayout()
 
-        chatFrame = QFrame()
-        chatFrame.setStyleSheet("""
+        self.mainhbox = QHBoxLayout()
+
+        self.chatHistoryFrame = QFrame()
+        self.chatHistoryFrame.setStyleSheet("""
+            background-color: #5E5E5E; 
+            border-radius: 20;              
+        """)
+        self.chatHistoryFrame.setFixedWidth(250)
+
+        chatHistoryLayout = QVBoxLayout()
+
+        # New chat button and line
+        newChatButton = NewChatButton()
+        newChatButton.clicked.connect(self.loadDefaultChatView)  # Ensure this method is defined to reset the chat view
+        newChatLine = QLabel()
+        newChatLine.setStyleSheet("""
+            background-color: #464545;
+            border-radius: 0;
+        """)
+        newChatLine.setFixedHeight(2)
+
+        chatHistoryLayout.addWidget(newChatButton)
+        chatHistoryLayout.addWidget(newChatLine)
+
+        # Scroll Area for Past Chats
+        scrollArea = QScrollArea()
+        scrollArea.verticalScrollBar().setStyleSheet("""
+            QScrollBar:vertical
+            {
+                background-color: #5E5E5E;
+                width: 15px;
+                margin: 15px 3px 15px 3px;
+                border: 3px transparent #5E5E5E;
+                border-radius: 4px;
+            }
+
+            QScrollBar::handle:vertical
+            {
+                background-color: #464545;
+                min-height: 5px;
+                border-radius: 4px;
+            }
+
+            QScrollBar::sub-line:vertical
+            {
+                margin: 3px 0px 3px 0px;
+                border-image: url(:/qss_icons/rc/up_arrow_disabled.png);
+                height: 10px;
+                width: 10px;
+                subcontrol-position: top;
+                subcontrol-origin: margin;
+            }
+
+            QScrollBar::add-line:vertical
+            {
+                margin: 3px 0px 3px 0px;
+                border-image: url(:/qss_icons/rc/down_arrow_disabled.png);
+                height: 10px;
+                width: 10px;
+                subcontrol-position: bottom;
+                subcontrol-origin: margin;
+            }
+
+            QScrollBar::sub-line:vertical:hover,QScrollBar::sub-line:vertical:on
+            {
+                border-image: url(:/qss_icons/rc/up_arrow.png);
+                height: 10px;
+                width: 10px;
+                subcontrol-position: top;
+                subcontrol-origin: margin;
+            }
+
+            QScrollBar::add-line:vertical:hover, QScrollBar::add-line:vertical:on
+            {
+                border-image: url(:/qss_icons/rc/down_arrow.png);
+                height: 10px;
+                width: 10px;
+                subcontrol-position: bottom;
+                subcontrol-origin: margin;
+            }
+
+            QScrollBar::up-arrow:vertical, QScrollBar::down-arrow:vertical
+            {
+                background: none;
+            }
+
+            QScrollBar::add-page:vertical, QScrollBar::sub-page:vertical
+            {
+                background: none;
+            }
+        """)
+        scrollArea.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
+        scrollArea.setWidgetResizable(True)
+        # scrollArea.setStyleSheet("border: none;")  # Optional, for aesthetics
+
+        # Container for past chats, with its own layout
+        chatsContainer = QWidget()
+        chatsLayout = QVBoxLayout()
+        chatsContainer.setLayout(chatsLayout)
+
+        # Load and add past chats to the chatsLayout instead of directly to the frame
+        pastChats = self.loadChats()
+        for chat in pastChats:
+            chatsLayout.addWidget(chat)
+        chatsLayout.addStretch()
+
+        # Add the container to the scroll area
+        scrollArea.setWidget(chatsContainer)
+
+        # Add the scroll area to the chat history layout
+        chatHistoryLayout.addWidget(scrollArea)
+
+        self.chatHistoryFrame.setLayout(chatHistoryLayout)
+        self.mainhbox.addWidget(self.chatHistoryFrame)
+
+        # Additional setup for the rest of your layout...
+        self.setLayout(self.mainhbox)
+
+        self.chatFrame = QFrame()
+        self.chatFrame.setStyleSheet("""
             background-color: #5E5E5E; 
             border-radius: 20;
         """)
         # chatHBox = QHBoxLayout()
         ## GET ALL CHATS
 
-        chatVBox = QVBoxLayout()
+        self.chatVBox = QVBoxLayout()
 
         ### ADD CONTENT TO CHATVBOX HERE ###
 
@@ -32,28 +271,100 @@ class ChatsFrame(QFrame):
             border-radius: 20;
             padding: 20;
         """)
-        chatBox.setFixedHeight(200)
+        # chatBox.setFixedHeight(200)
         chatBox.setWordWrap(True)
+        chatBox.setAlignment(Qt.AlignmentFlag.AlignTop)
 
+        bottom = QFrame()
+        bottom.setFixedHeight(150)
+        bottomlay = QHBoxLayout()
+        bottomlay.setContentsMargins(0, 0, 10, 0)
+        
         textBox = QPlainTextEdit()
         textBox.setStyleSheet("""
             background-color: #464545;
             color: #ffffff;
             padding: 20;
         """)
+        # textBox.setFixedHeight(50)
         textBox.setPlaceholderText("Type anything...")
 
-        chatVBox.addWidget(chatBox)
-        chatVBox.addWidget(textBox)
+        sendChatButton = SendChatButton()
 
-        chatFrame.setLayout(chatVBox)
+        bottomlay.addWidget(textBox)
+        bottomlay.addWidget(sendChatButton)
+        bottom.setLayout(bottomlay)
 
-        mainhbox.addWidget(chatFrame)
-        self.setLayout(mainhbox)
+        self.chatVBox.addWidget(chatBox)
+        self.chatVBox.addWidget(bottom)
+        
+
+        self.chatFrame.setLayout(self.chatVBox)
+
+        self.mainhbox.addWidget(self.chatHistoryFrame)
+        self.mainhbox.addWidget(self.chatFrame)
+        self.setLayout(self.mainhbox)
+
+    def loadDefaultChatView(self):
+        # Clear existing content from the chat layout
+        for i in reversed(range(self.chatVBox.count())): 
+            widget = self.chatVBox.itemAt(i).widget()
+            if widget is not None:
+                widget.deleteLater()
+
+        chatBox = QLabel("Welcome to TaskForceAI. Type the task you’d like our engineering team to complete, and we’ll make sure everything is done perfectly! To get started, just type below.")
+        chatBox.setStyleSheet("""
+            background-color: #464545; 
+            border-radius: 20;
+            padding: 20;
+        """)
+        # chatBox.setFixedHeight(200)
+        chatBox.setWordWrap(True)
+        chatBox.setAlignment(Qt.AlignmentFlag.AlignTop)
+
+        bottom = QFrame()
+        bottom.setFixedHeight(150)
+        bottomlay = QHBoxLayout()
+        bottomlay.setContentsMargins(0, 0, 10, 0)
+        
+        textBox = QPlainTextEdit()
+        textBox.setStyleSheet("""
+            background-color: #464545;
+            color: #ffffff;
+            padding: 20;
+        """)
+        # textBox.setFixedHeight(50)
+        textBox.setPlaceholderText("Type anything...")
+
+        sendChatButton = SendChatButton()
+
+        bottomlay.addWidget(textBox)
+        bottomlay.addWidget(sendChatButton)
+        bottom.setLayout(bottomlay)
+
+        self.chatVBox.addWidget(chatBox, 1)
+        self.chatVBox.addWidget(bottom)
+        self.chatFrame.setStyleSheet("""
+            background-color: #5E5E5E;
+        """)
+        self.resetBorders(None)
+
+    def resetBorders(self, clicked_frame):
+        # Reset borders of all clickable frames except the clicked frame
+        for current in self.clickableChats:
+            if current != clicked_frame:
+                current.clicked = False
+                current.update()
 
     def chatBox(self, list_of_chat_objects):
         # return a small box for recent chat
-        return []
+        chatBoxes = []
+        N = range(len(list_of_chat_objects))[::-1]
+        for i in N:
+            chatBox = ClickableFrame(list_of_chat_objects[i], self, i, self)
+            self.clickableChats.append(chatBox)
+            chatBoxes.append(chatBox)
+        return chatBoxes
 
     def loadChats(self):
         # parse json data and get all chats
@@ -62,3 +373,212 @@ class ChatsFrame(QFrame):
         chats = self.chatBox(data["chats"])
         return chats
     
+    def find_first_matched_agent(self, agents, interaction):
+        agent_id = interaction['agent']['id']
+        for agent in agents:
+            if agent['id'] == agent_id:
+                return agent  # Return the first match immediately
+        # If no match is found, return a default object
+        return {"name": "Agent"}
+    
+    def find_first_matched_team(self, teams, conversation):
+        team_id = conversation['team']
+        for team in teams:
+            if team['id'] == team_id:
+                return team  # Return the first match immediately
+        # If no match is found, return a default object
+        return {
+            "name": "Crew",
+            "agents": []
+        }
+    
+    def createUserBox(self, user):
+        userFrame = QFrame()
+        userFrame.setStyleSheet("""
+            background-color: #5E5E5E;
+            border-radius: 5;
+        """)
+        userBox = QVBoxLayout()
+        userLabel = QLabel("You:")
+        # userLabel.setStyleSheet("""
+        #     background-color: #464545;
+        #     border-radius: 5;
+        #     padding: 5;
+        # """)
+        textLabel = QLabel(user["text"])
+        textLabel.setStyleSheet("""
+            background-color: #464545;
+            border-radius: 5;
+            padding: 5;
+        """)
+        userBox.addWidget(userLabel)
+        userBox.addWidget(textLabel)
+        userFrame.setLayout(userBox)
+        return userFrame
+
+    def createAgentBox(self, agent, agentName):
+        agentFrame = QFrame()
+        agentFrame.setStyleSheet("""
+            background-color: #5E5E5E;
+            border-radius: 5;
+        """)
+        agentBox = QVBoxLayout()
+        agentLabel = QLabel(agentName)
+        # agentLabel.setStyleSheet("""
+        #     background-color: #464545;
+        #     border-radius: 5;
+        #     padding: 5;
+        # """)
+        textLabel = QLabel(agent["text"])
+        textLabel.setStyleSheet("""
+            background-color: #464545;
+            border-radius: 5;
+            padding: 5;
+        """)
+        agentBox.addWidget(agentLabel)
+        agentBox.addWidget(textLabel)
+        agentFrame.setLayout(agentBox)
+        return agentFrame
+
+    def createInteractionBox(self, interaction, agentName):
+        interactionFrame = QFrame()
+        interactionFrame.setStyleSheet("""
+            background-color: #464545;
+            border-radius: 10;
+        """)
+        userBox = self.createUserBox(interaction["user"])
+        agentBox = self.createAgentBox(interaction["agent"], agentName)
+        interactionBox = QVBoxLayout()
+        interactionBox.addWidget(userBox)
+        interactionBox.addWidget(agentBox)
+        interactionFrame.setLayout(interactionBox)
+        return interactionFrame
+    
+    def loadChat(self, chat):
+        for i in reversed(range(self.chatVBox.count())): 
+            widget = self.chatVBox.itemAt(i).widget()
+            if widget is not None:
+                widget.deleteLater()
+    
+        # Load teams and agents data
+        with open('./data/teams.json') as teamsFile:
+            teamsData = json.load(teamsFile)
+        teams = teamsData["teams"]
+        team = self.find_first_matched_team(teams, chat)
+
+        with open('./data/agents.json') as agentsFile:
+            agentsData = json.load(agentsFile)
+        agents = agentsData["agents"]
+        conversation = chat["conversation"]
+
+        nameLabel = QLabel(chat["name"])
+        nameLabel.setStyleSheet("""
+            font: 16px;
+            margin-left: 8px;
+        """)
+        teamLabelLeft = QLabel("            Team: [")
+        teamLabel = QLabel(team["name"])
+        teamLabel.setStyleSheet("""
+            color: #75DBE9;
+            text-decoration: underline;
+        """)
+        teamLabelRight = QLabel("]")
+        dateLabel = QLabel(chat["date"])
+
+        topFrame = QFrame()
+        toplayout = QHBoxLayout()
+        toplayout.addWidget(nameLabel)
+        toplayout.addWidget(teamLabelLeft)
+        toplayout.addWidget(teamLabel)
+        toplayout.addWidget(teamLabelRight)
+        toplayout.addStretch()
+        toplayout.addWidget(dateLabel)
+        topFrame.setLayout(toplayout)
+
+        self.chatVBox.addWidget(topFrame)
+        
+        scrollArea = QScrollArea()
+        scrollArea.verticalScrollBar().setStyleSheet("""
+            QScrollBar:vertical
+            {
+                background-color: #464545;
+                width: 15px;
+                margin: 15px 3px 15px 3px;
+                border: 3px transparent #464545;
+                border-radius: 4px;
+            }
+
+            QScrollBar::handle:vertical
+            {
+                background-color: #5E5E5E;
+                min-height: 5px;
+                border-radius: 4px;
+            }
+
+            QScrollBar::sub-line:vertical
+            {
+                margin: 3px 0px 3px 0px;
+                border-image: url(:/qss_icons/rc/up_arrow_disabled.png);
+                height: 10px;
+                width: 10px;
+                subcontrol-position: top;
+                subcontrol-origin: margin;
+            }
+
+            QScrollBar::add-line:vertical
+            {
+                margin: 3px 0px 3px 0px;
+                border-image: url(:/qss_icons/rc/down_arrow_disabled.png);
+                height: 10px;
+                width: 10px;
+                subcontrol-position: bottom;
+                subcontrol-origin: margin;
+            }
+
+            QScrollBar::sub-line:vertical:hover,QScrollBar::sub-line:vertical:on
+            {
+                border-image: url(:/qss_icons/rc/up_arrow.png);
+                height: 10px;
+                width: 10px;
+                subcontrol-position: top;
+                subcontrol-origin: margin;
+            }
+
+            QScrollBar::add-line:vertical:hover, QScrollBar::add-line:vertical:on
+            {
+                border-image: url(:/qss_icons/rc/down_arrow.png);
+                height: 10px;
+                width: 10px;
+                subcontrol-position: bottom;
+                subcontrol-origin: margin;
+            }
+
+            QScrollBar::up-arrow:vertical, QScrollBar::down-arrow:vertical
+            {
+                background: none;
+            }
+
+            QScrollBar::add-page:vertical, QScrollBar::sub-page:vertical
+            {
+                background: none;
+            }
+        """)
+        scrollArea.setWidgetResizable(True)
+        scrollAreaWidgetContents = QWidget()
+        scrollArea.setWidget(scrollAreaWidgetContents)
+
+        scrollLayout = QVBoxLayout(scrollAreaWidgetContents)
+        # For each interaction, create and add its box to the layout
+        for interaction in conversation:
+            agent = self.find_first_matched_agent(agents, interaction)
+            agentName = agent["name"]
+            interactionBox = self.createInteractionBox(interaction, agentName)
+            scrollLayout.addWidget(interactionBox)
+
+        scrollLayout.addStretch()
+        self.chatVBox.addWidget(scrollArea)
+        # Add stretch to push everything up and make the layout scrollable if needed
+        self.chatFrame.setStyleSheet("""
+            background-color: #464545;
+        """)
+        print("Chat loaded")

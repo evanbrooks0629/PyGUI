@@ -36,7 +36,7 @@
     },
     {
       "id": "53476553",
-      "name": "WriterKelsey",
+      "name": "Writer",
       "description": "Is great at writing books",
       "max_consecutive_auto_reply": 2,
       "default_auto_reply": "",
@@ -68,6 +68,147 @@
         "Code",
         "Test"
       ],
+      "system_message": ""
+    },
+    {
+      "id": "63476554",
+      "name": "Front End Dev",
+      "description": "Codes front end code",
+      "max_consecutive_auto_reply": 2,
+      "default_auto_reply": "",
+      "llm_config": {
+        "model": "Mistral-7B Chat Int4",
+        "base_url": "127.0.0.1:8081",
+        "api_type": "openai",
+        "api_key": "NULL"
+      },
+      "skills": [
+        "Code",
+        "Test"
+      ],
+      "system_message": "You are a front end developer specializing in React.js"
+    },
+    {
+      "id": "63476555",
+      "name": "Back End Dev",
+      "description": "Codes back end code",
+      "max_consecutive_auto_reply": 2,
+      "default_auto_reply": "",
+      "llm_config": {
+        "model": "Mistral-7B Chat Int4",
+        "base_url": "127.0.0.1:8081",
+        "api_type": "openai",
+        "api_key": "NULL"
+      },
+      "skills": [
+        "Code",
+        "Test"
+      ],
+      "system_message": "You are a back end developer specializing in Express.js"
+    },
+    {
+      "id": "63476556",
+      "name": "",
+      "description": "",
+      "max_consecutive_auto_reply": 0,
+      "default_auto_reply": "",
+      "llm_config": {
+        "model": "Mistral-7B Chat Int4",
+        "base_url": "127.0.0.1:8081",
+        "api_type": "openai",
+        "api_key": "NULL"
+      },
+      "skills": [],
+      "system_message": ""
+    },
+    {
+      "id": "63476557",
+      "name": "",
+      "description": "",
+      "max_consecutive_auto_reply": 0,
+      "default_auto_reply": "",
+      "llm_config": {
+        "model": "Mistral-7B Chat Int4",
+        "base_url": "127.0.0.1:8081",
+        "api_type": "openai",
+        "api_key": "NULL"
+      },
+      "skills": [],
+      "system_message": ""
+    },
+    {
+      "id": "63476558",
+      "name": "",
+      "description": "",
+      "max_consecutive_auto_reply": 0,
+      "default_auto_reply": "",
+      "llm_config": {
+        "model": "Mistral-7B Chat Int4",
+        "base_url": "127.0.0.1:8081",
+        "api_type": "openai",
+        "api_key": "NULL"
+      },
+      "skills": [],
+      "system_message": ""
+    },
+    {
+      "id": "63476559",
+      "name": "",
+      "description": "",
+      "max_consecutive_auto_reply": 0,
+      "default_auto_reply": "",
+      "llm_config": {
+        "model": "Mistral-7B Chat Int4",
+        "base_url": "127.0.0.1:8081",
+        "api_type": "openai",
+        "api_key": "NULL"
+      },
+      "skills": [],
+      "system_message": ""
+    },
+    {
+      "id": "63476560",
+      "name": "",
+      "description": "",
+      "max_consecutive_auto_reply": 0,
+      "default_auto_reply": "",
+      "llm_config": {
+        "model": "Mistral-7B Chat Int4",
+        "base_url": "127.0.0.1:8081",
+        "api_type": "openai",
+        "api_key": "NULL"
+      },
+      "skills": [],
+      "system_message": ""
+    },
+    {
+      "id": "63476561",
+      "name": "",
+      "description": "",
+      "max_consecutive_auto_reply": 0,
+      "default_auto_reply": "",
+      "llm_config": {
+        "model": "Mistral-7B Chat Int4",
+        "base_url": "127.0.0.1:8081",
+        "api_type": "openai",
+        "api_key": "NULL"
+      },
+      "skills": [],
+      "system_message": ""
+    },
+    {
+      "id": "63476562",
+      "name": "",
+      "description": "",
+      "max_consecutive_auto_reply": 0,
+      "default_auto_reply": "",
+      "llm_config": {
+        "model": "Mistral-7B Chat Int4",
+        "base_url": "127.0.0.1:8081",
+        "api_type": "openai",
+        "api_key": "NULL"
+      },
+      "skills": [],
       "system_message": ""
     }
   ]
