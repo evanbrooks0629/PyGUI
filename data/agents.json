@@ -51,6 +51,24 @@
         "Search"
       ],
       "system_message": "You are a professional writer, known for your insightful and engaging articles. You transform complex concepts into compelling narratives. Reply 'TERMINATE' in the end when everything is done."
+    },
+    {
+      "id": "53476554",
+      "name": "Test Dummy",
+      "description": "Take hits for the team",
+      "max_consecutive_auto_reply": 2,
+      "default_auto_reply": "",
+      "llm_config": {
+        "model": "Mistral-7B Chat Int4",
+        "base_url": "127.0.0.1:8081",
+        "api_type": "openai",
+        "api_key": "NULL"
+      },
+      "skills": [
+        "Code",
+        "Test"
+      ],
+      "system_message": ""
     }
   ]
 }

@@ -310,6 +310,7 @@ class ClickableFrame(QFrame):
         self.setLayout(agentVBox)
 
     def mousePressEvent(self, event):
+        self.widget.editPanel.deselect_all_checkboxes()
         print(self.agent['name'] ,"Frame Clicked!")
         self.widget.agentPanel.resetBorders(self) #unmark the borders of the previously clicked agent
         self.clicked = not self.clicked
@@ -321,6 +322,11 @@ class ClickableFrame(QFrame):
             self.widget.editPanel.editLabel.setText("Edit Your Agent")
             self.widget.editPanel.createButton.setText("Edit Agent")
             self.widget.editPanel.deleteButton.show()
+
+            for checkbox in self.widget.editPanel.checkboxes:
+                if checkbox.text().strip() in self.skills:
+                    checkbox.setChecked(True)
+
         self.update()
 
     def paintEvent(self, event):
@@ -660,6 +666,14 @@ class AgentValues(QFrame):
 
         found_agent = next(filtered_agents, None)
 
+        selected_skills = []
+        for checkbox in self.checkboxes:
+            if checkbox.isChecked():
+                selected_skills.append(checkbox.text().strip())
+                checkbox.setChecked(False)
+
+        self.currentAgent["skills"] = selected_skills
+
         if found_agent:
             #Update at agent id
             #add functionality for getting value from dropdown and check boxes (LLM and skills)
@@ -685,7 +699,7 @@ class AgentValues(QFrame):
             self.currentAgent['max_consecutive_auto_reply'] = self.slider.value()
             self.currentAgent['default_auto_reply'] = self.currentAgent['default_auto_reply'] #have to check if json has these fields (threw error on first one)
             self.currentAgent['llm_config'] = self.currentAgent['llm_config'] #same issue as above
-            self.currentAgent['skills'] = self.currentAgent['skills']
+            self.currentAgent['skills'] = selected_skills
             self.currentAgent['system_message'] = self.sys_input.text()
             data['agents'].append(self.currentAgent)
 
