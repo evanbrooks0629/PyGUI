@@ -193,7 +193,11 @@
         "api_type": "openai",
         "api_key": "NULL"
       },
-      "skills": [],
+      "skills": [
+        "PyGUI",
+        "Write",
+        "Search"
+      ],
       "system_message": ""
     }
   ]
