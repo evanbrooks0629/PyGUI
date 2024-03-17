@@ -98,7 +98,6 @@ class SendChatButton(QPushButton):
     def __init__(self):
         super().__init__()
         self.setCursor(QCursor(Qt.CursorShape.PointingHandCursor))
-        self.clicked = False
         self.setStyleSheet("""
             QPushButton {  
                 background-color: transparent;
@@ -120,8 +119,8 @@ class SendChatButton(QPushButton):
         self.setIcon(QIcon('./assets/SendIcon.png'))
         self.setIconSize(QSize(48, 48))
     
-    def mousePressEvent(self, event):
-        print("Send Chat Clicked")
+    # def mousePressEvent(self, event):
+    #     print("Send Chat Clicked")
 
 class ChatsFrame(QFrame):
     def __init__(self):
@@ -280,18 +279,19 @@ class ChatsFrame(QFrame):
         bottomlay = QHBoxLayout()
         bottomlay.setContentsMargins(0, 0, 10, 0)
         
-        textBox = QPlainTextEdit()
-        textBox.setStyleSheet("""
+        self.textBox = QPlainTextEdit()
+        self.textBox.setStyleSheet("""
             background-color: #464545;
             color: #ffffff;
             padding: 20;
         """)
         # textBox.setFixedHeight(50)
-        textBox.setPlaceholderText("Type anything...")
+        self.textBox.setPlaceholderText("Type anything...")
 
         sendChatButton = SendChatButton()
+        sendChatButton.clicked.connect(self.uploadPrompt)
 
-        bottomlay.addWidget(textBox)
+        bottomlay.addWidget(self.textBox)
         bottomlay.addWidget(sendChatButton)
         bottom.setLayout(bottomlay)
 
@@ -423,7 +423,7 @@ class ChatsFrame(QFrame):
             border-radius: 5;
         """)
         agentBox = QVBoxLayout()
-        agentLabel = QLabel(agentName)
+        agentLabel = QLabel(agentName + ":")
         # agentLabel.setStyleSheet("""
         #     background-color: #464545;
         #     border-radius: 5;
@@ -582,3 +582,15 @@ class ChatsFrame(QFrame):
             background-color: #464545;
         """)
         print("Chat loaded")
+
+    def uploadPrompt(self):
+        # get the text from user input (self.textBox)
+        prompt = self.textBox.toPlainText()
+        self.textBox.clear() # empty text box
+        print(prompt)
+
+        # send the prompt to server where LLM is running
+        # userproxy.initiatechat
+        # get models, functions, teams, agents
+        # functions will have nothing for now
+        
