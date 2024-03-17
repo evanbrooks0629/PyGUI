@@ -193,22 +193,11 @@
         "api_type": "openai",
         "api_key": "NULL"
       },
-      "skills": [],
-      "system_message": ""
-    },
-    {
-      "id": "63476562",
-      "name": "",
-      "description": "",
-      "max_consecutive_auto_reply": 0,
-      "default_auto_reply": "",
-      "llm_config": {
-        "model": "Mistral-7B Chat Int4",
-        "base_url": "127.0.0.1:8081",
-        "api_type": "openai",
-        "api_key": "NULL"
-      },
-      "skills": [],
+      "skills": [
+        "PyGUI",
+        "Write",
+        "Search"
+      ],
       "system_message": ""
     }
   ]

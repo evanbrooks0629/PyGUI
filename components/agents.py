@@ -273,6 +273,9 @@ class AddAgentButton(QPushButton):
 
     def mousePressEvent(self, event):
         print("Adding Agent Clicked")
+        for checkbox in self.parent().parent().parent().parent().mainFrame.editPanel.checkboxes:
+            if checkbox.isChecked():
+                checkbox.setChecked(False)
         newAgent = {
             "id": '',
             "name": "",
