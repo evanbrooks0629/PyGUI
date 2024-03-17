@@ -119,8 +119,9 @@ class SendChatButton(QPushButton):
         self.setIcon(QIcon('./assets/SendIcon.png'))
         self.setIconSize(QSize(48, 48))
     
-    # def mousePressEvent(self, event):
-    #     print("Send Chat Clicked")
+    def mousePressEvent(self, event):
+        print("Send Chat Clicked")
+        self.parent().parent().parent().uploadPrompt()
 
 class ChatsFrame(QFrame):
     def __init__(self):
@@ -128,6 +129,8 @@ class ChatsFrame(QFrame):
 
         self.clickableChats = []
         self.currentChat = {}
+        self.allTeams = []
+        self.selectedTeam = {}
 
         self.setStyleSheet("""
             background-color: #464545; 
@@ -257,47 +260,10 @@ class ChatsFrame(QFrame):
             background-color: #5E5E5E; 
             border-radius: 20;
         """)
-        # chatHBox = QHBoxLayout()
-        ## GET ALL CHATS
 
         self.chatVBox = QVBoxLayout()
 
-        ### ADD CONTENT TO CHATVBOX HERE ###
-
-        chatBox = QLabel("Welcome to TaskForceAI. Type the task you’d like our engineering team to complete, and we’ll make sure everything is done perfectly! To get started, just type below.")
-        chatBox.setStyleSheet("""
-            background-color: #464545; 
-            border-radius: 20;
-            padding: 20;
-        """)
-        # chatBox.setFixedHeight(200)
-        chatBox.setWordWrap(True)
-        chatBox.setAlignment(Qt.AlignmentFlag.AlignTop)
-
-        bottom = QFrame()
-        bottom.setFixedHeight(150)
-        bottomlay = QHBoxLayout()
-        bottomlay.setContentsMargins(0, 0, 10, 0)
-        
-        self.textBox = QPlainTextEdit()
-        self.textBox.setStyleSheet("""
-            background-color: #464545;
-            color: #ffffff;
-            padding: 20;
-        """)
-        # textBox.setFixedHeight(50)
-        self.textBox.setPlaceholderText("Type anything...")
-
-        sendChatButton = SendChatButton()
-        sendChatButton.clicked.connect(self.uploadPrompt)
-
-        bottomlay.addWidget(self.textBox)
-        bottomlay.addWidget(sendChatButton)
-        bottom.setLayout(bottomlay)
-
-        self.chatVBox.addWidget(chatBox)
-        self.chatVBox.addWidget(bottom)
-        
+        self.loadDefaultChatView()
 
         self.chatFrame.setLayout(self.chatVBox)
 
@@ -312,38 +278,110 @@ class ChatsFrame(QFrame):
             if widget is not None:
                 widget.deleteLater()
 
-        chatBox = QLabel("Welcome to TaskForceAI. Type the task you’d like our engineering team to complete, and we’ll make sure everything is done perfectly! To get started, just type below.")
+        chatBox = QLabel("Welcome to TaskForceAI. Select a Team of Agents to complete your task. Then, type the task you’d like your Team to complete.")
         chatBox.setStyleSheet("""
             background-color: #464545; 
             border-radius: 20;
             padding: 20;
+            font: 16px;
         """)
-        # chatBox.setFixedHeight(200)
+        # chatBox.setFixedHeight(80)
         chatBox.setWordWrap(True)
         chatBox.setAlignment(Qt.AlignmentFlag.AlignTop)
 
-        bottom = QFrame()
-        bottom.setFixedHeight(150)
-        bottomlay = QHBoxLayout()
-        bottomlay.setContentsMargins(0, 0, 10, 0)
+        teamSelectFrame = QFrame()
+        teamSelectFrame.setStyleSheet("""
+            background-color: #464545;
+            color: #ffffff;
+            padding: 20;
+        """)
+        teamSelectFrame.setFixedHeight(300)
+
+        selectFrame = QFrame()
+        teamBox = QHBoxLayout()
+        selectBox = QVBoxLayout()
         
-        textBox = QPlainTextEdit()
-        textBox.setStyleSheet("""
+        # select team
+
+        selectTeamLabel = QLabel('Select a Team')
+        selectTeamLabel.setStyleSheet("""
+            background-color: #464545;
+            padding: 0;
+        """)
+        selectTeamLabel.setFixedWidth(200)
+
+        self.teamComboBox = QComboBox()
+        # self.teamComboBox.setStyleSheet("background-color: #5E5E5E;")
+        # self.teamComboBox.setCursor(QCursor(Qt.CursorShape.PointingHandCursor))
+        
+        # #pull from models.json
+        teamsFile = open('./data/teams.json')
+        teamsData = json.load(teamsFile)
+        teams = teamsData["teams"]
+
+        agentsFile = open('./data/agents.json')
+        agentsData = json.load(agentsFile)
+        agents = agentsData["agents"]
+
+        teamsList = []
+
+        # #pulls default models for new agent (add functionality for pulling from agents.json)
+        for team in teams:
+            self.teamComboBox.addItem(team['name'])
+
+            agentIds = team['agents']
+
+            teamObj = {
+                "name": team["name"],
+                "id": team["id"],
+                "agents": []
+            }
+
+            teamAgents = []
+
+            for id in agentIds:
+                agent = [agent for agent in agents if agent["id"] == id][0]
+                teamAgents.append(agent)
+
+            teamObj["agents"] = teamAgents
+            # print(teamObj)
+            teamsList.append(teamObj)
+        # print(teamsList)
+        self.allTeams = teamsList
+
+        selectBox.addWidget(selectTeamLabel)
+        selectBox.addWidget(self.teamComboBox)
+        selectFrame.setLayout(selectBox)
+
+        teamBox.addWidget(selectFrame)
+        teamSelectFrame.setLayout(teamBox)
+
+        middleSpacer = QFrame()
+
+        self.bottom = QFrame()
+        self.bottom.setFixedHeight(150)
+        self.bottomlay = QHBoxLayout()
+        self.bottomlay.setContentsMargins(0, 0, 10, 0)
+        
+        self.textBox = QPlainTextEdit()
+        self.textBox.setStyleSheet("""
             background-color: #464545;
             color: #ffffff;
             padding: 20;
         """)
         # textBox.setFixedHeight(50)
-        textBox.setPlaceholderText("Type anything...")
+        self.textBox.setPlaceholderText("Type anything...")
 
-        sendChatButton = SendChatButton()
+        self.sendChatButton = SendChatButton()
 
-        bottomlay.addWidget(textBox)
-        bottomlay.addWidget(sendChatButton)
-        bottom.setLayout(bottomlay)
+        self.bottomlay.addWidget(self.textBox)
+        self.bottomlay.addWidget(self.sendChatButton)
+        self.bottom.setLayout(self.bottomlay)
 
-        self.chatVBox.addWidget(chatBox, 1)
-        self.chatVBox.addWidget(bottom)
+        self.chatVBox.addWidget(chatBox)
+        self.chatVBox.addWidget(teamSelectFrame)
+        self.chatVBox.addWidget(middleSpacer, 1)
+        self.chatVBox.addWidget(self.bottom)
         self.chatFrame.setStyleSheet("""
             background-color: #5E5E5E;
         """)
@@ -480,7 +518,6 @@ class ChatsFrame(QFrame):
         teamLabel = QLabel(team["name"])
         teamLabel.setStyleSheet("""
             color: #75DBE9;
-            text-decoration: underline;
         """)
         teamLabelRight = QLabel("]")
         dateLabel = QLabel(chat["date"])
@@ -585,12 +622,24 @@ class ChatsFrame(QFrame):
 
     def uploadPrompt(self):
         # get the text from user input (self.textBox)
-        prompt = self.textBox.toPlainText()
+        systemMessage = self.textBox.toPlainText()
         self.textBox.clear() # empty text box
-        print(prompt)
+        print("Prompt: " + systemMessage)
+
+        selectedTeamName = self.teamComboBox.currentText()
+        print("Team: " + selectedTeamName)
+
+        
+        # find team with matching name (will be id but name for now)
+        selectedTeam = [team for team in self.allTeams if team["name"] == selectedTeamName][0]
+        chatObject = {
+            "message": systemMessage,
+            "team": selectedTeam["agents"]
+        }
+
+        print(chatObject) # Bryan this is what u want!!
 
         # send the prompt to server where LLM is running
         # userproxy.initiatechat
         # get models, functions, teams, agents
         # functions will have nothing for now
-        
