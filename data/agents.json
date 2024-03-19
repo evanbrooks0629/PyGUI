@@ -23,10 +23,10 @@
       "max_consecutive_auto_reply": 1,
       "default_auto_reply": "",
       "llm_config": {
-        "model": "Mistral-7B Chat Int4",
-        "base_url": "127.0.0.1:8081",
+        "model": "mistral",
+        "base_url": "http://localhost:11434/v1",
         "api_type": "openai",
-        "api_key": "NULL"
+        "api_key": "ollama"
       },
       "skills": [
         "Write",
@@ -41,10 +41,10 @@
       "max_consecutive_auto_reply": 2,
       "default_auto_reply": "",
       "llm_config": {
-        "model": "Mistral-7B Chat Int4",
-        "base_url": "127.0.0.1:8081",
+        "model": "mistral",
+        "base_url": "http://localhost:11434/v1",
         "api_type": "openai",
-        "api_key": "NULL"
+        "api_key": "ollama"
       },
       "skills": [
         "Write",
@@ -59,10 +59,10 @@
       "max_consecutive_auto_reply": 2,
       "default_auto_reply": "",
       "llm_config": {
-        "model": "Mistral-7B Chat Int4",
-        "base_url": "127.0.0.1:8081",
+        "model": "mistral",
+        "base_url": "http://localhost:11434/v1",
         "api_type": "openai",
-        "api_key": "NULL"
+        "api_key": "ollama"
       },
       "skills": [
         "Code",
@@ -77,10 +77,10 @@
       "max_consecutive_auto_reply": 2,
       "default_auto_reply": "",
       "llm_config": {
-        "model": "Mistral-7B Chat Int4",
-        "base_url": "127.0.0.1:8081",
+        "model": "mistral",
+        "base_url": "http://localhost:11434/v1",
         "api_type": "openai",
-        "api_key": "NULL"
+        "api_key": "ollama"
       },
       "skills": [
         "Code",
@@ -95,10 +95,10 @@
       "max_consecutive_auto_reply": 2,
       "default_auto_reply": "",
       "llm_config": {
-        "model": "Mistral-7B Chat Int4",
-        "base_url": "127.0.0.1:8081",
+        "model": "mistral",
+        "base_url": "http://localhost:11434/v1",
         "api_type": "openai",
-        "api_key": "NULL"
+        "api_key": "ollama"
       },
       "skills": [
         "Code",

@@ -3,6 +3,7 @@ from PyQt6.QtGui import *
 from PyQt6.QtCore import *
 from components.agents import AgentsFrame
 import json
+import autogen
 from datetime import datetime
 
 class ClickableFrame(QFrame):
@@ -620,6 +621,13 @@ class ChatsFrame(QFrame):
         """)
         print("Chat loaded")
 
+    def get_team_agents(self, team_name):
+        # Find the team by name and return a list of agent objects
+        selected_team = next((team for team in self.teams if team["name"] == team_name), None)
+        if selected_team:
+            return [self.agents[agent_id] for agent_id in selected_team["agents"]]
+        return []
+
     def uploadPrompt(self):
         # get the text from user input (self.textBox)
         systemMessage = self.textBox.toPlainText()
@@ -629,17 +637,48 @@ class ChatsFrame(QFrame):
         selectedTeamName = self.teamComboBox.currentText()
         print("Team: " + selectedTeamName)
 
-        
-        # find team with matching name (will be id but name for now)
-        selectedTeam = [team for team in self.allTeams if team["name"] == selectedTeamName][0]
-        chatObject = {
-            "message": systemMessage,
-            "team": selectedTeam["agents"]
-        }
+        # Find team with matching name
+        selectedTeam = next((team for team in self.allTeams if team["name"] == selectedTeamName), None)
+        if not selectedTeam:
+            print("Team not found.")
+            return
 
-        print(chatObject) # Bryan this is what u want!!
+        # Create the UserProxyAgent
+        user_proxy = autogen.UserProxyAgent(
+            name="User_proxy",
+            system_message="A human admin.",
+            code_execution_config={
+                "last_n_messages": 2,
+                "work_dir": "groupchat",
+                "use_docker": False,
+            },
+            human_input_mode="TERMINATE",
+        )
 
-        # send the prompt to server where LLM is running
-        # userproxy.initiatechat
-        # get models, functions, teams, agents
-        # functions will have nothing for now
+        # Create other AssistantAgent objects from the team
+        assistant_agents = [self.create_assistant_agent(agent_info) for agent_info in selectedTeam["agents"]]
+
+        # Combine UserProxyAgent with other agents for the group chat
+        all_agents = [user_proxy] + assistant_agents
+
+        # Create GroupChat and GroupChatManager
+        groupchat = autogen.GroupChat(agents=all_agents, messages=[], max_round=12)
+        manager = autogen.GroupChatManager(groupchat=groupchat, llm_config = {
+            "model": "mistral",
+            "base_url": "http://localhost:11434/v1",
+            "api_type": "openai",
+            "api_key": "ollama"
+            }
+        )
+
+        # Start the chat with the specified message
+        user_proxy.initiate_chat(manager, message=systemMessage)
+
+    def create_assistant_agent(self, agent_info):
+        # Assuming AssistantAgent creation logic based on agent_info
+        return autogen.AssistantAgent(
+            name=agent_info["name"],
+            system_message=agent_info["description"],
+            llm_config=agent_info["llm_config"],
+            # Add other parameters based on your agent_info structure
+        )
