@@ -55,7 +55,7 @@
     {
       "id": "53476554",
       "name": "Test Dummy",
-      "description": "Take hits for the team",
+      "description": "You are proficient in writing unit tests using Jest.js",
       "max_consecutive_auto_reply": 2,
       "default_auto_reply": "",
       "llm_config": {
@@ -68,7 +68,7 @@
         "Code",
         "Test"
       ],
-      "system_message": ""
+      "system_message": "Given a set of code, define and run unit tests using Jest"
     },
     {
       "id": "63476554",
