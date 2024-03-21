@@ -15,7 +15,7 @@ class App(QMainWindow):
         super().__init__()
         self.setWindowTitle("TaskForceAI")
         self.showMaximized()
-        self.setStyleSheet("background-color: #464545;") 
+        self.setStyleSheet("background-color: #464545; color: #ffffff;") 
 
         self.tab_widget = QTabWidget()
         self.tab_widget.setTabBar(CustomTabBar())

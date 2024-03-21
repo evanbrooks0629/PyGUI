@@ -6,6 +6,28 @@ import json
 import autogen
 from datetime import datetime
 
+class CustomComboBox(QComboBox):
+    def __init__(self, *args, **kwargs):
+        super(CustomComboBox, self).__init__(*args, **kwargs)
+        self.setIconSize(QSize(16, 16))
+        self.setStyleSheet("""
+            QComboBox::down-arrow {
+                image: url('./assets/DropdownIcon.png');
+                width: 30px;
+                height: 30px;
+                padding-right: 10px;
+            }
+            QComboBox::drop-down {
+                border: 0px;
+            }
+            QComboBox {
+                background-color: #5E5E5E;
+                border-radius: 10px;
+                color: #ffffff;
+                margin-top: 30px
+            } 
+        """)
+
 class ClickableFrame(QFrame):
     def __init__(self, currentChat, widget, pos, parent=None):
         super().__init__(parent)
@@ -18,9 +40,7 @@ class ClickableFrame(QFrame):
 
         # import any information needed from the agent for editing
         self.chat = currentChat #raw json information
-        self.clicked = False #variable to keep tracked of click
-        #self.setFixedWidth(190)
-        # self.setFixedHeight(200)
+        self.clicked = False 
         self.setStyleSheet("""
             background-color: #464545;
             border-radius: 10;
@@ -42,6 +62,7 @@ class ClickableFrame(QFrame):
         self.setLayout(chatVBox)
 
     def mousePressEvent(self, event):
+        super().mousePressEvent(event)
         print(self.chat['name'] ,"Frame Clicked!")
         print(self.conversation)
         self.widget.resetBorders(self) #unmark the borders of the previously clicked agent
@@ -49,12 +70,6 @@ class ClickableFrame(QFrame):
         if self.clicked:
             self.widget.clickedChat = self
             self.widget.currentChat = self.chat
-
-        # load chat in parent window
-        # in form of :
-        # <title> at top
-        # then conversation in chunks with scroll
-        # each chunk (interaction between user / agent) will have two boxes for each
 
         self.update()
         self.widget.loadChat(self.chat)
@@ -96,13 +111,12 @@ class NewChatButton(QPushButton):
         self.setIconSize(QSize(48, 24))
 
 class SendChatButton(QPushButton):
-    def __init__(self):
-        super().__init__()
+    def __init__(self, parent=None):
+        super().__init__(parent)
         self.setCursor(QCursor(Qt.CursorShape.PointingHandCursor))
         self.setStyleSheet("""
             QPushButton {  
                 background-color: transparent;
-                border: 2px solid #75DBE9;
                 border-radius: 10;
                 color: #75DBE9;
             }
@@ -115,14 +129,15 @@ class SendChatButton(QPushButton):
                 background-color: #5E5E5E;
             }
         """)
-        self.setFixedWidth(100)
-        self.setFixedHeight(100)
+        self.setFixedWidth(60)
+        self.setFixedHeight(60)
         self.setIcon(QIcon('./assets/SendIcon.png'))
         self.setIconSize(QSize(48, 48))
     
     def mousePressEvent(self, event):
+        super().mousePressEvent(event)
         print("Send Chat Clicked")
-        self.parent().parent().parent().uploadPrompt()
+        # self.uploadPrompt()
 
 class ChatsFrame(QFrame):
     def __init__(self):
@@ -133,12 +148,17 @@ class ChatsFrame(QFrame):
         self.allTeams = []
         self.selectedTeam = {}
 
+        self.sendChatButton = SendChatButton(self)
+        self.sendChatButton.show()
+        self.sendChatButton.clicked.connect(self.uploadPrompt)
+
         self.setStyleSheet("""
             background-color: #464545; 
             border-radius: 20;
         """)
 
         self.mainhbox = QHBoxLayout()
+        self.setLayout(self.mainhbox)
 
         self.chatHistoryFrame = QFrame()
         self.chatHistoryFrame.setStyleSheet("""
@@ -151,7 +171,7 @@ class ChatsFrame(QFrame):
 
         # New chat button and line
         newChatButton = NewChatButton()
-        newChatButton.clicked.connect(self.loadDefaultChatView)  # Ensure this method is defined to reset the chat view
+        newChatButton.clicked.connect(self.loadDefaultChatView)
         newChatLine = QLabel()
         newChatLine.setStyleSheet("""
             background-color: #464545;
@@ -231,7 +251,6 @@ class ChatsFrame(QFrame):
         """)
         scrollArea.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
         scrollArea.setWidgetResizable(True)
-        # scrollArea.setStyleSheet("border: none;")  # Optional, for aesthetics
 
         # Container for past chats, with its own layout
         chatsContainer = QWidget()
@@ -246,15 +265,10 @@ class ChatsFrame(QFrame):
 
         # Add the container to the scroll area
         scrollArea.setWidget(chatsContainer)
-
-        # Add the scroll area to the chat history layout
         chatHistoryLayout.addWidget(scrollArea)
 
         self.chatHistoryFrame.setLayout(chatHistoryLayout)
         self.mainhbox.addWidget(self.chatHistoryFrame)
-
-        # Additional setup for the rest of your layout...
-        self.setLayout(self.mainhbox)
 
         self.chatFrame = QFrame()
         self.chatFrame.setStyleSheet("""
@@ -270,9 +284,9 @@ class ChatsFrame(QFrame):
 
         self.mainhbox.addWidget(self.chatHistoryFrame)
         self.mainhbox.addWidget(self.chatFrame)
-        self.setLayout(self.mainhbox)
 
     def loadDefaultChatView(self):
+
         # Clear existing content from the chat layout
         for i in reversed(range(self.chatVBox.count())): 
             widget = self.chatVBox.itemAt(i).widget()
@@ -290,32 +304,38 @@ class ChatsFrame(QFrame):
         chatBox.setWordWrap(True)
         chatBox.setAlignment(Qt.AlignmentFlag.AlignTop)
 
-        teamSelectFrame = QFrame()
-        teamSelectFrame.setStyleSheet("""
+        self.teamSelectFrame = QFrame()
+        self.teamSelectFrame.setStyleSheet("""
             background-color: #464545;
             color: #ffffff;
-            padding: 20;
+            padding: 20px;
         """)
-        teamSelectFrame.setFixedHeight(300)
+        self.teamSelectFrame.setFixedHeight(300)
 
         selectFrame = QFrame()
+        self.agentsFrame = QFrame()
         teamBox = QHBoxLayout()
         selectBox = QVBoxLayout()
-        
-        # select team
+        self.agentsBox = QVBoxLayout()
+        self.agentsFrame.setLayout(self.agentsBox)
+        self.agentsFrame.setStyleSheet("background-color: #464545;")
+
+        verticalLine = QLabel("")
+        verticalLine.setStyleSheet("""
+            background-color: #5E5E5E;
+        """)
+        verticalLine.setFixedWidth(2)
 
         selectTeamLabel = QLabel('Select a Team')
         selectTeamLabel.setStyleSheet("""
             background-color: #464545;
             padding: 0;
+            padding-bottom: 10px;
         """)
-        selectTeamLabel.setFixedWidth(200)
 
-        self.teamComboBox = QComboBox()
-        # self.teamComboBox.setStyleSheet("background-color: #5E5E5E;")
-        # self.teamComboBox.setCursor(QCursor(Qt.CursorShape.PointingHandCursor))
+        self.teamComboBox = CustomComboBox()
+        self.teamComboBox.currentIndexChanged[int].connect(self.retrieveTeamOnChange)
         
-        # #pull from models.json
         teamsFile = open('./data/teams.json')
         teamsData = json.load(teamsFile)
         teams = teamsData["teams"]
@@ -326,10 +346,7 @@ class ChatsFrame(QFrame):
 
         teamsList = []
 
-        # #pulls default models for new agent (add functionality for pulling from agents.json)
         for team in teams:
-            self.teamComboBox.addItem(team['name'])
-
             agentIds = team['agents']
 
             teamObj = {
@@ -345,24 +362,26 @@ class ChatsFrame(QFrame):
                 teamAgents.append(agent)
 
             teamObj["agents"] = teamAgents
-            # print(teamObj)
             teamsList.append(teamObj)
-        # print(teamsList)
+
+            self.teamComboBox.addItem(team["name"], teamObj)
+
         self.allTeams = teamsList
+        self.selectedTeam = self.allTeams[0]
 
         selectBox.addWidget(selectTeamLabel)
-        selectBox.addWidget(self.teamComboBox)
+        selectBox.addWidget(self.teamComboBox, 1)
+        selectBox.addStretch(1)
         selectFrame.setLayout(selectBox)
 
         teamBox.addWidget(selectFrame)
-        teamSelectFrame.setLayout(teamBox)
-
-        middleSpacer = QFrame()
+        teamBox.addWidget(verticalLine)
+        teamBox.addWidget(self.agentsFrame)
+        self.teamSelectFrame.setLayout(teamBox)
 
         self.bottom = QFrame()
-        self.bottom.setFixedHeight(150)
         self.bottomlay = QHBoxLayout()
-        self.bottomlay.setContentsMargins(0, 0, 10, 0)
+        self.bottomlay.setContentsMargins(0, 0, 0, 0)
         
         self.textBox = QPlainTextEdit()
         self.textBox.setStyleSheet("""
@@ -370,23 +389,66 @@ class ChatsFrame(QFrame):
             color: #ffffff;
             padding: 20;
         """)
-        # textBox.setFixedHeight(50)
         self.textBox.setPlaceholderText("Type anything...")
-
-        self.sendChatButton = SendChatButton()
+        self.sendChatButton.show()  
+        self.sendChatButton.raise_()  
 
         self.bottomlay.addWidget(self.textBox)
-        self.bottomlay.addWidget(self.sendChatButton)
         self.bottom.setLayout(self.bottomlay)
 
         self.chatVBox.addWidget(chatBox)
-        self.chatVBox.addWidget(teamSelectFrame)
-        self.chatVBox.addWidget(middleSpacer, 1)
-        self.chatVBox.addWidget(self.bottom)
+        self.chatVBox.addWidget(self.teamSelectFrame)
+        self.chatVBox.addWidget(self.bottom, 1)
         self.chatFrame.setStyleSheet("""
             background-color: #5E5E5E;
         """)
         self.resetBorders(None)
+
+    def resizeEvent(self, event):
+        super().resizeEvent(event)
+        # Calculate the new position
+        newX = self.width() - self.sendChatButton.width() - 50
+        newY = self.height() - self.sendChatButton.height() - 50
+        self.sendChatButton.move(newX, newY)
+        self.sendChatButton.raise_()  
+
+    @pyqtSlot(int)
+    def retrieveTeamOnChange(self, index):
+        agentObject = self.teamComboBox.itemData(index)
+        if agentObject is not None:
+            self.selectedTeam = agentObject
+            agentsListText = ""
+            for agent in self.selectedTeam["agents"]:
+                agentsListText += "→   " + agent["name"] + ": " + agent["description"] + "\n"
+            
+            agentTitle = QLabel(agentObject["name"] + " Agents:")
+            agentTitle.setStyleSheet("""
+                background-color: #464545;
+                padding: 0;
+                padding-bottom: 10px;
+            """)
+
+            agentsList = QLabel(agentsListText)
+            agentsList.setStyleSheet("""
+                background-color: #464545;
+                padding: 10px;
+            """)
+            agentsList.setFixedHeight(150)
+            
+            self.clearLayout(self.agentsFrame.layout())
+            self.agentsFrame.layout().addWidget(agentTitle)
+            self.agentsFrame.layout().addWidget(agentsList)
+            self.agentsFrame.layout().addStretch()
+
+    def clearLayout(self, layout):
+        if layout is not None:
+            while layout.count():
+                item = layout.takeAt(0)
+                widget = item.widget()
+                if widget is not None:
+                    widget.deleteLater()
+                else:
+                    self.clearLayout(item.layout())
 
     def resetBorders(self, clicked_frame):
         # Reset borders of all clickable frames except the clicked frame
@@ -439,11 +501,6 @@ class ChatsFrame(QFrame):
         """)
         userBox = QVBoxLayout()
         userLabel = QLabel("You:")
-        # userLabel.setStyleSheet("""
-        #     background-color: #464545;
-        #     border-radius: 5;
-        #     padding: 5;
-        # """)
         textLabel = QLabel(user["text"])
         textLabel.setStyleSheet("""
             background-color: #464545;
@@ -463,11 +520,6 @@ class ChatsFrame(QFrame):
         """)
         agentBox = QVBoxLayout()
         agentLabel = QLabel(agentName + ":")
-        # agentLabel.setStyleSheet("""
-        #     background-color: #464545;
-        #     border-radius: 5;
-        #     padding: 5;
-        # """)
         textLabel = QLabel(agent["text"])
         textLabel.setStyleSheet("""
             background-color: #464545;
@@ -494,6 +546,7 @@ class ChatsFrame(QFrame):
         return interactionFrame
     
     def loadChat(self, chat):
+        self.sendChatButton.hide()
         for i in reversed(range(self.chatVBox.count())): 
             widget = self.chatVBox.itemAt(i).widget()
             if widget is not None:
@@ -627,15 +680,20 @@ class ChatsFrame(QFrame):
         if selected_team:
             return [self.agents[agent_id] for agent_id in selected_team["agents"]]
         return []
+    
+    # def create_assistant_agent(self, agent_info):
+        # Assuming AssistantAgent creation logic based on agent_info
+            # return autogen.AssistantAgent(
+            #     name=agent_info["name"],
+            #     system_message=agent_info["description"],
+            #     llm_config=agent_info["llm_config"],
+            #     # Add other parameters based on your agent_info structure
+            # )
 
     def uploadPrompt(self):
         # get the text from user input (self.textBox)
         systemMessage = self.textBox.toPlainText()
         self.textBox.clear() # empty text box
-        print("Prompt: " + systemMessage)
-
-        selectedTeamName = self.teamComboBox.currentText()
-        print("Team: " + selectedTeamName)
 
         # Find team with matching name
         selectedTeam = next((team for team in self.allTeams if team["name"] == selectedTeamName), None)
@@ -682,3 +740,39 @@ class ChatsFrame(QFrame):
             llm_config=agent_info["llm_config"],
             # Add other parameters based on your agent_info structure
         )
+
+        if self.selectedTeam == {}:
+            return
+        
+        print(systemMessage)
+
+        # Create the UserProxyAgent
+            # user_proxy = autogen.UserProxyAgent(
+            #     name="User_proxy",
+            #     system_message="A human admin.",
+            #     code_execution_config={
+            #         "last_n_messages": 2,
+            #         "work_dir": "groupchat",
+            #         "use_docker": False,
+            #     },
+            #     human_input_mode="TERMINATE",
+            # )
+
+            # # Create other AssistantAgent objects from the team
+            # assistant_agents = [self.create_assistant_agent(agent_info) for agent_info in self.selectedTeam["agents"]]
+
+            # # Combine UserProxyAgent with other agents for the group chat
+            # all_agents = [user_proxy] + assistant_agents
+
+            # # Create GroupChat and GroupChatManager
+            # groupchat = autogen.GroupChat(agents=all_agents, messages=[], max_round=12)
+            # manager = autogen.GroupChatManager(groupchat=groupchat, llm_config = {
+            #     "model": "codellama",
+            #     "base_url": "http://localhost:11434/v1",
+            #     "api_type": "openai",
+            #     "api_key": "ollama"
+            #     }
+            # )
+
+            # # Start the chat with the specified message
+            # user_proxy.initiate_chat(manager, message=systemMessage)

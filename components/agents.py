@@ -504,7 +504,7 @@ class AgentValues(QFrame):
             LLMcombobox.addItem(currentModel['model'])
 
         importButton = QPushButton(
-            text=" Import", icon=QIcon('./assets/Vector.png')
+            text=" Import", icon=QIcon('./assets/PlusIcon.png')
         )
         importButton.setFixedHeight(30)
         importButton.setCursor(QCursor(Qt.CursorShape.PointingHandCursor))
