@@ -32,36 +32,14 @@ class AddFunctionButton(QPushButton):
 
     def mousePressEvent(self, event):
         print("add clicked")
-
-    # def mousePressEvent(self, event):
-    #     print("Adding Agent Clicked")
-    #     for checkbox in self.parent().parent().parent().parent().mainFrame.editPanel.checkboxes:
-    #         if checkbox.isChecked():
-    #             checkbox.setChecked(False)
-    #     newAgent = {
-    #         "id": '',
-    #         "name": "",
-    #         "description": "",
-    #         "max_consecutive_auto_reply": 0,
-    #         "default_auto_reply": "",
-    #         "llm_config": {
-    #             "model": "Mistral-7B Chat Int4",
-    #             "base_url": "127.0.0.1:8081",
-    #             "api_type": "openai",
-    #             "api_key": "NULL"
-    #         },
-    #         "skills": [],
-    #         "system_message": ""
-    #     }
-
-    #     # Update current agent, text, and borders 
-    #     # if theres a better way to do this that would be great, but this is working well
-    #     self.parent().parent().parent().parent().mainFrame.editPanel.currentAgent = newAgent
-    #     self.parent().parent().parent().parent().mainFrame.editPanel.setFields(newAgent)
-    #     self.parent().parent().parent().parent().mainFrame.editPanel.editLabel.setText("Build Your Agent")
-    #     self.parent().parent().parent().parent().mainFrame.editPanel.createButton.setText("Create Agent")
-    #     self.parent().parent().parent().parent().mainFrame.editPanel.deleteButton.hide()
-    #     self.parent().parent().parent().parent().mainFrame.agentPanel.resetBorders(self)
+        self.parent().parent().parent().parent().mainFrame.editPanel.currentFunction = {
+            "id": "",
+            "name": "",
+            "filePath": ""
+        }
+        self.parent().parent().parent().parent().mainFrame.editPanel.nameInput.setText("untitled")
+        self.parent().parent().parent().parent().mainFrame.editPanel.editor.setPlainText("")
+        self.parent().parent().parent().parent().mainFrame.functionsPanel.resetBorders(self)
 
 class ImportButton(QPushButton):
     def __init__(self):
@@ -217,6 +195,90 @@ class DeleteButton(QPushButton):
         # self.setText("Save Changes")
         self.setIcon(QIcon('./assets/DeleteIcon.png'))
         self.setIconSize(QSize(48, 24))
+    
+    def mousePressEvent(self, event):
+        dialog = DeleteDialog()
+        dialog.exec()
+        willDelete = dialog.willDelete
+        print(willDelete)
+
+        if willDelete:
+            functionId = self.parent().parent().parent().currentFunction["id"]
+
+            file = open('./data/functions.json')
+            data = json.load(file)
+            updatedFunctions = []
+            for function in data["functions"]:
+                if function["id"] != functionId:
+                    updatedFunctions.append(function)
+            data["functions"] = updatedFunctions
+            with open('./data/functions.json', 'w') as file:
+                # Write the updated data back to the file
+                json.dump(data, file, indent=2)
+
+            self.parent().parent().parent().parent().functionsPanel.refreshFrame() #not teamsFrame
+            self.parent().parent().parent().currentTeam = {
+                "name": "",
+                "id": "",
+                "agents": []
+            }  
+            self.parent().parent().parent().nameInput.setText("untitled")
+            self.parent().parent().parent().editor.setPlainText("")
+            self.parent().parent().parent().parent().functionsPanel.resetBorders(self)
+
+            # self.setFields(self.currentTeam)
+            # self.deselect_all_checkboxes()
+            # self.editLabel.setText("Build Your Team")
+            # self.createButton.setText("Create Team")
+            # self.deleteButton.hide()
+            # self.update()
+
+class DeleteDialog(QDialog):
+    def __init__(self):
+        super().__init__()
+        self.setWindowTitle("Are You Sure You Want to Delete?")
+        self.setStyleSheet("background-color: #464545;") 
+        self.setGeometry(((QGuiApplication.primaryScreen().size().width()//2) - 150), ((QGuiApplication.primaryScreen().size().height()//2) - 75), 300, 150)
+        layout = QVBoxLayout()
+        label = QLabel("Delete this agent?")
+        layout.addWidget(label)
+
+        # Add a button to the dialog
+        deleteButton = QPushButton("Yes, Delete")
+        deleteButton.setStyleSheet("""
+            background-color: transparent;
+            text-decoration: underline;
+        """)
+        deleteButton.setCursor(QCursor(Qt.CursorShape.PointingHandCursor))
+        
+        noButton = QPushButton("Cancel")
+        noButton.setStyleSheet("""
+            background-color: #5E5E5E;
+            border-radius: 10px;
+            padding: 5px;
+        """)
+        noButton.setFixedHeight(30)
+        noButton.setCursor(QCursor(Qt.CursorShape.PointingHandCursor))
+        
+        layout.addWidget(deleteButton)
+        layout.addWidget(noButton)
+
+        # Set the layout for the dialog
+        self.setLayout(layout)
+
+        self.willDelete = False
+
+        # Connect the button to a slot
+        deleteButton.clicked.connect(self.on_delete_button_clicked)
+        noButton.clicked.connect(self.on_no_button_clicked)
+
+    def on_no_button_clicked(self):
+        self.close()
+
+    def on_delete_button_clicked(self):
+        print('delete clicked')
+        self.willDelete = True
+        self.close()
 
 class ClickableFrame(QFrame):
     # acts as a button
