@@ -1,34 +1,34 @@
 {
-    "functions": [
-        {
-            "name": "PyGUI",
-            "id": "33333333",
-            "files": ["../code/PyGUI.py"]
-        },
-        {
-            "name": "Write",
-            "id": "44444444",
-            "files": ["../code/Write.py"]
-        },
-        {
-            "name": "Search",
-            "id": "55555555",
-            "files": ["../code/Search.py"]
-        },
-        {
-            "name": "Code",
-            "id": "66666666",
-            "files": ["../code/Code.py"]
-        },
-        {
-            "name": "Design",
-            "id": "77777777",
-            "files": ["../code/Design.py"]
-        },
-        {
-            "name": "Test",
-            "id": "88888888",
-            "files": ["../code/Test.py"]
-        }
-    ]
+  "functions": [
+    {
+      "name": "PyGUI",
+      "id": "33333333",
+      "filePath": "./functions/PyGUI.py"
+    },
+    {
+      "name": "Write",
+      "id": "44444444",
+      "filePath": "./functions/Write.py"
+    },
+    {
+      "name": "Search",
+      "id": "55555555",
+      "filePath": "./functions/Search.py"
+    },
+    {
+      "name": "Code",
+      "id": "66666666",
+      "filePath": "./functions/Code.py"
+    },
+    {
+      "name": "Design",
+      "id": "77777777",
+      "filePath": "./functions/Design.py"
+    },
+    {
+      "name": "Test",
+      "id": "88888888",
+      "filePath": "./functions/Test.py"
+    }
+  ]
 }
