@@ -162,11 +162,10 @@ class TeamsPanel(QFrame):
 
     def teamBox(self, list_of_team_objects):
         self.teams.setStyleSheet("background-color: #5E5E5E; border-radius: 20;")
-        self.teamsLayout.addWidget(self.teamLabel, 0, 0, 1, 3)  # Span label across 3 columns
-
+        self.teamsLayout.addWidget(self.teamLabel, 0, 0, 1, 6) 
         addButton = AddTeamButton()
         # addButton.setFixedSize(80, 40)
-        self.teamsLayout.addWidget(addButton, 0, 2, 1, 1)
+        self.teamsLayout.addWidget(addButton, 0, 4, 1, 2)
 
         ind = 0
         for currentTeam in list_of_team_objects:
@@ -174,22 +173,25 @@ class TeamsPanel(QFrame):
             teamBox = ClickableFrame(obj, self.mainFrame, ind, self)
             ind = ind + 1
             self.clickableTeams.append(teamBox)
-            self.teamsLayout.addWidget(teamBox, self.row, self.col)
+
+            self.teamsLayout.addWidget(teamBox, self.row, self.col * 3, 1, 3)
             self.col += 1
-            if self.col == 3:
+            if self.col == 2:
                 self.col = 0
                 self.row += 1
+            #self.teamsLayout.setStretchFactor(teamBox, 1) 
         self.teamsLayout.setAlignment(Qt.AlignmentFlag.AlignTop)
         self.teams.setLayout(self.teamsLayout)
     
     def add_team(self, obj):
         new_box = ClickableFrame(obj, self.mainFrame, len(self.clickableTeams), self)
         self.clickableTeams.append(new_box)
-        self.teamsLayout.addWidget(new_box, self.row, self.col)
+        self.teamsLayout.addWidget(new_box, self.row, self.col * 3, 1, 3)
         self.col += 1
-        if self.col == 3:
+        if self.col == 2:
             self.col = 0
             self.row += 1
+        #self.teamsLayout.setStretchFactor(teamBox, 1) 
 
     def resetBorders(self, clicked_frame):
         # Reset borders of all clickable frames except the clicked frame
@@ -238,8 +240,8 @@ class AddTeamButton(QPushButton):
                 background-color: #5E5E5E;
             }
         """)
-        self.setText("Add Team")
-        self.setIcon(QIcon('./assets/AddAgentIcon.png'))
+        self.setText("Create Team")
+        self.setIcon(QIcon('./assets/AddTeamIcon.png'))
         self.setIconSize(QSize(48, 24))
 
     def mousePressEvent(self, event):
@@ -272,7 +274,7 @@ class ClickableFrame(QFrame):
         # import any information needed from the agent for editing
         self.team = currentTeam #raw json information
         self.clicked = False #variable to keep tracked of click
-        #self.setFixedWidth(190)
+        #self.setFixedWidth(220)
         self.setFixedHeight(200)
         self.setStyleSheet("""
             background-color: #464545;
@@ -297,12 +299,17 @@ class ClickableFrame(QFrame):
         
         teamVBox.addWidget(self.nameLabel)
         teamVBox.addWidget(descriptionLine)
-        # agentVBox.addWidget(systemMessageLabel)
-
-        agentsText = QLabel("Agents:")
+        agentsText = QLabel("Agents")
         teamVBox.addWidget(agentsText)
+
+        file = open('./data/agents.json')
+        data = json.load(file)
+        #make sure synchronized w/ deleted agents
+
         for i in range(len(self.agents)):
-            agentLabel = QLabel(self.agents[i])
+            filtered_agents = filter(lambda agent: agent.get('id') == self.agents[i], data.get('agents', []))
+            found_agent = next(filtered_agents, None)
+            agentLabel = QLabel(found_agent['name'])
             agentLabel.setAlignment(Qt.AlignmentFlag.AlignCenter)
             agentLabel.setStyleSheet("""
                 border: 1px solid white;
@@ -329,7 +336,7 @@ class ClickableFrame(QFrame):
             self.widget.editPanel.deleteButton.show()
 
             for checkbox in self.widget.editPanel.checkboxes:
-                if checkbox.text().strip() in self.agents:
+                if checkbox.property("value") in self.agents:
                     checkbox.setChecked(True)
 
         self.update()
@@ -400,7 +407,7 @@ class AddAgents(QFrame):
         scroll_area.setWidgetResizable(True)
         scroll_bar = scroll_area.verticalScrollBar()
         scroll_bar.setStyleSheet("QScrollBar:vertical { background: #5E5E5E; width: 14px;}")
-        scroll_area.setStyleSheet("QScrollArea { margin-left: 20px; margin-right: 40px; max-height: 10em; max-width: 20em }")
+        scroll_area.setStyleSheet("QScrollArea { margin-left: 20px; margin-right: 40px; min-height: 20em; max-width: 20em }")
 
         checkbox_widget = QWidget()
         checkbox_layout = QVBoxLayout(checkbox_widget)
@@ -411,7 +418,8 @@ class AddAgents(QFrame):
         agents = data["agents"]
 
         for currentFunction in agents:
-            checkbox = QCheckBox('   ' + currentFunction['id'])
+            checkbox = QCheckBox('   ' + currentFunction['name'])
+            checkbox.setProperty("value", currentFunction['id'])
             checkbox_layout.addWidget(checkbox)
             self.checkboxes.append(checkbox)
     
@@ -486,7 +494,7 @@ class AddAgents(QFrame):
         agentLayout.addWidget(agentLabel)
         agentLayout.addWidget(checksWidget)
         agentsWidget.setLayout(agentLayout)
-        agentsWidget.setFixedHeight(250)
+        agentsWidget.setFixedHeight(375)
         contentLayout.addWidget(agentsWidget)
 
         self.deleteButton = QPushButton("Delete Team")
@@ -560,7 +568,7 @@ class AddAgents(QFrame):
         selected_agents = []
         for checkbox in self.checkboxes:
             if checkbox.isChecked():
-                selected_agents.append(checkbox.text().strip())
+                selected_agents.append(checkbox.property("value"))
                 checkbox.setChecked(False)
 
         self.currentTeam["agents"] = selected_agents
@@ -574,7 +582,7 @@ class AddAgents(QFrame):
             self.currentTeam['id'] = str(int(data.get('teams', [])[-1]['id']) + 1)  #add id functionality
             print(str(int(data.get('teams', [])[-1]['id'])))
             self.currentTeam['name'] = self.name_input.text()
-            self.currentTeam['skills'] = selected_agents
+            self.currentTeam['agents'] = selected_agents
             data['teams'].append(self.currentTeam)
 
         with open('./data/teams.json', 'w') as file:
@@ -593,6 +601,7 @@ class AddAgents(QFrame):
             "agents": []
         }  
         self.setFields(self.currentTeam)
+        self.deselect_all_checkboxes()
         self.editLabel.setText("Build Your Tean")
         self.createButton.setText("Create Team")
         self.deleteButton.hide()
@@ -626,6 +635,7 @@ class AddAgents(QFrame):
                 "agents": []
             }  
             self.setFields(self.currentTeam)
+            self.deselect_all_checkboxes()
             self.editLabel.setText("Build Your Team")
             self.createButton.setText("Create Team")
             self.deleteButton.hide()
