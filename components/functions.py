@@ -159,16 +159,10 @@ class SaveButton(QPushButton):
                 # Write the updated data back to the file
             json.dump(data, newFile, indent=2)
 
-        # update the functions panel to show new addition
-        self.parent().parent().parent().currentFunction = {
-            "id": "",
-            "name": "",
-            "filePath": ""
-        }
-        self.parent().parent().parent().nameInput.setText("untitled")
-        self.parent().parent().parent().editor.setPlainText("")
-        
-        self.parent().parent().parent().parent().functionsPanel.refreshFrame()
+        #update file path to match the text edit
+        for current in self.parent().parent().parent().parent().functionsPanel.clickableFunctions:
+            if current.clicked:
+                current.nameLabel.setText(functionName)
 
 class DeleteButton(QPushButton):
     def __init__(self):
@@ -217,10 +211,10 @@ class DeleteButton(QPushButton):
                 json.dump(data, file, indent=2)
 
             self.parent().parent().parent().parent().functionsPanel.refreshFrame() #not teamsFrame
-            self.parent().parent().parent().currentTeam = {
+            self.parent().parent().parent().currentFunction = {
                 "name": "",
                 "id": "",
-                "agents": []
+                "filePath": "" 
             }  
             self.parent().parent().parent().nameInput.setText("untitled")
             self.parent().parent().parent().editor.setPlainText("")
