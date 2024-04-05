@@ -24,6 +24,11 @@
       "name": "Test",
       "id": "88888888",
       "filePath": "./functions/Test.py"
+    },
+    {
+      "name": "Code",
+      "id": "88888889",
+      "filePath": "./functions/Code.py"
     }
   ]
 }

@@ -45,6 +45,7 @@ class AddFunctionButton(QPushButton):
         self.parent().parent().parent().parent().mainFrame.editPanel.nameInput.setText("untitled")
         self.parent().parent().parent().parent().mainFrame.editPanel.editor.setPlainText("")
         self.parent().parent().parent().parent().mainFrame.functionsPanel.resetBorders(self)
+        self.parent().parent().parent().parent().mainFrame.editPanel.importButton.show()
 
 class ImportButton(QToolButton):
     def __init__(self, getCurrentFunction, parent=None):
@@ -65,20 +66,69 @@ class ImportButton(QToolButton):
         self.setToolButtonStyle(Qt.ToolButtonStyle.ToolButtonTextUnderIcon)
 
     def mousePressEvent(self, event):
-        currentFunction = self.getCurrentFunction()
-        source_path = currentFunction["filePath"]  # Adjust to your file's path
-        downloads_path = str(Path.home() / 'Downloads')
-        print(source_path)
-        print(downloads_path)
-        file_name = currentFunction["name"] + ".py"
-        destination_path = os.path.join(downloads_path, file_name)  # Adjust filename as needed
-        try:
-            shutil.copyfile(source_path, destination_path)
-            print(f'File copied successfully to {destination_path}')
-            # Here you can add any post-copy success actions, like showing a success message to the user.
-        except Exception as e:
-            print(f'Error copying file: {e}')
-            # Handle errors, for example, showing an error message to the user.
+        # Filter to only show Python files
+        filter = "Python Files (*.py)"
+        response = QFileDialog.getOpenFileName(
+            parent=self,
+            caption="Open Python File",
+            directory=os.path.expanduser('~'),
+            filter=filter
+        )
+        
+        # 'response' is a tuple where the first element is the file path,
+        # and the second element is the filter used.
+        # If a file is selected, the path will be printed to the console.
+        sourceFilePath = response[0]
+        if sourceFilePath:
+
+            project_directory = os.path.join(os.getcwd(), 'functions')  # Using current working directory for simplicity
+
+            # Extract the base filename from the selected file
+            base_filename = os.path.basename(sourceFilePath)
+
+            # Construct the save file path within the project directory
+            saveFilePath = os.path.join(project_directory, base_filename)
+
+            try:
+                # Copy the file from source to destination
+                shutil.copyfile(sourceFilePath, saveFilePath)
+                print(f"File saved successfully to: {saveFilePath}")
+
+                functionName = sourceFilePath.split("/")[-1].split(".")[0]
+                print("name: " + functionName)
+                # update UI
+                self.parent().parent().parent().nameInput.setText(functionName)
+                
+                file = open(f"./functions/{functionName}.py", "r")
+                code = file.read()
+
+                self.parent().parent().parent().editor.setPlainText(code)
+
+                dialog = Alert("SUCCESS", "Function imported successfully.")
+                
+            except Exception as e:
+                print(f"Error saving file: {e}")
+
+                dialog = Alert("ERROR", "Function imported unsuccessfully.")
+           
+            dialog_width = 250
+            dialog_height = 50
+
+            main_window = self.window()
+
+            # Calculate the new position
+            new_x = main_window.geometry().x() + main_window.geometry().width() - dialog_width - 100
+            new_y = main_window.geometry().y() + main_window.geometry().height() - dialog_height - 50
+
+            # Move the dialog to the bottom right corner of the main application window
+            dialog.move(new_x, new_y)
+            
+            # Optional: Set dialog window flags, like making it frameless
+            dialog.setWindowFlags(Qt.WindowType.FramelessWindowHint)
+            
+            dialog.exec()
+
+
 
 class ExportButton(QToolButton):
     def __init__(self, getCurrentFunction, parent=None):
@@ -110,11 +160,14 @@ class ExportButton(QToolButton):
             shutil.copyfile(source_path, destination_path)
             print(f'File copied successfully to {destination_path}')
             # Here you can add any post-copy success actions, like showing a success message to the user.
+
+            dialog = Alert("SUCCESS", "Function downloaded successfully.")
         except Exception as e:
             print(f'Error copying file: {e}')
             # Handle errors, for example, showing an error message to the user.
 
-        dialog = Alert("SUCCESS", "Function downloaded successfully.")
+            dialog = Alert("ERROR", "Function downloaded unsuccessfully.")
+        
         dialog_width = 250
         dialog_height = 50
 
@@ -131,6 +184,8 @@ class ExportButton(QToolButton):
         dialog.setWindowFlags(Qt.WindowType.FramelessWindowHint)
         
         dialog.exec()
+
+        
 
 class SaveButton(QToolButton):
     def __init__(self, parent=None):
@@ -402,6 +457,7 @@ class ClickableFrame(QFrame):
 
             self.widget.functionsPanel.parent().editPanel.editor.setPlainText(code)
             self.widget.functionsPanel.parent().editPanel.nameInput.setText(self.function["name"])
+            self.widget.functionsPanel.parent().editPanel.importButton.hide()
             self.widget.functionsPanel.update() 
 
         self.update()
