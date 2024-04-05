@@ -3,6 +3,11 @@ from PyQt6.QtWidgets import *
 from PyQt6.QtGui import *
 from PyQt6.QtCore import *
 import json
+import sys
+import shutil
+from pathlib import Path
+import os
+from components.alert import Alert
 
 class AddFunctionButton(QPushButton):
     def __init__(self):
@@ -41,83 +46,108 @@ class AddFunctionButton(QPushButton):
         self.parent().parent().parent().parent().mainFrame.editPanel.editor.setPlainText("")
         self.parent().parent().parent().parent().mainFrame.functionsPanel.resetBorders(self)
 
-class ImportButton(QPushButton):
-    def __init__(self):
-        super().__init__()
+class ImportButton(QToolButton):
+    def __init__(self, getCurrentFunction, parent=None):
+        super().__init__(parent)
         self.setCursor(QCursor(Qt.CursorShape.PointingHandCursor))
         self.clicked = False
+        self.getCurrentFunction = getCurrentFunction
         self.setStyleSheet("""
-            QPushButton {
-                background-color: transparent;
-                border: 2px solid #75DBE9;
-                height: 50;
-                border-radius: 10;
-                color: #75DBE9;
-            }
-                           
-            QPushButton:hover {
-                background-color: #111111;
-            }
-
-            QPushButton:pressed {
-                background-color: #5E5E5E;
-            }
+            color: #75DBE9;
+            text-decoration: underline;
+            text-align: bottom;
+            font-size: 11px;
         """)
-        # self.setText("Import Python File")
+        self.setText("Import Function")
+        # self.setText("Save Changes")
         self.setIcon(QIcon('./assets/ImportIcon.png'))
-        self.setIconSize(QSize(48, 24))
+        self.setIconSize(QSize(54, 36))
+        self.setToolButtonStyle(Qt.ToolButtonStyle.ToolButtonTextUnderIcon)
 
-class ExportButton(QPushButton):
-    def __init__(self):
-        super().__init__()
+    def mousePressEvent(self, event):
+        currentFunction = self.getCurrentFunction()
+        source_path = currentFunction["filePath"]  # Adjust to your file's path
+        downloads_path = str(Path.home() / 'Downloads')
+        print(source_path)
+        print(downloads_path)
+        file_name = currentFunction["name"] + ".py"
+        destination_path = os.path.join(downloads_path, file_name)  # Adjust filename as needed
+        try:
+            shutil.copyfile(source_path, destination_path)
+            print(f'File copied successfully to {destination_path}')
+            # Here you can add any post-copy success actions, like showing a success message to the user.
+        except Exception as e:
+            print(f'Error copying file: {e}')
+            # Handle errors, for example, showing an error message to the user.
+
+class ExportButton(QToolButton):
+    def __init__(self, getCurrentFunction, parent=None):
+        super().__init__(parent)
         self.setCursor(QCursor(Qt.CursorShape.PointingHandCursor))
         self.clicked = False
+        self.getCurrentFunction = getCurrentFunction
         self.setStyleSheet("""
-            QPushButton {
-                background-color: transparent;
-                border: 2px solid #75DBE9;
-                height: 50;
-                border-radius: 10;
-                color: #75DBE9;
-            }
-                           
-            QPushButton:hover {
-                background-color: #111111;
-            }
-
-            QPushButton:pressed {
-                background-color: #5E5E5E;
-            }
+            color: #75DBE9;
+            text-decoration: underline;
+            text-align: bottom;
+            font-size: 11px;
         """)
-        # self.setText("Export Python File")
+        self.setText("Export Function")
+        # self.setText("Save Changes")
         self.setIcon(QIcon('./assets/ExportIcon.png'))
-        self.setIconSize(QSize(48, 24))
+        self.setIconSize(QSize(54, 36))
+        self.setToolButtonStyle(Qt.ToolButtonStyle.ToolButtonTextUnderIcon)
 
-class SaveButton(QPushButton):
+    def mousePressEvent(self, event):
+        currentFunction = self.getCurrentFunction()
+        source_path = currentFunction["filePath"]  # Adjust to your file's path
+        downloads_path = str(Path.home() / 'Downloads')
+        print(source_path)
+        print(downloads_path)
+        file_name = currentFunction["name"] + ".py"
+        destination_path = os.path.join(downloads_path, file_name)  # Adjust filename as needed
+        try:
+            shutil.copyfile(source_path, destination_path)
+            print(f'File copied successfully to {destination_path}')
+            # Here you can add any post-copy success actions, like showing a success message to the user.
+        except Exception as e:
+            print(f'Error copying file: {e}')
+            # Handle errors, for example, showing an error message to the user.
+
+        dialog = Alert("SUCCESS", "Function downloaded successfully.")
+        dialog_width = 250
+        dialog_height = 50
+
+        main_window = self.window()
+
+        # Calculate the new position
+        new_x = main_window.geometry().x() + main_window.geometry().width() - dialog_width - 100
+        new_y = main_window.geometry().y() + main_window.geometry().height() - dialog_height - 50
+
+        # Move the dialog to the bottom right corner of the main application window
+        dialog.move(new_x, new_y)
+        
+        # Optional: Set dialog window flags, like making it frameless
+        dialog.setWindowFlags(Qt.WindowType.FramelessWindowHint)
+        
+        dialog.exec()
+
+class SaveButton(QToolButton):
     def __init__(self, parent=None):
         super().__init__(parent)
         self.setCursor(QCursor(Qt.CursorShape.PointingHandCursor))
         self.clicked = False
         self.setStyleSheet("""
-            QPushButton {
-                background-color: transparent;
-                border: 2px solid #75DBE9;
-                height: 50;
-                border-radius: 10;
-                color: #75DBE9;
-            }
-                           
-            QPushButton:hover {
-                background-color: #111111;
-            }
-
-            QPushButton:pressed {
-                background-color: #5E5E5E;
-            }
+            color: #75DBE9;
+            text-decoration: underline;
+            text-align: bottom;
+            font-size: 11px;
         """)
+        self.setText("Save Function")
         # self.setText("Save Changes")
         self.setIcon(QIcon('./assets/SaveIcon.png'))
-        self.setIconSize(QSize(48, 24))
+        self.setIconSize(QSize(54, 36))
+        self.setToolButtonStyle(Qt.ToolButtonStyle.ToolButtonTextUnderIcon)
 
     def mousePressEvent(self, event):
         super().mousePressEvent(event)
@@ -164,34 +194,59 @@ class SaveButton(QPushButton):
             if current.clicked:
                 current.nameLabel.setText(functionName)
 
-class DeleteButton(QPushButton):
+        self.parent().parent().parent().parent().functionsPanel.refreshFrame() #not teamsFrame
+        self.parent().parent().parent().parent().functionsPanel.resetBorders(self)
+
+        self.openDialog()
+    
+    def openDialog(self):
+
+        dialog = Alert("SUCCESS", "Function saved successfully.")
+        dialog_width = 250
+        dialog_height = 50
+
+        main_window = self.window()
+
+        # Calculate the new position
+        new_x = main_window.geometry().x() + main_window.geometry().width() - dialog_width - 100
+        new_y = main_window.geometry().y() + main_window.geometry().height() - dialog_height - 50
+
+        # Move the dialog to the bottom right corner of the main application window
+        dialog.move(new_x, new_y)
+        
+        # Optional: Set dialog window flags, like making it frameless
+        dialog.setWindowFlags(Qt.WindowType.FramelessWindowHint)
+        
+        dialog.exec()
+
+class DeleteButton(QToolButton):
     def __init__(self):
         super().__init__()
         self.setCursor(QCursor(Qt.CursorShape.PointingHandCursor))
         self.clicked = False
         self.setStyleSheet("""
-            QPushButton {
-                background-color: transparent;
-                border: 2px solid #75DBE9;
-                height: 50;
-                border-radius: 10;
-                color: #75DBE9;
-            }
-                           
-            QPushButton:hover {
-                background-color: #111111;
-            }
-
-            QPushButton:pressed {
-                background-color: #5E5E5E;
-            }
+            color: #75DBE9;
+            text-decoration: underline;
+            text-align: bottom;
+            font-size: 11px;
         """)
+        self.setText("Delete Function")
         # self.setText("Save Changes")
         self.setIcon(QIcon('./assets/DeleteIcon.png'))
-        self.setIconSize(QSize(48, 24))
+        self.setIconSize(QSize(54, 36))
+        self.setToolButtonStyle(Qt.ToolButtonStyle.ToolButtonTextUnderIcon)
     
     def mousePressEvent(self, event):
-        dialog = DeleteDialog()
+        dialog = DeleteDialog(self)
+        screen = self.screen()  # Get the screen of the main window
+        rect = screen.geometry()  # Get the geometry of this screen
+        
+        # Optional: Center the dialog within the screen
+        dialog.move(
+            rect.x() + (rect.width() - dialog.width()) // 2,
+            rect.y() + (rect.height() - dialog.height()) // 2,
+        )
+        
         dialog.exec()
         willDelete = dialog.willDelete
         print(willDelete)
@@ -220,21 +275,38 @@ class DeleteButton(QPushButton):
             self.parent().parent().parent().editor.setPlainText("")
             self.parent().parent().parent().parent().functionsPanel.resetBorders(self)
 
-            # self.setFields(self.currentTeam)
-            # self.deselect_all_checkboxes()
-            # self.editLabel.setText("Build Your Team")
-            # self.createButton.setText("Create Team")
-            # self.deleteButton.hide()
-            # self.update()
+            dialog = Alert("SUCCESS", "Function deleted successfully.")
+            dialog_width = 250
+            dialog_height = 50
+
+            main_window = self.parent().window()
+
+            # Calculate the new position
+            new_x = main_window.geometry().x() + main_window.geometry().width() - dialog_width - 100
+            new_y = main_window.geometry().y() + main_window.geometry().height() - dialog_height - 50
+
+            # Move the dialog to the bottom right corner of the main application window
+            dialog.move(new_x, new_y)
+            
+            # Optional: Set dialog window flags, like making it frameless
+            dialog.setWindowFlags(Qt.WindowType.FramelessWindowHint)
+            
+            dialog.exec()
 
 class DeleteDialog(QDialog):
-    def __init__(self):
-        super().__init__()
+    def __init__(self, parent=None):
+        super().__init__(parent)
         self.setWindowTitle("Are You Sure You Want to Delete?")
         self.setStyleSheet("background-color: #464545;") 
-        self.setGeometry(((QGuiApplication.primaryScreen().size().width()//2) - 150), ((QGuiApplication.primaryScreen().size().height()//2) - 75), 300, 150)
+        self.resize(300, 150)
+        # self.setGeometry(((QGuiApplication.primaryScreen().size().width()//2) - 150), ((QGuiApplication.primaryScreen().size().height()//2) - 75), 300, 150)
         layout = QVBoxLayout()
-        label = QLabel("Delete this agent?")
+        label = QLabel("Delete this function?")
+        label.setStyleSheet("""
+            color: #ffffff;
+            text-decoration: none;
+            font-size: 12px;
+        """)
         layout.addWidget(label)
 
         # Add a button to the dialog
@@ -242,6 +314,8 @@ class DeleteDialog(QDialog):
         deleteButton.setStyleSheet("""
             background-color: transparent;
             text-decoration: underline;
+            color: #ffffff;
+            font-size: 12px;
         """)
         deleteButton.setCursor(QCursor(Qt.CursorShape.PointingHandCursor))
         
@@ -249,7 +323,11 @@ class DeleteDialog(QDialog):
         noButton.setStyleSheet("""
             background-color: #5E5E5E;
             border-radius: 10px;
-            padding: 5px;
+            text-align: center;
+            line-height: 12px;
+            color: #ffffff;
+            text-decoration: none;
+            font-size: 12px;
         """)
         noButton.setFixedHeight(30)
         noButton.setCursor(QCursor(Qt.CursorShape.PointingHandCursor))
@@ -273,6 +351,7 @@ class DeleteDialog(QDialog):
         print('delete clicked')
         self.willDelete = True
         self.close()
+
 
 class ClickableFrame(QFrame):
     # acts as a button
@@ -671,6 +750,7 @@ class CodePanel(QFrame):
             "id": "",
             "filePath": ""
         }
+        self.title = "Panel"
 
         ### Top bar - function name, import / export buttons, save changes button (can implement auto save eventually)
         self.topBar = QFrame()
@@ -694,9 +774,9 @@ class CodePanel(QFrame):
         self.buttonBoxLayout = QHBoxLayout()
         self.buttonBox.setLayout(self.buttonBoxLayout)
 
-        self.importButton = ImportButton()
-        self.exportButton = ExportButton()
-        self.saveButton = SaveButton(self)
+        self.importButton = ImportButton(self.getCurrentFunction, self)
+        self.exportButton = ExportButton(self.getCurrentFunction, self)
+        self.saveButton = SaveButton()
         self.deleteButton = DeleteButton()
 
         self.buttonBoxLayout.addWidget(self.importButton)
@@ -736,6 +816,9 @@ class CodePanel(QFrame):
     def saveFunction(self):
         functionName = self.nameInput.text()
         print(functionName)
+
+    def getCurrentFunction(self):
+        return self.currentFunction
 
 class FunctionsFrame(QFrame):
     def __init__(self, parent=None):

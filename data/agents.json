@@ -101,7 +101,6 @@
         "api_key": "ollama"
       },
       "skills": [
-        "Code",
         "Test"
       ],
       "system_message": "You are a back end developer specializing in Express.js"

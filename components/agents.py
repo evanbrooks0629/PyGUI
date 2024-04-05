@@ -3,13 +3,15 @@ from PyQt6.QtWidgets import *
 from PyQt6.QtGui import *
 from PyQt6.QtCore import *
 import json
+from components.alert import Alert
 
 class DeleteDialog(QDialog):
     def __init__(self):
         super().__init__()
         self.setWindowTitle("Are You Sure You Want to Delete?")
         self.setStyleSheet("background-color: #464545;") 
-        self.setGeometry(((QGuiApplication.primaryScreen().size().width()//2) - 150), ((QGuiApplication.primaryScreen().size().height()//2) - 75), 300, 150)
+        self.resize(300, 150)
+        # self.setGeometry(((QGuiApplication.primaryScreen().size().width()//2) - 150), ((QGuiApplication.primaryScreen().size().height()//2) - 75), 300, 150)
         layout = QVBoxLayout()
         label = QLabel("Delete this agent?")
         layout.addWidget(label)
@@ -775,9 +777,12 @@ class AgentValues(QFrame):
                 # Write the updated data back to the file
                 json.dump(data, file, indent=2)
         
+        dialog = Alert("SUCCESS", "Agent created successfully.")
+
         if found_agent:
             self.clickedAgent.refreshFrame(found_agent)
             self.clickedAgent = QFrame()
+            dialog = Alert("SUCCESS", "Agent edited successfully.")
         else:
             self.agentFrame.add_agent(self.currentAgent)
 
@@ -802,8 +807,35 @@ class AgentValues(QFrame):
         self.deleteButton.hide()
         self.update()
 
+        
+        dialog_width = 250
+        dialog_height = 50
+
+        main_window = self.window()
+
+        # Calculate the new position
+        new_x = main_window.geometry().x() + main_window.geometry().width() - dialog_width - 100
+        new_y = main_window.geometry().y() + main_window.geometry().height() - dialog_height - 50
+
+        # Move the dialog to the bottom right corner of the main application window
+        dialog.move(new_x, new_y)
+        
+        # Optional: Set dialog window flags, like making it frameless
+        dialog.setWindowFlags(Qt.WindowType.FramelessWindowHint)
+        
+        dialog.exec()
+
     def deleteClicked(self):
         dialog = DeleteDialog()
+        screen = self.screen()  # Get the screen of the main window
+        rect = screen.geometry()  # Get the geometry of this screen
+        
+        # Optional: Center the dialog within the screen
+        dialog.move(
+            rect.x() + (rect.width() - dialog.width()) // 2,
+            rect.y() + (rect.height() - dialog.height()) // 2,
+        )
+        
         dialog.exec()
         willDelete = dialog.willDelete
         print(willDelete)
@@ -846,6 +878,24 @@ class AgentValues(QFrame):
             self.createButton.setText("Create Agent")
             self.deleteButton.hide()
             self.update()
+
+            dialog = Alert("SUCCESS", "Agent deleted successfully.")
+            dialog_width = 250
+            dialog_height = 50
+
+            main_window = self.window()
+
+            # Calculate the new position
+            new_x = main_window.geometry().x() + main_window.geometry().width() - dialog_width - 100
+            new_y = main_window.geometry().y() + main_window.geometry().height() - dialog_height - 50
+
+            # Move the dialog to the bottom right corner of the main application window
+            dialog.move(new_x, new_y)
+            
+            # Optional: Set dialog window flags, like making it frameless
+            dialog.setWindowFlags(Qt.WindowType.FramelessWindowHint)
+            
+            dialog.exec()
 
     def select_all_checkboxes(self):
         for checkbox in self.checkboxes:
