@@ -9,6 +9,11 @@
             "name": "Developer Team",
             "id": "59493944",
             "agents": ["63476554", "63476555", "53476554"]
+        },
+        {
+            "name": "Software Contractor",
+            "id": "59493945",
+            "agents": ["63476556"]
         }
     ]
 }

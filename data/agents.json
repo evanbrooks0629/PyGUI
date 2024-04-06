@@ -23,7 +23,7 @@
       "max_consecutive_auto_reply": 1,
       "default_auto_reply": "",
       "llm_config": {
-        "model": "mistral",
+        "model": "openhermes",
         "base_url": "http://localhost:11434/v1",
         "api_type": "openai",
         "api_key": "ollama"
@@ -41,7 +41,7 @@
       "max_consecutive_auto_reply": 2,
       "default_auto_reply": "",
       "llm_config": {
-        "model": "mistral",
+        "model": "openhermes",
         "base_url": "http://localhost:11434/v1",
         "api_type": "openai",
         "api_key": "ollama"
@@ -59,7 +59,7 @@
       "max_consecutive_auto_reply": 2,
       "default_auto_reply": "",
       "llm_config": {
-        "model": "mistral",
+        "model": "openhermes",
         "base_url": "http://localhost:11434/v1",
         "api_type": "openai",
         "api_key": "ollama"
@@ -77,7 +77,7 @@
       "max_consecutive_auto_reply": 2,
       "default_auto_reply": "",
       "llm_config": {
-        "model": "mistral",
+        "model": "openhermes",
         "base_url": "http://localhost:11434/v1",
         "api_type": "openai",
         "api_key": "ollama"
@@ -95,7 +95,7 @@
       "max_consecutive_auto_reply": 2,
       "default_auto_reply": "",
       "llm_config": {
-        "model": "mistral",
+        "model": "openhermes",
         "base_url": "http://localhost:11434/v1",
         "api_type": "openai",
         "api_key": "ollama"
@@ -105,6 +105,21 @@
         "Test"
       ],
       "system_message": "You are a back end developer specializing in Express.js"
+    },
+    {
+      "id": "63476556",
+      "name": "Python Expert",
+      "description": "Codes algorithms in Python for clients on Upwork",
+      "max_consecutive_auto_reply": 2,
+      "default_auto_reply": "",
+      "llm_config": {
+        "model": "openhermes",
+        "base_url": "http://localhost:11434/v1",
+        "api_type": "openai",
+        "api_key": "ollama"
+      },
+      "skills": [],
+      "system_message": "Be helpful to the user and write well documented Python3 code that follows the directions."
     }
   ]
 }
