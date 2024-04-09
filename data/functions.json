@@ -3,32 +3,80 @@
     {
       "name": "PyGUI",
       "id": "33333333",
-      "filePath": "./functions/PyGUI.py"
+      "filePath": "./functions/PyGUI.py",
+      "description": "",
+      "parameters": {
+        "type": "object",
+        "properties": {},
+        "required": []
+      }
     },
     {
       "name": "Write",
       "id": "44444444",
-      "filePath": "./functions/Write.py"
+      "filePath": "./functions/Write.py",
+      "description": "",
+      "parameters": {
+        "type": "object",
+        "properties": {},
+        "required": []
+      }
     },
     {
       "name": "Search",
       "id": "55555555",
-      "filePath": "./functions/Search.py"
+      "filePath": "./functions/Search.py",
+      "description": "",
+      "parameters": {
+        "type": "object",
+        "properties": {},
+        "required": []
+      }
     },
     {
       "name": "Design",
       "id": "77777777",
-      "filePath": "./functions/Design.py"
+      "filePath": "./functions/Design.py",
+      "description": "",
+      "parameters": {
+        "type": "object",
+        "properties": {},
+        "required": []
+      }
     },
     {
       "name": "Test",
       "id": "88888888",
-      "filePath": "./functions/Test.py"
+      "filePath": "./functions/Test.py",
+      "description": "",
+      "parameters": {
+        "type": "object",
+        "properties": {},
+        "required": []
+      }
     },
     {
-      "name": "Code",
+      "name": "Add",
       "id": "88888889",
-      "filePath": "./functions/Code.py"
+      "filePath": "./functions/Add.py",
+      "description": "Adds two numbers x and y and returns their sum",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "x": {
+            "type": "int",
+            "description": "First number to be added"
+          },
+          "y": {
+            "type": "int",
+            "description": "Second number to be added"
+          }
+        },
+        "required": [
+          "x",
+          "y"
+        ]
+      }
     }
   ]
 }
