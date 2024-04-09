@@ -23,14 +23,13 @@
       "max_consecutive_auto_reply": 1,
       "default_auto_reply": "",
       "llm_config": {
-        "model": "mistral",
+        "model": "openhermes",
         "base_url": "http://localhost:11434/v1",
         "api_type": "openai",
         "api_key": "ollama"
       },
       "skills": [
-        "Write",
-        "Search"
+        "increment"
       ],
       "system_message": "You are great at digging into the depths of the internet and finding hard-to-get data."
     },
@@ -41,14 +40,14 @@
       "max_consecutive_auto_reply": 2,
       "default_auto_reply": "",
       "llm_config": {
-        "model": "mistral",
+        "model": "openhermes",
         "base_url": "http://localhost:11434/v1",
         "api_type": "openai",
         "api_key": "ollama"
       },
       "skills": [
-        "Write",
-        "Search"
+        "smallest",
+        "increment"
       ],
       "system_message": "You are a professional writer, known for your insightful and engaging articles. You transform complex concepts into compelling narratives. Reply 'TERMINATE' in the end when everything is done."
     },
@@ -59,7 +58,7 @@
       "max_consecutive_auto_reply": 2,
       "default_auto_reply": "",
       "llm_config": {
-        "model": "mistral",
+        "model": "openhermes",
         "base_url": "http://localhost:11434/v1",
         "api_type": "openai",
         "api_key": "ollama"

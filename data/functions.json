@@ -1,6 +1,42 @@
 {
   "functions": [
     {
+      "name": "increment",
+      "id": "33333334",
+      "filePath": "./functions/skills.py",
+      "description": "This functions increments a number by 1",
+        "parameters": {
+            "type": "object", 
+            "properties": {
+                "x": {
+                    "type": "integer",
+                    "description": "The value to increment"
+                }
+            }, 
+            "required": ["x"]
+        }
+    },
+    {
+      "name": "smallest",
+      "id": "33333335",
+      "filePath": "./functions/skills.py",
+      "description": "This functions returns the smallest of two numbers",
+        "parameters": {
+            "type": "object", 
+            "properties": {
+                "x": {
+                    "type": "integer",
+                    "description": "One of the numbers to compare with the other parameter"
+                },
+                "y": {
+                  "type": "integer",
+                  "description": "The other value to compare with the first parameter"
+                }
+            }, 
+            "required": ["x", "y"]
+        }
+    },
+    {
       "name": "PyGUI",
       "id": "33333333",
       "filePath": "./functions/PyGUI.py",

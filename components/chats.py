@@ -3,7 +3,8 @@ from PyQt6.QtGui import *
 from PyQt6.QtCore import *
 from components.agents import AgentsFrame
 import json
-# import autogen
+import autogen
+import ast
 from datetime import datetime
 
 class CustomComboBox(QComboBox):
@@ -674,14 +675,53 @@ class ChatsFrame(QFrame):
         """)
         print("Chat loaded")
 
-    # def create_assistant_agent(self, agent_info):
-        # Assuming AssistantAgent creation logic based on agent_info
-            # return autogen.AssistantAgent(
-            #     name=agent_info["name"],
-            #     system_message=agent_info["description"],
-            #     llm_config=agent_info["llm_config"],
-            #     # Add other parameters based on your agent_info structure
-            # )
+    def create_assistant_agent(self, agent_info):
+        #Assuming AssistantAgent creation logic based on agent_info
+        if len(agent_info["skills"]) == 0:
+            return autogen.AssistantAgent(
+                name=agent_info["name"],
+                system_message=agent_info["description"],
+                llm_config=agent_info["llm_config"],
+                #Add other parameters based on your agent_info structure
+            )
+        else: 
+            allSkills = []
+            with open('./data/functions.json') as funcFile:
+                func = json.load(funcFile)
+            functions = func["functions"]
+
+            fmap = {}
+            o = open("./functions/skills.py", "r")
+            text = o.read()
+            p = ast.parse(text)
+
+            for i in agent_info["skills"]:
+                for j in functions:
+                    if i == j["name"]:
+                        toadd = {"name": j["name"],
+                                "description": j["description"],
+                                "parameters": j["parameters"]
+                                }
+                        allSkills.append(toadd)
+                for node in ast.walk(p):
+                    if isinstance(node, ast.FunctionDef):
+                        if node.name == i:
+                            fmap[node.name] = node
+            #print(allSkills)
+            #print(fmap)
+            llm_config = agent_info["llm_config"]
+            llm_config["functions"] = allSkills
+            agent = autogen.AssistantAgent(
+                name=agent_info["name"],
+                system_message=agent_info["description"],
+                llm_config=llm_config
+            )
+
+            agent.register_function(
+                function_map = fmap
+            )
+
+            return agent
 
     def uploadPrompt(self):
         # get the text from user input (self.textBox)
@@ -693,33 +733,33 @@ class ChatsFrame(QFrame):
         
         print(systemMessage)
 
-        # Create the UserProxyAgent
-            # user_proxy = autogen.UserProxyAgent(
-            #     name="User_proxy",
-            #     system_message="A human admin.",
-            #     code_execution_config={
-            #         "last_n_messages": 2,
-            #         "work_dir": "groupchat",
-            #         "use_docker": False,
-            #     },
-            #     human_input_mode="TERMINATE",
-            # )
+        #Create the UserProxyAgent
+        user_proxy = autogen.UserProxyAgent(
+            name="User_proxy",
+            system_message="A human admin.",
+            code_execution_config={
+                "last_n_messages": 2,
+                "work_dir": "groupchat",
+                "use_docker": False,
+            },
+            human_input_mode="TERMINATE",
+        )
 
-            # # Create other AssistantAgent objects from the team
-            # assistant_agents = [self.create_assistant_agent(agent_info) for agent_info in self.selectedTeam["agents"]]
+        # Create other AssistantAgent objects from the team
+        assistant_agents = [self.create_assistant_agent(agent_info) for agent_info in self.selectedTeam["agents"]]
 
-            # # Combine UserProxyAgent with other agents for the group chat
-            # all_agents = [user_proxy] + assistant_agents
+        # Combine UserProxyAgent with other agents for the group chat
+        all_agents = [user_proxy] + assistant_agents
 
-            # # Create GroupChat and GroupChatManager
-            # groupchat = autogen.GroupChat(agents=all_agents, messages=[], max_round=12)
-            # manager = autogen.GroupChatManager(groupchat=groupchat, llm_config = {
-            #     "model": "codellama",
-            #     "base_url": "http://localhost:11434/v1",
-            #     "api_type": "openai",
-            #     "api_key": "ollama"
-            #     }
-            # )
+        # Create GroupChat and GroupChatManager
+        groupchat = autogen.GroupChat(agents=all_agents, messages=[], max_round=5)
+        manager = autogen.GroupChatManager(groupchat=groupchat, llm_config = {"model": "openhermes",
+                                                                              "base_url": "http://localhost:11434/v1",
+                                                                              "api_type": "openai",
+                                                                              "api_key": "ollama"
+                                                                            }
+        )
 
-            # # Start the chat with the specified message
-            # user_proxy.initiate_chat(manager, message=systemMessage)
+         # # Start the chat with the specified message
+        #when not using group manager just user proxy 
+        user_proxy.initiate_chat(manager, message=systemMessage)
