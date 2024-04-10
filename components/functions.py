@@ -35,7 +35,6 @@ class AddFunctionButton(QPushButton):
         self.setIconSize(QSize(56, 28))
 
     def mousePressEvent(self, event):
-        print("add clicked")
         self.parent().parent().parent().parent().mainFrame.editPanel.currentFunction = {
             "id": "",
             "name": "",
@@ -105,10 +104,8 @@ class ImportButton(QPushButton):
             try:
                 # Copy the file from source to destination
                 shutil.copyfile(sourceFilePath, saveFilePath)
-                print(f"File saved successfully to: {saveFilePath}")
 
                 functionName = sourceFilePath.split("/")[-1].split(".")[0]
-                print("name: " + functionName)
                 # update UI
                 self.parent().parent().parent().nameInput.setText(functionName)
                 
@@ -120,7 +117,6 @@ class ImportButton(QPushButton):
                 dialog = Alert("SUCCESS", "Function imported successfully.")
                 
             except Exception as e:
-                print(f"Error saving file: {e}")
 
                 dialog = Alert("ERROR", "Function imported unsuccessfully.")
            
@@ -169,18 +165,14 @@ class ExportButton(QPushButton):
         currentFunction = self.getCurrentFunction()
         source_path = currentFunction["filePath"]  # Adjust to your file's path
         downloads_path = str(Path.home() / 'Downloads')
-        print(source_path)
-        print(downloads_path)
         file_name = currentFunction["name"] + ".py"
         destination_path = os.path.join(downloads_path, file_name)  # Adjust filename as needed
         try:
             shutil.copyfile(source_path, destination_path)
-            print(f'File copied successfully to {destination_path}')
             # Here you can add any post-copy success actions, like showing a success message to the user.
 
             dialog = Alert("SUCCESS", "Function downloaded successfully.")
         except Exception as e:
-            print(f'Error copying file: {e}')
             # Handle errors, for example, showing an error message to the user.
 
             dialog = Alert("ERROR", "Function downloaded unsuccessfully.")
@@ -227,13 +219,10 @@ class SaveButton(QPushButton):
 
     def mousePressEvent(self, event):
         super().mousePressEvent(event)
-        print("Save Function Clicked")
         functionName = self.parent().parent().parent().parent().nameInput.text()
-        print(functionName + "s")
         fileName = functionName + ".py"
 
         functionDescription = self.parent().parent().parent().parent().descriptionInput.toPlainText()
-        print(functionDescription)
 
         # need to save file and its contents in functionName.py
         pythonCode = self.parent().parent().parent().parent().editor.toPlainText()
@@ -244,7 +233,6 @@ class SaveButton(QPushButton):
         jsonFile = open('./data/functions.json')
         data = json.load(jsonFile)
         lastID = int(data["functions"][-1]["id"]) # for new function
-        print(lastID)
 
         # get function parameters
         paramsObject = {
@@ -268,10 +256,6 @@ class SaveButton(QPushButton):
             # else:
                 # open error dialog
 
-        print(paramsObject)
-        # print(self.parent().parent().parent().currentFunction)
-        # current function object - gets changed if right side is loaded by clicking a function box
-        print("id: " + self.parent().parent().parent().parent().currentFunction["id"])
         doesFunctionExist = False
         for f in data["functions"]:
             if self.parent().parent().parent().parent().currentFunction["id"] == f["id"]:
@@ -363,7 +347,6 @@ class DeleteButton(QPushButton):
         
         dialog.exec()
         willDelete = dialog.willDelete
-        print(willDelete)
 
         if willDelete:
             functionId = self.parent().parent().parent().parent().currentFunction["id"]
@@ -475,7 +458,6 @@ class DeleteDialog(QDialog):
         self.close()
 
     def on_delete_button_clicked(self):
-        print('delete clicked')
         self.willDelete = True
         self.close()
 
@@ -514,13 +496,10 @@ class ClickableFrame(QFrame):
         self.setLayout(functionVBox)
 
     def mousePressEvent(self, event):
-        print(self.function['name'] ,"Frame Clicked!")
         self.widget.functionsPanel.resetBorders(self) #unmark the borders of the previously clicked agent
         self.clicked = not self.clicked
         if self.clicked:
             self.widget.functionsPanel.clickedFunction = self
-            print(self.widget.functionsPanel.parent().editPanel.currentFunction)
-            print(self.function)
             self.widget.functionsPanel.parent().editPanel.currentFunction = self.function
 
             # get python code
@@ -533,28 +512,13 @@ class ClickableFrame(QFrame):
             self.widget.functionsPanel.parent().editPanel.importButton.hide()
             self.widget.functionsPanel.update() 
 
-            # delete all parameters
-            # add them back in
-
-            # in paramPanel addParamBox:
-                # self.paramBoxLayout.removeWidget(self.spacerWidget)
-                # self.spacerWidget.deleteLater()
-
-                # newParamBox = ParamBox(None, None, None, self)
-                # self.paramBoxLayout.addWidget(newParamBox)
-                # self.parameters.append(newParamBox)
-                # self.spacerWidget = QWidget()
-                
-                # self.spacerWidget.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding)
-                # self.paramBoxLayout.addWidget(self.spacerWidget)
-                # print("clicked")
-
             for param in self.widget.functionsPanel.parent().paramPanel.parameters:
                 param.deleteLater()
             self.widget.functionsPanel.parent().paramPanel.parameters = []
 
-            self.widget.functionsPanel.parent().paramPanel.paramBoxLayout.removeWidget(self.widget.functionsPanel.parent().paramPanel.spacerWidget)
-            self.widget.functionsPanel.parent().paramPanel.spacerWidget.deleteLater()
+            if hasattr(self.widget.functionsPanel.parent().paramPanel, 'spacerWidget') and self.widget.functionsPanel.parent().paramPanel.spacerWidget is not None:
+                self.widget.functionsPanel.parent().paramPanel.paramBoxLayout.removeWidget(self.widget.functionsPanel.parent().paramPanel.spacerWidget)
+                self.widget.functionsPanel.parent().paramPanel.spacerWidget.deleteLater()
             
             self.params = self.function["parameters"]["properties"]
             for key in self.params:
@@ -564,7 +528,6 @@ class ClickableFrame(QFrame):
             self.widget.functionsPanel.parent().paramPanel.spacerWidget = QWidget()
             self.widget.functionsPanel.parent().paramPanel.spacerWidget.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding)
             self.widget.functionsPanel.parent().paramPanel.paramBoxLayout.addWidget(self.widget.functionsPanel.parent().paramPanel.spacerWidget)
-                # self.paramBoxLayout.addWidget(self.spacerWidget)
 
         self.update()
 
@@ -717,7 +680,6 @@ class FunctionsPanel(QFrame):
         return functions
         
     def refreshFrame(self):
-        print("refresh frame called")
         #not in use rn (bc of add_agent), but useful to keep around for retrieving a refreshed display of the json
         #for each clickable frame, delete (works without - may be redundant since clickable is child of panel so it deletes when panel deletes, but safer to delete than leave it hanging)
         for current in self.clickableFunctions:
@@ -978,7 +940,6 @@ class CodePanel(QFrame):
 
     def saveFunction(self):
         functionName = self.nameInput.text()
-        print(functionName)
 
     def getCurrentFunction(self):
         return self.currentFunction
@@ -1029,7 +990,7 @@ class ParamBox(QFrame):
         self.typeDropdown.currentIndexChanged.connect(self.updateType)
         self.typeDropdown.setStyleSheet("QComboBox { background-color: #5E5E5E; padding: 5px; border: none; text-transform: italic; }")
         self.typeDropdown.setCursor(QCursor(Qt.CursorShape.PointingHandCursor))
-        self.pythonTypes = ["string", "int", "float", "complex", "list", "tuple", "dict", "set", "bool", "NoneType"]
+        self.pythonTypes = ["string", "integer", "float", "complex", "list", "tuple", "dict", "set", "bool", "NoneType"]
         for type in self.pythonTypes:
             self.typeDropdown.addItem(type)
         
@@ -1098,8 +1059,6 @@ class ParamBox(QFrame):
 
     def updateType(self, index):
         self.type = self.pythonTypes[index]
-        print(index)
-        print(self.pythonTypes[index])
 
     def updateName(self, text):
         self.name = text
@@ -1206,8 +1165,9 @@ class ParamPanel(QFrame):
         
 
     def addNewParameter(self):
-        self.paramBoxLayout.removeWidget(self.spacerWidget)
-        self.spacerWidget.deleteLater()
+        if hasattr(self, 'spacerWidget') and self.spacerWidget is not None:
+            self.paramBoxLayout.removeWidget(self.spacerWidget)
+            self.spacerWidget.deleteLater()
 
         newParamBox = ParamBox(None, None, None, self)
         self.paramBoxLayout.addWidget(newParamBox)
@@ -1216,7 +1176,6 @@ class ParamPanel(QFrame):
         
         self.spacerWidget.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding)
         self.paramBoxLayout.addWidget(self.spacerWidget)
-        print("clicked")
 
 
 class FunctionsFrame(QFrame):

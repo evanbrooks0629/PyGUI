@@ -54,7 +54,7 @@
     {
       "id": "53476554",
       "name": "Test Dummy",
-      "description": "You are proficient in writing unit tests using Jest.js",
+      "description": "You are proficient in writing unit tests for python scripts",
       "max_consecutive_auto_reply": 2,
       "default_auto_reply": "",
       "llm_config": {
@@ -64,15 +64,14 @@
         "api_key": "ollama"
       },
       "skills": [
-        "Code",
         "Test"
       ],
-      "system_message": "Given a set of code, define and run unit tests using Jest"
+      "system_message": "Given a set of Python code, define unit tests in Python"
     },
     {
       "id": "63476554",
-      "name": "Front End Dev",
-      "description": "Codes front end code",
+      "name": "Python Dev",
+      "description": "Writes code in python",
       "max_consecutive_auto_reply": 2,
       "default_auto_reply": "",
       "llm_config": {
@@ -82,10 +81,9 @@
         "api_key": "ollama"
       },
       "skills": [
-        "Code",
         "Test"
       ],
-      "system_message": "You are a front end developer specializing in React.js"
+      "system_message": "You have 10 years of experience with Python"
     },
     {
       "id": "63476555",

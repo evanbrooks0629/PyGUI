@@ -100,11 +100,11 @@
         "type": "object",
         "properties": {
           "x": {
-            "type": "int",
+            "type": "integer",
             "description": "First number to be added"
           },
           "y": {
-            "type": "int",
+            "type": "integer",
             "description": "Second number to be added"
           }
         },

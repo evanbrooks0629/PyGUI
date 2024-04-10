@@ -753,13 +753,15 @@ class ChatsFrame(QFrame):
 
         # Create GroupChat and GroupChatManager
         groupchat = autogen.GroupChat(agents=all_agents, messages=[], max_round=5)
-        manager = autogen.GroupChatManager(groupchat=groupchat, llm_config = {"model": "openhermes",
-                                                                              "base_url": "http://localhost:11434/v1",
-                                                                              "api_type": "openai",
-                                                                              "api_key": "ollama"
-                                                                            }
+        manager = autogen.GroupChatManager(groupchat=groupchat, llm_config = 
+            {"model": "openhermes",
+                "base_url": "http://localhost:11434/v1",
+                "api_type": "openai",
+                "api_key": "ollama"
+            }
         )
 
-         # # Start the chat with the specified message
-        #when not using group manager just user proxy 
-        user_proxy.initiate_chat(manager, message=systemMessage)
+        # Start the chat with the specified message
+        # when not using group manager just user proxy 
+        chat_result = user_proxy.initiate_chat(manager, message=systemMessage)
+        print(chat_result.chat_history)
