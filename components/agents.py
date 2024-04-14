@@ -319,7 +319,7 @@ class ClickableFrame(QFrame):
         # import any information needed from the agent for editing
         self.agent = currentAgent #raw json information
         self.clicked = False #variable to keep tracked of click
-        #self.setFixedWidth(190)
+        self.setFixedWidth(190)
         self.setFixedHeight(200)
         self.setStyleSheet("""
             background-color: #464545;
@@ -339,6 +339,7 @@ class ClickableFrame(QFrame):
         self.descriptionLabel = QLabel(self.description)
         self.descriptionLabel.setWordWrap(True)
         self.systemMessageLabel = QLabel(self.system_message)
+        self.systemMessageLabel.setWordWrap(True)
 
         # nameLine = QLabel()
         # nameLine.setStyleSheet("""
@@ -353,6 +354,8 @@ class ClickableFrame(QFrame):
             border-radius: 0;
         """)
         descriptionLine.setFixedHeight(2)
+        descriptionLine.setWordWrap(True)
+
         
         #self.skillsLabel = QLabel(self.skills[0])
         #self.skillsLabel.setAlignment(Qt.AlignmentFlag.AlignCenter)

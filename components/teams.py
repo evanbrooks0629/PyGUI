@@ -275,7 +275,7 @@ class ClickableFrame(QFrame):
         # import any information needed from the agent for editing
         self.team = currentTeam #raw json information
         self.clicked = False #variable to keep tracked of click
-        #self.setFixedWidth(220)
+        self.setFixedWidth(285)
         self.setFixedHeight(200)
         self.setStyleSheet("""
             background-color: #464545;
