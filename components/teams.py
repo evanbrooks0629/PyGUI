@@ -275,7 +275,7 @@ class ClickableFrame(QFrame):
         # import any information needed from the agent for editing
         self.team = currentTeam #raw json information
         self.clicked = False #variable to keep tracked of click
-        #self.setFixedWidth(220)
+        self.setFixedWidth(285)
         self.setFixedHeight(200)
         self.setStyleSheet("""
             background-color: #464545;
@@ -340,6 +340,19 @@ class ClickableFrame(QFrame):
                 if checkbox.property("value") in self.agents:
                     checkbox.setChecked(True)
 
+        else :
+            self.widget.editPanel.currentTeam = {
+                "name": "",
+                "id": "",
+                "agents": []
+            }  
+            self.widget.editPanel.setFields(self.widget.editPanel.currentTeam)
+            self.widget.editPanel.deselect_all_checkboxes()
+            self.widget.editPanel.editLabel.setText("Build Your Team")
+            self.widget.editPanel.createButton.setText("Create Team")
+            self.widget.editPanel.deleteButton.hide()
+            self.widget.editPanel.update()
+            
         self.update()
 
     def paintEvent(self, event):

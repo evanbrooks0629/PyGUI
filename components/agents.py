@@ -234,8 +234,6 @@ class AgentsPanel(QFrame):
         return agents
         
     def refreshFrame(self):
-        #not in use rn (bc of add_agent), but useful to keep around for retrieving a refreshed display of the json
-        #for each clickable frame, delete (works without - may be redundant since clickable is child of panel so it deletes when panel deletes, but safer to delete than leave it hanging)
         for current in self.clickableAgents:
             current.setParent(None)  # Remove from layout
             current.deleteLater()  # Delete widget
@@ -319,7 +317,7 @@ class ClickableFrame(QFrame):
         # import any information needed from the agent for editing
         self.agent = currentAgent #raw json information
         self.clicked = False #variable to keep tracked of click
-        #self.setFixedWidth(190)
+        self.setFixedWidth(190)
         self.setFixedHeight(200)
         self.setStyleSheet("""
             background-color: #464545;
@@ -339,6 +337,7 @@ class ClickableFrame(QFrame):
         self.descriptionLabel = QLabel(self.description)
         self.descriptionLabel.setWordWrap(True)
         self.systemMessageLabel = QLabel(self.system_message)
+        self.systemMessageLabel.setWordWrap(True)
 
         # nameLine = QLabel()
         # nameLine.setStyleSheet("""
@@ -353,6 +352,8 @@ class ClickableFrame(QFrame):
             border-radius: 0;
         """)
         descriptionLine.setFixedHeight(2)
+        descriptionLine.setWordWrap(True)
+
         
         #self.skillsLabel = QLabel(self.skills[0])
         #self.skillsLabel.setAlignment(Qt.AlignmentFlag.AlignCenter)
@@ -396,6 +397,28 @@ class ClickableFrame(QFrame):
             for checkbox in self.widget.editPanel.checkboxes:
                 if checkbox.text().strip() in self.skills:
                     checkbox.setChecked(True)
+        
+        else:
+            self.widget.editPanel.currentAgent = {
+                "id": '',
+                "name": "",
+                "description": "",
+                "max_consecutive_auto_reply": 0,
+                "default_auto_reply": "",
+                "llm_config": {
+                    "model": "Mistral-7B Chat Int4",
+                    "base_url": "127.0.0.1:8081",
+                    "api_type": "openai",
+                    "api_key": "NULL"
+                },
+                "skills": [],
+                "system_message": ""
+            }  
+            self.widget.editPanel.setFields(self.widget.editPanel.currentAgent)
+            self.widget.editPanel.editLabel.setText("Build Your Agent")
+            self.widget.editPanel.createButton.setText("Create Agent")
+            self.widget.editPanel.deleteButton.hide()
+            self.widget.editPanel.update()
 
         self.update()
 
