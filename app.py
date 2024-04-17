@@ -18,6 +18,7 @@ class App(QMainWindow):
         self.setStyleSheet("background-color: #464545; color: #ffffff;") 
 
         self.tab_widget = QTabWidget()
+        self.tab_widget.currentChanged.connect(self.tab_changed)  # Connect the signal to the slot function
         self.tab_widget.setTabBar(CustomTabBar())
         self.tab_widget.setTabPosition(QTabWidget.TabPosition.West)  # Set tabs to the left side
         self.tab_widget.setStyleSheet("""
@@ -27,6 +28,13 @@ class App(QMainWindow):
                 margin-right: 1px;
             }
             """)
+
+        self.agentsFrame = AgentsFrame()
+        self.chats = QWidget()
+        self.chatsFrame = ChatsFrame()
+        self.functionsFrame = FunctionsFrame()
+        self.teamsFrame = TeamsFrame()
+        self.modelsFrame = ModelsFrame()
 
         # Create tabs
         self.create_tabs()
@@ -91,17 +99,16 @@ class App(QMainWindow):
         """)
 
         # Chats Tab
-        chats = QWidget()
-        chats.setStyleSheet("background-color: #5E5E5E")
+        
+        self.chats.setStyleSheet("background-color: #5E5E5E")
 
         chatsLayout = QVBoxLayout()
         chatsLayout.setSpacing(20)
         chatsLayout.addWidget(chatsLogoLabel)
 
-        chatsFrame = ChatsFrame()
-        chatsLayout.addWidget(chatsFrame)
+        chatsLayout.addWidget(self.chatsFrame)
 
-        chats.setLayout(chatsLayout)
+        self.chats.setLayout(chatsLayout)
 
         # Agents Tab
         agents = QWidget()
@@ -111,8 +118,7 @@ class App(QMainWindow):
         agentsLayout.setSpacing(20)
         agentsLayout.addWidget(agentsLogoLabel)
 
-        agentsFrame = AgentsFrame()
-        agentsLayout.addWidget(agentsFrame)
+        agentsLayout.addWidget(self.agentsFrame)
 
         agents.setLayout(agentsLayout)
 
@@ -124,8 +130,7 @@ class App(QMainWindow):
         teamsLayout.setSpacing(20)
         teamsLayout.addWidget(teamsLogoLabel)
 
-        teamsFrame = TeamsFrame()
-        teamsLayout.addWidget(teamsFrame)
+        teamsLayout.addWidget(self.teamsFrame)
 
         teams.setLayout(teamsLayout)
 
@@ -137,8 +142,7 @@ class App(QMainWindow):
         functionsLayout.setSpacing(20)
         functionsLayout.addWidget(functionsLogoLabel)
 
-        functionsFrame = FunctionsFrame()
-        functionsLayout.addWidget(functionsFrame)
+        functionsLayout.addWidget(self.functionsFrame)
 
         functions.setLayout(functionsLayout)
 
@@ -150,18 +154,34 @@ class App(QMainWindow):
         modelsLayout.setSpacing(20)
         modelsLayout.addWidget(modelsLogoLabel)
 
-        modelsFrame = ModelsFrame()
-        modelsLayout.addWidget(modelsFrame)
+        modelsLayout.addWidget(self.modelsFrame)
 
         models.setLayout(modelsLayout)
 
         # Add tabs to the QTabWidget
         # self.tab_widget.addTab(dashboard, "Dashboard")
-        self.tab_widget.addTab(chats, "Chats")
+        self.tab_widget.addTab(self.chats, "Chats")
         self.tab_widget.addTab(agents, "Agents")
         self.tab_widget.addTab(teams, "Teams")
         self.tab_widget.addTab(functions, "Functions")
         self.tab_widget.addTab(models, "Models")
+
+    def tab_changed(self, index):
+        current_tab_text = self.tab_widget.tabText(index)
+
+        if current_tab_text == "Chats":
+            new_frame = ChatsFrame() 
+        if current_tab_text == "Agents":
+            new_frame = AgentsFrame() 
+        if current_tab_text == "Teams":
+            new_frame = TeamsFrame() 
+        if current_tab_text == "Functions":
+            new_frame = FunctionsFrame()
+        if current_tab_text == "Models":
+            new_frame = ModelsFrame()
+        old_frame = self.tab_widget.widget(index).layout().itemAt(1).widget()  # Get the old frame from the layout
+        self.tab_widget.widget(index).layout().replaceWidget(old_frame, new_frame)  # Replace the old frame with the new one
+        old_frame.deleteLater() 
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
