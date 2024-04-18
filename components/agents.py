@@ -177,7 +177,7 @@ class AgentsPanel(QFrame):
 
     def agentBox(self, list_of_agent_objects):
         self.agents.setStyleSheet("background-color: #5E5E5E; border-radius: 20;")
-        self.agentsLayout.addWidget(self.agentsLabel, 0, 0, 1, 3)  # Span label across 3 columns
+        self.agentsLayout.addWidget(self.agentsLabel, 0, 1, 1, 1)  # Span label across 3 columns
 
         addButton = AddAgentButton()
         # addButton.setFixedSize(80, 40)
@@ -189,7 +189,7 @@ class AgentsPanel(QFrame):
             agentBox = ClickableFrame(obj, self.mainFrame, ind, self)
             ind = ind + 1
             self.clickableAgents.append(agentBox)
-            self.agentsLayout.addWidget(agentBox, self.row, self.col)
+            self.agentsLayout.addWidget(agentBox, self.row, self.col, 1, 1)
             self.col += 1
             if self.col == 3:
                 self.col = 0
@@ -301,6 +301,17 @@ class AddAgentButton(QPushButton):
         self.parent().parent().parent().parent().mainFrame.editPanel.deleteButton.hide()
         self.parent().parent().parent().parent().mainFrame.agentPanel.resetBorders(self)
 
+class ResizableLabel(QLabel):
+    def __init__(self, text, parent=None):
+        super().__init__(text, parent)
+        self.setWordWrap(True)
+
+    def adjustWidth(self):
+        # Set the maximum width to be a percentage of the parent's width, e.g., 80%
+        if self.parent():
+            max_width = self.parent().width() * 0.8
+            self.setMaximumWidth(int(max_width))
+
 #button box class for holding/selecting an agent
 class ClickableFrame(QFrame):
     # acts as a button
@@ -317,7 +328,7 @@ class ClickableFrame(QFrame):
         # import any information needed from the agent for editing
         self.agent = currentAgent #raw json information
         self.clicked = False #variable to keep tracked of click
-        self.setFixedWidth(190)
+        # self.setFixedWidth(190)
         self.setFixedHeight(200)
         self.setStyleSheet("""
             background-color: #464545;
@@ -334,8 +345,11 @@ class ClickableFrame(QFrame):
         self.nameLabel.setFixedHeight(25)
         self.nameLabel.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.nameLabel.setFont(bold)
-        self.descriptionLabel = QLabel(self.description)
-        self.descriptionLabel.setWordWrap(True)
+        self.descriptionLabel = ResizableLabel(self.description, self)
+        self.descriptionLabel.adjustWidth()  # Initial adjustment
+        # self.descriptionLabel = QLabel(self.description)
+        # self.descriptionLabel.setWordWrap(True)
+        # self.descriptionLabel.setFixedWidth(200)
         self.systemMessageLabel = QLabel(self.system_message)
         self.systemMessageLabel.setWordWrap(True)
 
@@ -379,6 +393,11 @@ class ClickableFrame(QFrame):
             agentVBox.addWidget(skillsLabel)
         #agentVBox.addWidget(self.skillsLabel)
         self.setLayout(agentVBox)
+
+    def resizeEvent(self, event):
+        # Call adjustWidth on the label whenever the widget is resized
+        self.descriptionLabel.adjustWidth()
+        super().resizeEvent(event)
 
     def mousePressEvent(self, event):
         self.widget.editPanel.deselect_all_checkboxes()

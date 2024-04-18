@@ -12,9 +12,7 @@
       "human_input_mode": "NEVER",
       "max_consecutive_auto_reply": 1,
       "system_message": "",
-      "skills": [
-        "Input"
-      ]
+      "skills": []
     },
     {
       "id": "53412553",
@@ -23,14 +21,12 @@
       "max_consecutive_auto_reply": 1,
       "default_auto_reply": "",
       "llm_config": {
-        "model": "openhermes",
-        "base_url": "http://localhost:11434/v1",
+        "model": "mixtral-8x7b-32768",
+        "base_url": "https://api.groq.com/openai/v1",
         "api_type": "openai",
-        "api_key": "ollama"
+        "api_key": "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"
       },
-      "skills": [
-        "increment"
-      ],
+      "skills": [],
       "system_message": "You are great at digging into the depths of the internet and finding hard-to-get data."
     },
     {
@@ -40,15 +36,12 @@
       "max_consecutive_auto_reply": 2,
       "default_auto_reply": "",
       "llm_config": {
-        "model": "openhermes",
-        "base_url": "http://localhost:11434/v1",
+        "model": "mixtral-8x7b-32768",
+        "base_url": "https://api.groq.com/openai/v1",
         "api_type": "openai",
-        "api_key": "ollama"
+        "api_key": "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"
       },
-      "skills": [
-        "smallest",
-        "increment"
-      ],
+      "skills": [],
       "system_message": "You are a professional writer, known for your insightful and engaging articles. You transform complex concepts into compelling narratives. Reply 'TERMINATE' in the end when everything is done."
     },
     {
@@ -58,10 +51,10 @@
       "max_consecutive_auto_reply": 2,
       "default_auto_reply": "",
       "llm_config": {
-        "model": "openhermes",
-        "base_url": "http://localhost:11434/v1",
+        "model": "mixtral-8x7b-32768",
+        "base_url": "https://api.groq.com/openai/v1",
         "api_type": "openai",
-        "api_key": "ollama"
+        "api_key": "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"
       },
       "skills": [
         "Test"
@@ -75,10 +68,10 @@
       "max_consecutive_auto_reply": 2,
       "default_auto_reply": "",
       "llm_config": {
-        "model": "mistral",
-        "base_url": "http://localhost:11434/v1",
+        "model": "mixtral-8x7b-32768",
+        "base_url": "https://api.groq.com/openai/v1",
         "api_type": "openai",
-        "api_key": "ollama"
+        "api_key": "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"
       },
       "skills": [
         "Test"
@@ -92,10 +85,10 @@
       "max_consecutive_auto_reply": 2,
       "default_auto_reply": "",
       "llm_config": {
-        "model": "mistral",
-        "base_url": "http://localhost:11434/v1",
+        "model": "mixtral-8x7b-32768",
+        "base_url": "https://api.groq.com/openai/v1",
         "api_type": "openai",
-        "api_key": "ollama"
+        "api_key": "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"
       },
       "skills": [
         "Test"

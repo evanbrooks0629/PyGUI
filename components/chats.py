@@ -85,6 +85,31 @@ class ClickableFrame(QFrame):
             painter.setPen(pen)
             painter.drawRoundedRect(1, 1, self.width() - 2, self.height() - 2, 10, 10)  
 
+class LoadingWidget(QWidget):
+    def __init__(self):
+        super().__init__()
+        self.angle = 0
+        self.timer = QTimer(self)
+        self.timer.timeout.connect(self.update_angle)
+        self.timer.start(200)  # Update every second
+
+    def update_angle(self):
+        self.angle = (self.angle + 30) % 360  # Increase by 30 degrees each second
+        self.update()  # Trigger a repaint
+
+    def paintEvent(self, event):
+        painter = QPainter(self)
+        painter.setRenderHint(QPainter.RenderHint.Antialiasing)
+        painter.translate(self.width() / 2, self.height() / 2)
+        painter.setPen(Qt.PenStyle.NoPen)
+
+        # Draw loading circle with segments based on angle
+        for i in range(12):
+            segment_angle = 360 / 12 * i  # Calculate the fixed angle for each segment
+            alpha = 255 if (segment_angle <= self.angle or self.angle == 0 and i == 0) else 50  # Active or inactive based on angle
+            painter.setBrush(QColor(0, 0, 0, alpha))
+            painter.rotate(30)  # Rotate to the next segment position
+            painter.drawEllipse(-10, -40, 20, 20)
 
 class NewChatButton(QPushButton):
     def __init__(self):
@@ -255,14 +280,14 @@ class ChatsFrame(QFrame):
 
         # Container for past chats, with its own layout
         chatsContainer = QWidget()
-        chatsLayout = QVBoxLayout()
-        chatsContainer.setLayout(chatsLayout)
+        self.chatsLayout = QVBoxLayout()
+        chatsContainer.setLayout(self.chatsLayout)
 
         # Load and add past chats to the chatsLayout instead of directly to the frame
         pastChats = self.loadChats()
         for chat in pastChats:
-            chatsLayout.addWidget(chat)
-        chatsLayout.addStretch()
+            self.chatsLayout.addWidget(chat)
+        self.chatsLayout.addStretch()
 
         # Add the container to the scroll area
         scrollArea.setWidget(chatsContainer)
@@ -285,6 +310,8 @@ class ChatsFrame(QFrame):
 
         self.mainhbox.addWidget(self.chatHistoryFrame)
         self.mainhbox.addWidget(self.chatFrame)
+
+        self.threadpool = QThreadPool()
 
     def loadDefaultChatView(self):
 
@@ -315,7 +342,7 @@ class ChatsFrame(QFrame):
 
         selectFrame = QFrame()
         self.agentsFrame = QFrame()
-        teamBox = QHBoxLayout()
+        self.teamBox = QHBoxLayout()
         selectBox = QVBoxLayout()
         self.agentsBox = QVBoxLayout()
         self.agentsFrame.setLayout(self.agentsBox)
@@ -375,10 +402,10 @@ class ChatsFrame(QFrame):
         selectBox.addStretch(1)
         selectFrame.setLayout(selectBox)
 
-        teamBox.addWidget(selectFrame)
-        teamBox.addWidget(verticalLine)
-        teamBox.addWidget(self.agentsFrame)
-        self.teamSelectFrame.setLayout(teamBox)
+        self.teamBox.addWidget(selectFrame)
+        self.teamBox.addWidget(verticalLine)
+        self.teamBox.addWidget(self.agentsFrame)
+        self.teamSelectFrame.setLayout(self.teamBox)
 
         self.bottom = QFrame()
         self.bottomlay = QHBoxLayout()
@@ -399,6 +426,63 @@ class ChatsFrame(QFrame):
 
         self.chatVBox.addWidget(chatBox)
         self.chatVBox.addWidget(self.teamSelectFrame)
+        self.chatVBox.addWidget(self.bottom, 1)
+        self.chatFrame.setStyleSheet("""
+            background-color: #5E5E5E;
+        """)
+        self.resetBorders(None)
+
+    def loadLoadingView(self):
+        for i in reversed(range(self.chatVBox.count())): 
+            widget = self.chatVBox.itemAt(i).widget()
+            if widget is not None:
+                widget.deleteLater()
+
+        chatBox = QLabel("Generating a response...")
+        chatBox.setStyleSheet("""
+            background-color: #464545; 
+            border-radius: 20;
+            padding: 20;
+            font: 16px;
+        """)
+        # chatBox.setFixedHeight(80)
+        chatBox.setWordWrap(True)
+        chatBox.setAlignment(Qt.AlignmentFlag.AlignTop)
+
+        
+
+        self.loadingFrame = QFrame()
+        self.loadingFrame.setStyleSheet("""
+            background-color: #464545;
+            color: #ffffff;
+            padding: 20px;
+        """)
+        self.loadingFrame.setFixedHeight(200)
+        self.loadingWidget = LoadingWidget()
+
+        self.loadingLayout = QHBoxLayout()
+        self.loadingLayout.addWidget(self.loadingWidget)
+        self.loadingFrame.setLayout(self.loadingLayout)
+
+        self.bottom = QFrame()
+        self.bottomlay = QHBoxLayout()
+        self.bottomlay.setContentsMargins(0, 0, 0, 0)
+        
+        self.textBox = QPlainTextEdit()
+        self.textBox.setStyleSheet("""
+            background-color: #464545;
+            color: #ffffff;
+            padding: 20;
+        """)
+        self.textBox.setPlaceholderText("Type anything...")
+        self.sendChatButton.show()  
+        self.sendChatButton.raise_()  
+
+        self.bottomlay.addWidget(self.textBox)
+        self.bottom.setLayout(self.bottomlay)
+
+        self.chatVBox.addWidget(chatBox)
+        self.chatVBox.addWidget(self.loadingFrame)
         self.chatVBox.addWidget(self.bottom, 1)
         self.chatFrame.setStyleSheet("""
             background-color: #5E5E5E;
@@ -538,11 +622,16 @@ class ChatsFrame(QFrame):
             background-color: #464545;
             border-radius: 10;
         """)
-        userBox = self.createUserBox(interaction["user"])
-        agentBox = self.createAgentBox(interaction["agent"], agentName)
+        
         interactionBox = QVBoxLayout()
-        interactionBox.addWidget(userBox)
-        interactionBox.addWidget(agentBox)
+        if "user" in interaction.keys():
+            userBox = self.createUserBox(interaction["user"])
+            interactionBox.addWidget(userBox)
+
+        if "agent" in interaction.keys():
+            agentBox = self.createAgentBox(interaction["agent"], agentName)
+            interactionBox.addWidget(agentBox)
+
         interactionFrame.setLayout(interactionBox)
         return interactionFrame
     
@@ -675,6 +764,46 @@ class ChatsFrame(QFrame):
         """)
         print("Chat loaded")
 
+
+    def process_json(self, data):
+        # Removing entries with empty content
+        filtered_data = [entry for entry in data if entry['content'].strip()]
+        
+        # Removing duplicates by tracking seen content
+        seen = set()
+        unique_data = []
+        for entry in filtered_data:
+            content = entry['content'].strip()
+            if content not in seen:
+                seen.add(content)
+                unique_data.append(entry)
+
+        file = open('./data/agents.json')
+        agents_json = json.load(file)
+        agents_map = {}
+        for agent in agents_json["agents"]:
+            if agent["name"] not in agents_map:
+                agents_map[agent["name"]] = agent["id"]
+        
+        # Reformatting into the specified "conversation" format
+        conversation = []
+        interaction = {}
+        for entry in unique_data:
+            if entry['role'] == 'assistant':
+                interaction["user"] = {
+                    "text": entry['content']
+                }
+            else:
+                agent_id = agents_map[entry["name"]]
+                interaction["agent"] = {
+                    "id": agent_id, 
+                    "text": entry['content']
+                }
+                conversation.append(interaction)
+                interaction = {}
+        
+        return {"conversation": conversation}
+
     def create_assistant_agent(self, agent_info):
         #Assuming AssistantAgent creation logic based on agent_info
         if len(agent_info["skills"]) == 0:
@@ -722,21 +851,19 @@ class ChatsFrame(QFrame):
             )
 
             return agent
-
-    def uploadPrompt(self):
+        
+    def runPrompt(self, systemMessage):
         # get the text from user input (self.textBox)
-        systemMessage = self.textBox.toPlainText()
-        self.textBox.clear() # empty text box
+        
+        # self.textBox.clear() # empty text box
 
         if self.selectedTeam == {}:
             return
         
-        print(systemMessage)
-
         #Create the UserProxyAgent
         user_proxy = autogen.UserProxyAgent(
             name="User_proxy",
-            system_message="A human admin.",
+            system_message="Runs provided code.",
             code_execution_config={
                 "last_n_messages": 2,
                 "work_dir": "groupchat",
@@ -752,16 +879,120 @@ class ChatsFrame(QFrame):
         all_agents = [user_proxy] + assistant_agents
 
         # Create GroupChat and GroupChatManager
-        groupchat = autogen.GroupChat(agents=all_agents, messages=[], max_round=5)
-        manager = autogen.GroupChatManager(groupchat=groupchat, llm_config = 
-            {"model": "openhermes",
-                "base_url": "http://localhost:11434/v1",
-                "api_type": "openai",
-                "api_key": "ollama"
-            }
+        groupchat = autogen.GroupChat(agents=all_agents, messages=[], max_round=15, allow_repeat_speaker=False)
+        manager = autogen.GroupChatManager(system_message="You are responsible for managing the agents in your team. Make sure they do not provide more than what the user asked.", groupchat=groupchat, llm_config = {"model": "mixtral-8x7b-32768",
+                                                                              "base_url": "https://api.groq.com/openai/v1",
+                                                                              "api_type": "openai",
+                                                                              "api_key": "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"
+                                                                            }
         )
 
-        # Start the chat with the specified message
-        # when not using group manager just user proxy 
+         # # Start the chat with the specified message
+        #when not using group manager just user proxy 
         chat_result = user_proxy.initiate_chat(manager, message=systemMessage)
-        print(chat_result.chat_history)
+        chat_history = chat_result.chat_history
+        # chat_history = {
+        #     "conversation": chat_result.chat_history
+        # }
+        # chat_json = json.loads(chat_history)
+
+        # clean the json
+        chat_object = {
+            "name": "Title",
+            "id": "11111117",
+            "date": "04/17/2024",
+            "team": "18183843",
+            "conversation": []
+        }
+
+        conversation = self.process_json(chat_history)
+        chat_object["conversation"] = conversation["conversation"]
+
+        file = open('./data/chats.json')
+        data = json.load(file)
+
+        print(chat_object)
+        data['chats'].append(chat_object)
+        with open('./data/chats.json', 'w') as file:
+                # Write the updated data back to the file
+                json.dump(data, file, indent=2)
+
+    def uploadPrompt(self):
+        systemMessage = self.textBox.toPlainText()
+        
+
+        self.loadLoadingView()
+        # self.loadingWidget.start_animation()
+        QApplication.processEvents()
+
+        worker = Worker(lambda: self.runPrompt(systemMessage))
+        worker.signals.error.connect(self.errorEvent)
+        worker.signals.finished.connect(self.finishedEvent)
+        self.threadpool.start(worker)
+
+    def errorEvent(self):
+        print("error")
+
+    def finishedEvent(self):
+        # self.loadDefaultChatView()
+        file = open('./data/chats.json')
+        data = json.load(file)
+        chat = data["chats"][-1]
+        self.loadChat(chat)
+
+        ### UPDATE THE CHATS ON LEFT SIDE - ADD NEW CHAT TO LIST ###
+
+class WorkerSignals(QObject):
+    '''
+    Defines the signals available from a running worker thread.
+
+    Supported signals are:
+
+    finished
+        No data
+
+    error
+        tuple (exctype, value, traceback.format_exc() )
+
+    result
+        object data returned from processing, anything
+
+    '''
+    finished = pyqtSignal()
+    error = pyqtSignal()
+
+class Worker(QRunnable):
+    '''
+    Worker thread
+
+    Inherits from QRunnable to handler worker thread setup, signals and wrap-up.
+
+    :param callback: The function callback to run on this worker thread. Supplied args and
+                     kwargs will be passed through to the runner.
+    :type callback: function
+    :param args: Arguments to pass to the callback function
+    :param kwargs: Keywords to pass to the callback function
+
+    '''
+
+    def __init__(self, fn, *args, **kwargs):
+        super(Worker, self).__init__()
+        # Store constructor arguments (re-used for processing)
+        self.fn = fn
+        self.args = args
+        self.kwargs = kwargs
+        self.signals = WorkerSignals()
+
+    @pyqtSlot()
+    def run(self):
+        '''
+        Initialise the runner function with passed args, kwargs.
+        '''
+        try:
+            self.fn(
+                *self.args, **self.kwargs
+            )
+        except:
+            self.signals.error.emit() # Error
+        finally:
+            self.signals.finished.emit() # Done

@@ -163,10 +163,10 @@ class TeamsPanel(QFrame):
 
     def teamBox(self, list_of_team_objects):
         self.teams.setStyleSheet("background-color: #5E5E5E; border-radius: 20;")
-        self.teamsLayout.addWidget(self.teamLabel, 0, 0, 1, 6) 
+        self.teamsLayout.addWidget(self.teamLabel, 0, 1, 1, 2) 
         addButton = AddTeamButton()
         # addButton.setFixedSize(80, 40)
-        self.teamsLayout.addWidget(addButton, 0, 4, 1, 2)
+        self.teamsLayout.addWidget(addButton, 0, 3, 1, 1)
 
         ind = 0
         for currentTeam in list_of_team_objects:
@@ -175,9 +175,9 @@ class TeamsPanel(QFrame):
             ind = ind + 1
             self.clickableTeams.append(teamBox)
 
-            self.teamsLayout.addWidget(teamBox, self.row, self.col * 3, 1, 3)
-            self.col += 1
-            if self.col == 2:
+            self.teamsLayout.addWidget(teamBox, self.row, self.col, 1, 2)
+            self.col += 2
+            if self.col >= 4:
                 self.col = 0
                 self.row += 1
             #self.teamsLayout.setStretchFactor(teamBox, 1) 
@@ -187,9 +187,9 @@ class TeamsPanel(QFrame):
     def add_team(self, obj):
         new_box = ClickableFrame(obj, self.mainFrame, len(self.clickableTeams), self)
         self.clickableTeams.append(new_box)
-        self.teamsLayout.addWidget(new_box, self.row, self.col * 3, 1, 3)
-        self.col += 1
-        if self.col == 2:
+        self.teamsLayout.addWidget(new_box, self.row, self.col, 1, 2)
+        self.col += 2
+        if self.col >= 4:
             self.col = 0
             self.row += 1
         #self.teamsLayout.setStretchFactor(teamBox, 1) 
@@ -275,7 +275,7 @@ class ClickableFrame(QFrame):
         # import any information needed from the agent for editing
         self.team = currentTeam #raw json information
         self.clicked = False #variable to keep tracked of click
-        self.setFixedWidth(285)
+        # self.setFixedWidth(285)
         self.setFixedHeight(200)
         self.setStyleSheet("""
             background-color: #464545;

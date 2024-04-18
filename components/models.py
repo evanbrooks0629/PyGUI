@@ -244,6 +244,8 @@ class AddModelsButton(QPushButton):
             }
         """)
         self.setText("Add New Model")
+        self.setIcon(QIcon('./assets/AddModelIcon.png'))
+        self.setIconSize(QSize(48, 24))
         
     def mousePressEvent(self, event):
         print("Adding Model Clicked")
