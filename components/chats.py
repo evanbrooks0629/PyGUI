@@ -5,7 +5,8 @@ from components.agents import AgentsFrame
 import json
 import autogen
 import ast
-from datetime import datetime
+from datetime import date
+from groq import Groq
 
 class CustomComboBox(QComboBox):
     def __init__(self, *args, **kwargs):
@@ -78,6 +79,7 @@ class ClickableFrame(QFrame):
 
         self.update()
         self.widget.loadChat(self.chat)
+        self.widget.scrollArea.verticalScrollBar().setValue(self.widget.scrollArea.verticalScrollBar().maximum())
 
     def paintEvent(self, event):
         super().paintEvent(event)
@@ -111,7 +113,7 @@ class LoadingWidget(QWidget):
         for i in range(12):
             segment_angle = 360 / 12 * i  # Calculate the fixed angle for each segment
             alpha = 255 if (segment_angle <= self.angle or self.angle == 0 and i == 0) else 50  # Active or inactive based on angle
-            painter.setBrush(QColor(0, 0, 0, alpha))
+            painter.setBrush(QColor(117, 219, 233, alpha))
             painter.rotate(30)  # Rotate to the next segment position
             painter.drawEllipse(-10, -40, 20, 20)
 
@@ -316,8 +318,13 @@ class ChatsFrame(QFrame):
         self.mainhbox.addWidget(self.chatFrame)
 
         self.threadpool = QThreadPool()
+        self.isChatError = False
+        self.currentView = "DEFAULT"
+        self.messages = [] # for loading past chats
 
     def loadDefaultChatView(self):
+        self.currentView = "DEFAULT"
+        self.messages = []
 
         # Clear existing content from the chat layout
         for i in reversed(range(self.chatVBox.count())): 
@@ -416,6 +423,7 @@ class ChatsFrame(QFrame):
         self.bottomlay.setContentsMargins(0, 0, 0, 0)
         
         self.textBox = QPlainTextEdit()
+        self.textBox.setDisabled(False)
         self.textBox.setStyleSheet("""
             background-color: #464545;
             color: #ffffff;
@@ -436,25 +444,27 @@ class ChatsFrame(QFrame):
         """)
         self.resetBorders(None)
 
-    def loadLoadingView(self):
-        for i in reversed(range(self.chatVBox.count())): 
-            widget = self.chatVBox.itemAt(i).widget()
-            if widget is not None:
-                widget.deleteLater()
+    def loadLoadingView(self, prompt):
+    # Remove all existing widgets in the layout
+        while self.chatVBox.count():
+            child = self.chatVBox.takeAt(0)
+            if child.widget():
+                child.widget().deleteLater()
 
+        # Configure chatBox
         chatBox = QLabel("Generating a response...")
         chatBox.setStyleSheet("""
             background-color: #464545; 
-            border-radius: 20;
-            padding: 20;
-            font: 16px;
+            border-radius: 20px;
+            padding: 20px;
+            font-size: 16px;
+            color: #ffffff;
         """)
-        # chatBox.setFixedHeight(80)
         chatBox.setWordWrap(True)
         chatBox.setAlignment(Qt.AlignmentFlag.AlignTop)
+        chatBox.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum)
 
-        
-
+        # Configure loadingFrame
         self.loadingFrame = QFrame()
         self.loadingFrame.setStyleSheet("""
             background-color: #464545;
@@ -463,41 +473,43 @@ class ChatsFrame(QFrame):
         """)
         self.loadingFrame.setFixedHeight(200)
         self.loadingWidget = LoadingWidget()
-
         self.loadingLayout = QHBoxLayout()
         self.loadingLayout.addWidget(self.loadingWidget)
         self.loadingFrame.setLayout(self.loadingLayout)
 
+        # Configure bottom section
         self.bottom = QFrame()
         self.bottomlay = QHBoxLayout()
         self.bottomlay.setContentsMargins(0, 0, 0, 0)
-        
-        self.textBox = QPlainTextEdit()
+        self.textBox = QPlainTextEdit(prompt)
+        self.textBox.setDisabled(True)
         self.textBox.setStyleSheet("""
             background-color: #464545;
             color: #ffffff;
-            padding: 20;
+            padding: 20px;
         """)
         self.textBox.setPlaceholderText("Type anything...")
-        self.sendChatButton.show()  
-        self.sendChatButton.raise_()  
-
         self.bottomlay.addWidget(self.textBox)
         self.bottom.setLayout(self.bottomlay)
 
+        # Add widgets to the main VBox
         self.chatVBox.addWidget(chatBox)
         self.chatVBox.addWidget(self.loadingFrame)
-        self.chatVBox.addWidget(self.bottom, 1)
-        self.chatFrame.setStyleSheet("""
-            background-color: #5E5E5E;
-        """)
+        self.chatVBox.addWidget(self.bottom)
+
+        # Reset chat frame styles
+        self.chatFrame.setStyleSheet("background-color: #5E5E5E;")
         self.resetBorders(None)
+
+        # Make sure everything fits without forcing the height to expand unnecessarily
+        self.chatFrame.adjustSize()
+
 
     def resizeEvent(self, event):
         super().resizeEvent(event)
         # Calculate the new position
-        newX = self.width() - self.sendChatButton.width() - 50
-        newY = self.height() - self.sendChatButton.height() - 50
+        newX = self.width() - self.sendChatButton.width() - 30
+        newY = self.height() - self.sendChatButton.height() - 30
         self.sendChatButton.move(newX, newY)
         self.sendChatButton.raise_()  
 
@@ -591,6 +603,7 @@ class ChatsFrame(QFrame):
         userBox = QVBoxLayout()
         userLabel = QLabel("You:")
         textLabel = QLabel(user["text"])
+        textLabel.setWordWrap(True)
         textLabel.setStyleSheet("""
             background-color: #464545;
             border-radius: 5;
@@ -610,6 +623,7 @@ class ChatsFrame(QFrame):
         agentBox = QVBoxLayout()
         agentLabel = QLabel(agentName + ":")
         textLabel = QLabel(agent["text"])
+        textLabel.setWordWrap(True)
         textLabel.setStyleSheet("""
             background-color: #464545;
             border-radius: 5;
@@ -640,6 +654,9 @@ class ChatsFrame(QFrame):
         return interactionFrame
     
     def loadChat(self, chat):
+        self.currentView = "CONVO"
+        self.messages = chat["conversation"]
+
         self.sendChatButton.hide()
         for i in reversed(range(self.chatVBox.count())): 
             widget = self.chatVBox.itemAt(i).widget()
@@ -682,8 +699,8 @@ class ChatsFrame(QFrame):
 
         self.chatVBox.addWidget(topFrame)
         
-        scrollArea = QScrollArea()
-        scrollArea.verticalScrollBar().setStyleSheet("""
+        self.scrollArea = QScrollArea()
+        self.scrollArea.verticalScrollBar().setStyleSheet("""
             QScrollBar:vertical
             {
                 background-color: #464545;
@@ -748,9 +765,9 @@ class ChatsFrame(QFrame):
                 background: none;
             }
         """)
-        scrollArea.setWidgetResizable(True)
+        self.scrollArea.setWidgetResizable(True)
         scrollAreaWidgetContents = QWidget()
-        scrollArea.setWidget(scrollAreaWidgetContents)
+        self.scrollArea.setWidget(scrollAreaWidgetContents)
 
         scrollLayout = QVBoxLayout(scrollAreaWidgetContents)
         # For each interaction, create and add its box to the layout
@@ -760,8 +777,24 @@ class ChatsFrame(QFrame):
             interactionBox = self.createInteractionBox(interaction, agentName)
             scrollLayout.addWidget(interactionBox)
 
+        self.textBox = QPlainTextEdit()
+        self.textBox.setMinimumHeight(QLabel().sizeHint().height() * 6)
+        self.textBox.setMaximumHeight(QLabel().sizeHint().height() * 6)
+        self.textBox.setVerticalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff) 
+        self.textBox.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff) 
+        self.textBox.setDisabled(False)
+        self.textBox.setStyleSheet("""
+            background-color: #5E5E5E;
+            color: #ffffff;
+            padding: 20;
+        """)
+        self.textBox.setPlaceholderText("Ask a follow up question...")
+        self.sendChatButton.show()  
+        self.sendChatButton.raise_()
+
         scrollLayout.addStretch()
-        self.chatVBox.addWidget(scrollArea)
+        self.chatVBox.addWidget(self.scrollArea)
+        self.chatVBox.addWidget(self.textBox)
         # Add stretch to push everything up and make the layout scrollable if needed
         self.chatFrame.setStyleSheet("""
             background-color: #464545;
@@ -807,6 +840,42 @@ class ChatsFrame(QFrame):
                 interaction = {}
         
         return {"conversation": conversation}
+    
+    def processConversation(conversation):
+        # Define the agent data for mapping IDs to names
+        file = open('./data/agents.json')
+        data = json.load(file)
+
+        agents = {}
+        for agent in data["agents"]:
+            agents[agent["id"]] = agent["name"]
+
+
+        # Prepare the result list
+        transformed_conversation = []
+
+        # Process each conversation item
+        for item in conversation["conversation"]:
+            # Check if the 'user' field is in the conversation item
+            if 'user' in item:
+                # Append the user's message
+                transformed_conversation.append({
+                    'content': item['user']['text'],
+                    'role': 'user'
+                })
+            
+            # Check if the 'agent' field is in the conversation item
+            if 'agent' in item:
+                # Map the agent's id to the agent's name using the dictionary
+                agent_name = agents.get(item['agent']['id'], "Unknown")
+                # Append the agent's response with the appropriate role
+                transformed_conversation.append({
+                    'content': item['agent']['text'],
+                    'name': agent_name,
+                    'role': 'assistant'
+                })
+
+        return transformed_conversation
 
     def create_assistant_agent(self, agent_info):
         #Assuming AssistantAgent creation logic based on agent_info
@@ -843,16 +912,16 @@ class ChatsFrame(QFrame):
             #print(allSkills)
             #print(fmap)
             llm_config = agent_info["llm_config"]
-            llm_config["functions"] = allSkills
+            # llm_config["functions"] = allSkills
             agent = autogen.AssistantAgent(
                 name=agent_info["name"],
                 system_message=agent_info["description"],
                 llm_config=llm_config
             )
 
-            agent.register_function(
-                function_map = fmap
-            )
+            # agent.register_function(
+            #     function_map = fmap
+            # )
 
             return agent
         
@@ -873,6 +942,7 @@ class ChatsFrame(QFrame):
                 "work_dir": "groupchat",
                 "use_docker": False,
             },
+            default_auto_reply="TERMINATE",
             human_input_mode="TERMINATE",
         )
 
@@ -883,8 +953,16 @@ class ChatsFrame(QFrame):
         all_agents = [user_proxy] + assistant_agents
 
         # Create GroupChat and GroupChatManager
-        groupchat = autogen.GroupChat(agents=all_agents, messages=[], max_round=15, allow_repeat_speaker=False)
-        manager = autogen.GroupChatManager(system_message="You are responsible for managing the agents in your team. Make sure they do not provide more than what the user asked.", groupchat=groupchat, llm_config = {"model": "mixtral-8x7b-32768",
+        # , allow_repeat_speaker=False
+        # check for messages and pass in
+
+        messages = []
+        # if len(self.messages) > 0:
+        #     messages = self.processConversation(self.messages)
+
+
+        groupchat = autogen.GroupChat(agents=all_agents, messages=messages, max_round=5, allow_repeat_speaker=False)
+        manager = autogen.GroupChatManager(system_message="You are responsible for managing the agents in your team. Make sure they do not provide more than what the user asked.", groupchat=groupchat, llm_config = {"model": "llama3-70b-8192",
                                                                               "base_url": "https://api.groq.com/openai/v1",
                                                                               "api_type": "openai",
                                                                               "api_key": "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"
@@ -894,23 +972,52 @@ class ChatsFrame(QFrame):
          # # Start the chat with the specified message
         #when not using group manager just user proxy 
         chat_result = user_proxy.initiate_chat(manager, message=systemMessage)
+
         chat_history = chat_result.chat_history
-        # chat_history = {
-        #     "conversation": chat_result.chat_history
-        # }
-        # chat_json = json.loads(chat_history)
+        print("history")
+        print(chat_history)
+
+        # get date
+        today = date.today()
+        todaysDate = today.strftime("%m/%d/%y")
+
+        # get a summarization of users prompt - max 6 words
+        client = Groq(
+            api_key="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",
+        )
+
+        chat_completion = client.chat.completions.create(
+            messages=[
+                {
+                    "role": "user",
+                    "content": f"Summarize this user's prompt into a concise title of at most 6 words: '{systemMessage}'",
+                }
+            ],
+            model="mixtral-8x7b-32768",
+        )
+
+        print(chat_completion.choices[0].message.content)
+        title = chat_completion.choices[0].message.content[1:-1]
+
+        # get last id and increase by 1
+        file = open('./data/chats.json')
+        data = json.load(file)
+        newID = str(int(data.get('chats', [])[-1]['id']) + 1)
 
         # clean the json
         chat_object = {
-            "name": "Title",
-            "id": "11111117",
-            "date": "04/17/2024",
-            "team": "18183843",
+            "name": title, # need dynamic date and title and id
+            "id": newID,
+            "date": todaysDate,
+            "team": self.selectedTeam["id"],
             "conversation": []
         }
 
         conversation = self.process_json(chat_history)
         chat_object["conversation"] = conversation["conversation"]
+        self.messages = conversation
+
+        print("process")
 
         file = open('./data/chats.json')
         data = json.load(file)
@@ -921,22 +1028,27 @@ class ChatsFrame(QFrame):
                 # Write the updated data back to the file
                 json.dump(data, file, indent=2)
 
+        print("written")
+
+            
+
     def uploadPrompt(self):
         systemMessage = self.textBox.toPlainText()
         
 
-        # self.loadLoadingView()
+        self.loadLoadingView(systemMessage)
 
         # self.loadingWidget.start_animation()
         QApplication.processEvents()
 
         worker = Worker(lambda: self.runPrompt(systemMessage))
         worker.signals.error.connect(self.errorEvent)
-        worker.signals.finished.connect(self.finishedEvent)
+        worker.signals.finished.connect(lambda: self.finishedEvent(self.isChatError))
         self.threadpool.start(worker)
 
     def errorEvent(self):
         print("error")
+        self.isChatError = True
         # chat_object = {
         #     "name": "Title",
         #     "id": "1123948342",
@@ -963,17 +1075,27 @@ class ChatsFrame(QFrame):
         # self.chatsLayout.insertWidget(0, chatBoxAddition)
         # self.chatsLayout.addStretch()
 
-    def finishedEvent(self):
+    def finishedEvent(self, isChatError):
         # self.loadDefaultChatView()
-        file = open('./data/chats.json')
-        data = json.load(file)
-        chat = data["chats"][-1]
-        self.loadChat(chat)
+        if not isChatError:
+            file = open('./data/chats.json')
+            data = json.load(file)
+            chat = data["chats"][-1]
+            self.loadChat(chat)
+            self.scrollArea.verticalScrollBar().setValue(self.scrollArea.verticalScrollBar().maximum())
 
-        ### UPDATE THE CHATS ON LEFT SIDE - ADD NEW CHAT TO LIST ###
-        chatBoxAddition = ClickableFrame(chat, self, len(self.clickableChats), self)
-        self.clickableChats.append(chatBoxAddition)
-        self.chatsLayout.insertWidget(0, chatBoxAddition)
+            ### UPDATE THE CHATS ON LEFT SIDE - ADD NEW CHAT TO LIST ###
+            chatBoxAddition = ClickableFrame(chat, self, len(self.clickableChats), self)
+            self.clickableChats.append(chatBoxAddition)
+            self.chatsLayout.insertWidget(0, chatBoxAddition)
+        else:
+            print(self.currentView)
+            # if theres an error it loads the last screen
+
+            if self.currentView == "CONVO":
+                self.loadChat(self.currentChat)
+            else:
+                self.loadDefaultChatView()
 
 class WorkerSignals(QObject):
     '''

@@ -21,7 +21,7 @@
       "max_consecutive_auto_reply": 1,
       "default_auto_reply": "",
       "llm_config": {
-        "model": "mixtral-8x7b-32768",
+        "model": "llama3-70b-8192",
         "base_url": "https://api.groq.com/openai/v1",
         "api_type": "openai",
         "api_key": "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"
@@ -36,7 +36,7 @@
       "max_consecutive_auto_reply": 2,
       "default_auto_reply": "",
       "llm_config": {
-        "model": "mixtral-8x7b-32768",
+        "model": "llama3-70b-8192",
         "base_url": "https://api.groq.com/openai/v1",
         "api_type": "openai",
         "api_key": "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"
@@ -51,7 +51,7 @@
       "max_consecutive_auto_reply": 2,
       "default_auto_reply": "",
       "llm_config": {
-        "model": "mixtral-8x7b-32768",
+        "model": "llama3-70b-8192",
         "base_url": "https://api.groq.com/openai/v1",
         "api_type": "openai",
         "api_key": "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"
@@ -68,7 +68,7 @@
       "max_consecutive_auto_reply": 2,
       "default_auto_reply": "",
       "llm_config": {
-        "model": "mixtral-8x7b-32768",
+        "model": "llama3-70b-8192",
         "base_url": "https://api.groq.com/openai/v1",
         "api_type": "openai",
         "api_key": "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"
@@ -85,7 +85,7 @@
       "max_consecutive_auto_reply": 2,
       "default_auto_reply": "",
       "llm_config": {
-        "model": "mixtral-8x7b-32768",
+        "model": "llama3-70b-8192",
         "base_url": "https://api.groq.com/openai/v1",
         "api_type": "openai",
         "api_key": "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"
