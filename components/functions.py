@@ -680,8 +680,6 @@ class FunctionsPanel(QFrame):
         return functions
         
     def refreshFrame(self):
-        #not in use rn (bc of add_agent), but useful to keep around for retrieving a refreshed display of the json
-        #for each clickable frame, delete (works without - may be redundant since clickable is child of panel so it deletes when panel deletes, but safer to delete than leave it hanging)
         for current in self.clickableFunctions:
             current.setParent(None)  # Remove from layout
             current.deleteLater()  # Delete widget

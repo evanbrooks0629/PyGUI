@@ -34,7 +34,7 @@ class ClickableFrame(QFrame):
         super().__init__(parent)
         self.chatPanel = parent
         self.position = pos
-        self.widget = widget # Keeps track of associated AgentsFrame class
+        self.widget = widget # Keeps track of associated ChatsFrame class
 
         self.setFrameStyle(QFrame.Shape.StyledPanel | QFrame.Shadow.Raised)
         self.setCursor(QCursor(Qt.CursorShape.PointingHandCursor))
@@ -62,10 +62,14 @@ class ClickableFrame(QFrame):
 
         self.setLayout(chatVBox)
 
+    def setPosition(self, newIndex):
+        self.position = newIndex
+
     def mousePressEvent(self, event):
         super().mousePressEvent(event)
         print(self.chat['name'] ,"Frame Clicked!")
-        print(self.conversation)
+        print("position: " + str(self.position))
+        # print(self.conversation)
         self.widget.resetBorders(self) #unmark the borders of the previously clicked agent
         self.clicked = not self.clicked
         if self.clicked:
@@ -921,7 +925,8 @@ class ChatsFrame(QFrame):
         systemMessage = self.textBox.toPlainText()
         
 
-        self.loadLoadingView()
+        # self.loadLoadingView()
+
         # self.loadingWidget.start_animation()
         QApplication.processEvents()
 
@@ -932,6 +937,31 @@ class ChatsFrame(QFrame):
 
     def errorEvent(self):
         print("error")
+        # chat_object = {
+        #     "name": "Title",
+        #     "id": "1123948342",
+        #     "date": "04/19/2024",
+        #     "team": "18182843",
+        #     "conversation": []
+        # }
+        # file = open('./data/chats.json')
+        # data = json.load(file)
+
+        # data['chats'].append(chat_object)
+        # with open('./data/chats.json', 'w') as file:
+        #         # Write the updated data back to the file
+        #         json.dump(data, file, indent=2)
+
+        # file = open('./data/chats.json')
+        # data = json.load(file)
+        # chat = data["chats"][-1]
+
+        # chatBoxAddition = ClickableFrame(chat, self, len(self.clickableChats), self)
+        # print(str(len(self.clickableChats)))
+        # self.clickableChats.append(chatBoxAddition)
+
+        # self.chatsLayout.insertWidget(0, chatBoxAddition)
+        # self.chatsLayout.addStretch()
 
     def finishedEvent(self):
         # self.loadDefaultChatView()
@@ -941,6 +971,9 @@ class ChatsFrame(QFrame):
         self.loadChat(chat)
 
         ### UPDATE THE CHATS ON LEFT SIDE - ADD NEW CHAT TO LIST ###
+        chatBoxAddition = ClickableFrame(chat, self, len(self.clickableChats), self)
+        self.clickableChats.append(chatBoxAddition)
+        self.chatsLayout.insertWidget(0, chatBoxAddition)
 
 class WorkerSignals(QObject):
     '''
