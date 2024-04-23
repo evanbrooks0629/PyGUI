@@ -64,13 +64,14 @@ class ModelsFrame(QFrame):
         
         # Set tab style
         self.setStyleSheet("background-color: #464545; border-radius: 20;")
-        self.mainhbox = QHBoxLayout()
+        self.mainhbox = QVBoxLayout()
 
-        self.mainhbox.addWidget(self.modelsPanel)
         self.mainhbox.addWidget(self.editPanel)
+        self.mainhbox.addWidget(self.modelsPanel)
+        
 
-        self.mainhbox.setStretchFactor(self.modelsPanel, 1) #equally sized left and right panels
-        self.mainhbox.setStretchFactor(self.editPanel, 1)
+        # self.mainhbox.setStretchFactor(self.modelsPanel) #equally sized left and right panels
+        # self.mainhbox.setStretchFactor(self.editPanel, 1)
         self.setLayout(self.mainhbox)
 
 class ModelsPanel(QFrame):
@@ -80,17 +81,18 @@ class ModelsPanel(QFrame):
         self.clickableModels = []
         self.setStyleSheet("background-color: #5E5E5E; border-radius: 20;")
         self.viewVBox = QVBoxLayout()
-        self.modelsLabel = QLabel()
+        self.modelsLabel = QLabel('Select your model')
         bold = QFont()
         bold.setBold(True)
-        self.modelsLabel = QLabel('Models')
-        self.modelsLabel.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        text_color = QColor(117, 219, 233)  # blue for field labels
+        
+        self.modelsLabel.setStyleSheet(f"color: {text_color.name()};")
+        self.modelsLabel.setAlignment(Qt.AlignmentFlag.AlignTop | Qt.AlignmentFlag.AlignCenter)
         self.modelsLabel.setFont(bold)
-        self.row = 1
-        self.col = 0
+       
         
         self.models = QFrame()
-        self.modelsLayout = QGridLayout()
+        self.modelsLayout = QVBoxLayout()
 
         self.modelsInfo = self.loadModels()
         self.modelsBox(self.modelsInfo)
@@ -167,11 +169,13 @@ class ModelsPanel(QFrame):
 
     def modelsBox(self, list_of_models_objects):
         self.models.setStyleSheet("background-color: #5E5E5E; border-radius: 20;")
-        self.modelsLayout.addWidget(self.modelsLabel, 0, 0, 1, 3)  # Span label across 3 columns
+        self.modelsLayout.addSpacing(8)
+        self.modelsLayout.addWidget(self.modelsLabel) 
+        self.modelsLayout.addSpacing(8)
 
-        addButton = AddModelsButton()
+        # addButton = AddModelsButton()
         # addButton.setFixedSize(80, 40)
-        self.modelsLayout.addWidget(addButton, 0, 2, 1, 1)
+        # self.modelsLayout.addWidget(addButton, 0, 2, 1, 1)
 
         ind = 0
         for currentModel in list_of_models_objects:
@@ -179,12 +183,13 @@ class ModelsPanel(QFrame):
             modelBox = ClickableFrame(obj, self.mainFrame, ind, self)
             ind = ind + 1
             self.clickableModels.append(modelBox)
-            self.modelsLayout.addWidget(modelBox, self.row, self.col)
-            self.col += 1
-            if self.col == 3:
-                self.col = 0
-                self.row += 1
-        self.modelsLayout.setAlignment(Qt.AlignmentFlag.AlignTop)
+            self.modelsLayout.addWidget(modelBox)
+            # self.col += 1
+            # if self.col == 3:
+            #     self.col = 0
+            #     self.row += 1
+        self.modelsLayout.setAlignment(Qt.AlignmentFlag.AlignTop | Qt.AlignmentFlag.AlignCenter)
+        #self.modelsLayout.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.models.setLayout(self.modelsLayout)
     
     def add_models(self, obj):
@@ -220,6 +225,7 @@ class ModelsPanel(QFrame):
         self.mainFrame.modelsPanel = new_frame
         self.parent().layout().replaceWidget(self, new_frame)
         self.deleteLater()
+
 
 class AddModelsButton(QPushButton):
     def __init__(self):
@@ -276,7 +282,7 @@ class ClickableFrame(QFrame):
 
         self.model = currentModel #raw json information
         self.clicked = False #variable to keep tracked of click
-        self.setFixedWidth(190)
+        self.setFixedWidth(500)
         self.setFixedHeight(110)
         self.setStyleSheet("""
             background-color: #464545;
@@ -295,26 +301,33 @@ class ClickableFrame(QFrame):
         self.nameLabel.setFont(bold)
 
         self.status = QLabel("Status:") 
+        # self.status.setStyleSheet("QLabel { padding-left: 70px; }")
         self.status.setFont(bold)
         self.connected = QLabel("CONNECTED")
         connected_color = QColor(36, 201, 53)  
         self.connected.setStyleSheet(f"color: {connected_color.name()};")
         self.connected.setFont(bold)
+        self.connected.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
         self.offline = QLabel("OFFLINE")
         offline_color = QColor(159, 159, 159)  
         self.offline.setStyleSheet(f"color: {offline_color.name()};")
         self.offline.setFont(bold)
+        self.offline.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
         statBox = QFrame()
         layout = QHBoxLayout()
-        layout.addWidget(self.status)
+        # layout.addWidget(self.status)
+        # layout.setStretchFactor(self.status, 1)
 
         connected = True #add connected functionality
         if (connected):
             layout.addWidget(self.connected)
+            layout.setStretchFactor(self.connected, 1)
         else:
             layout.addWidget(self.offline)
+            layout.setStretchFactor(self.offline, 1)
+
 
         statBox.setLayout(layout)
 
@@ -395,14 +408,14 @@ class ModelsValues(QFrame):
         text_color = QColor(117, 219, 233)  # blue for field labels
 
         #lighter outer box
-        editFrame = QFrame()
+        # editFrame = QFrame()
         editLayout = QVBoxLayout()
         
-        self.editLabel.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        self.editLabel.setFont(bold)
-        editFrame.setStyleSheet("background-color: #5E5E5E; border-radius: 20;")
-        editLayout.addWidget(self.editLabel)
-        editLayout.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        # self.editLabel.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        # self.editLabel.setFont(bold)
+        # editFrame.setStyleSheet("background-color: #5E5E5E; border-radius: 20;")
+        # editLayout.addWidget(self.editLabel)
+        # editLayout.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
         #darker box
         contentBox = QFrame()
@@ -413,48 +426,19 @@ class ModelsValues(QFrame):
             """)
 
         #text fields
-        self.name_input = QLineEdit()
-        self.name_input.setText(self.currentModel['model'])
-        self.name_input.setStyleSheet("QLineEdit { background-color: #5E5E5E; border-radius: 10px; padding: 5px; }")
-        contentLayout.addSpacing(50)
-        contentLayout.addWidget(self.alignTextEditFields("Model", self.name_input))
-        contentLayout.addSpacing(40)
-        self.base_url_input = QLineEdit()
-        self.base_url_input.setText(self.currentModel['base_url'])
-        self.base_url_input.setStyleSheet("QLineEdit { background-color: #5E5E5E; border-radius: 10px; padding: 5px; }")
-        contentLayout.addWidget(self.alignTextEditFields("Base Url", self.base_url_input))
-        contentLayout.addSpacing(40)
-        self.api_type_input = QLineEdit()
-        self.api_type_input.setText(self.currentModel['api_type'])
-        self.api_type_input.setStyleSheet("QLineEdit { background-color: #5E5E5E; border-radius: 10px; padding: 5px; }")
-        contentLayout.addWidget(self.alignTextEditFields("API Type", self.api_type_input))
-        contentLayout.addSpacing(40)
-        self.api_key_input = QLineEdit()
-        self.api_key_input.setText(self.currentModel['api_key'])
-        self.api_key_input.setStyleSheet("QLineEdit { background-color: #5E5E5E; border-radius: 10px; padding: 5px; }")
-        contentLayout.addWidget(self.alignTextEditFields("API Key", self.api_key_input))
-        contentLayout.addSpacing(100)
-
-        self.deleteButton = QPushButton("Delete Model")
-        self.deleteButton.setCursor(QCursor(Qt.CursorShape.PointingHandCursor))
-        self.deleteButton.setFixedWidth(150)
-        self.deleteButton.setFixedHeight(50)
-        self.deleteButton.setStyleSheet("""
-            padding: 5px;
-            background-color: transparent;
-            font: 15px;
-            text-decoration: underline;
-            color: #ffffff;
-        """)
-        self.deleteButton.clicked.connect(self.deleteClicked)
-        self.deleteButton.hide()
+        self.groq_input = QLineEdit()
+        self.groq_input.setFixedWidth(500)
+        self.groq_input.setText("")
+        fieldLabel = self.setLabel("Add your groq API key:")
+        self.groq_input.setStyleSheet("QLineEdit { background-color: #5E5E5E; border-radius: 10px; padding: 5px; }")
+        
 
         self.createButton = QPushButton(
-            text=" Create Model", icon=QIcon('./assets/Sparkling.png')
+            text=" Add API Key", icon=QIcon('./assets/Sparkling.png')
         )
         self.createButton.setCursor(QCursor(Qt.CursorShape.PointingHandCursor))
         self.createButton.setFixedWidth(150)
-        self.createButton.setFixedHeight(50)
+        self.createButton.setFixedHeight(40)
         self.createButton.setStyleSheet('''
             QPushButton {
                 border: 0px solid #ffffff;
@@ -478,7 +462,8 @@ class ModelsValues(QFrame):
         self.bottomButtonFrame = QFrame()
         self.bottomButtonBox = QHBoxLayout()
 
-        self.bottomButtonBox.addWidget(self.deleteButton)
+        self.bottomButtonBox.addWidget(fieldLabel)
+        self.bottomButtonBox.addWidget(self.groq_input)
         self.bottomButtonBox.addWidget(self.createButton)
         self.bottomButtonFrame.setLayout(self.bottomButtonBox)
 
@@ -487,7 +472,7 @@ class ModelsValues(QFrame):
         contentBox.setLayout(contentLayout)
 
         editLayout.addWidget(contentBox)
-        editLayout.setStretchFactor(contentBox, 1)
+        # editLayout.setStretchFactor(contentBox, 1)
         self.setLayout(editLayout)
 
     def setFields(self, model):
@@ -621,10 +606,10 @@ class ModelsValues(QFrame):
             
             dialog.exec()
   
-    def alignTextEditFields(self, label, fieldInput):
-        fieldLabel = self.setLabel(label)
-        box = self.alignHorizontal(fieldLabel, fieldInput)
-        return box
+    # def alignTextEditFields(self, label, fieldInput):
+    #     fieldLabel = self.setLabel(label)
+    #     box = self.align(fieldLabel, fieldInput)
+    #     return box
     
     def alignHorizontal(self, content1, content2):
         box = QFrame()
@@ -642,6 +627,6 @@ class ModelsValues(QFrame):
         fieldLabel = QLabel(label)
         fieldLabel.setFont(bold)
         fieldLabel.setStyleSheet(f"color: {text_color.name()};")
-        fieldLabel.setFixedWidth(110)  # Set a fixed width for the label
+        #fieldLabel.setFixedWidth(110)  # Set a fixed width for the label
 
         return fieldLabel
