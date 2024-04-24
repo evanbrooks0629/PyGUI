@@ -882,7 +882,11 @@ class ChatsFrame(QFrame):
         if len(agent_info["skills"]) == 0:
             file = open("./data/llm.json")
             data = json.load(file)
-            llm_config = data["llm_config"]
+            llm_config = {}
+            llm_config["model"] = data["llm_config"]["model"]
+            llm_config["base_url"] = data["llm_config"]["base_url"]
+            llm_config["api_type"] = data["llm_config"]["api_type"]
+            llm_config["api_key"] = data["llm_config"]["api_key"]
             
             file = open("./data/groq.json")
             data = json.load(file)
@@ -927,7 +931,11 @@ class ChatsFrame(QFrame):
             # llm_config = agent_info["llm_config"]
             file = open("./data/llm.json")
             data = json.load(file)
-            llm_config = data["llm_config"]
+            llm_config = {}
+            llm_config["model"] = data["llm_config"]["model"]
+            llm_config["base_url"] = data["llm_config"]["base_url"]
+            llm_config["api_type"] = data["llm_config"]["api_type"]
+            llm_config["api_key"] = data["llm_config"]["api_key"]
             
             file = open("./data/groq.json")
             data = json.load(file)
@@ -986,7 +994,11 @@ class ChatsFrame(QFrame):
         #     messages = self.processConversation(self.messages)
         file = open("./data/llm.json")
         data = json.load(file)
-        llm_config = data["llm_config"]
+        llm_config = {}
+        llm_config["model"] = data["llm_config"]["model"]
+        llm_config["base_url"] = data["llm_config"]["base_url"]
+        llm_config["api_type"] = data["llm_config"]["api_type"]
+        llm_config["api_key"] = data["llm_config"]["api_key"]
         
         file = open("./data/groq.json")
         data = json.load(file)

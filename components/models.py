@@ -295,7 +295,13 @@ class ClickableFrame(QFrame):
         self.base_url = currentModel['base_url']
         self.api_type = currentModel["api_type"]
         self.api_key = currentModel["api_key"]
-        self.nameLabel = QLabel(self.name)
+        self.groq = currentModel["groq"]
+        name = ""
+        if self.groq:
+            name = "[Groq] " + self.name
+        else:
+            name = "[Ollama] " + self.name
+        self.nameLabel = QLabel(name)
         self.nameLabel.setFixedHeight(25)
         self.nameLabel.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.nameLabel.setFont(bold)
@@ -465,7 +471,7 @@ class ModelsValues(QFrame):
         self.groq_input = QLineEdit()
         self.groq_input.setFixedWidth(500)
         self.groq_input.setText(key)
-        fieldLabel = self.setLabel("Add your groq API key:")
+        fieldLabel = self.setLabel("Add your groq API key (only for groq models):")
         self.groq_input.setStyleSheet("QLineEdit { background-color: #5E5E5E; border-radius: 10px; padding: 5px; }")
         
 

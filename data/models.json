@@ -4,37 +4,43 @@
             "model": "Mistral-7B Chat Int4",
             "base_url": "127.0.0.1:8081",
             "api_type": "openai",
-            "api_key": "NULL"
+            "api_key": "NULL",
+            "groq": false
         },
         {
             "model": "mixtral-8x7b-32768",
             "base_url": "https://api.groq.com/openai/v1",
             "api_type": "openai",
-            "api_key": ""
+            "api_key": "",
+            "groq": true
         },
         {
             "model": "gemma-7b-it",
             "base_url": "https://api.groq.com/openai/v1",
             "api_type": "openai",
-            "api_key": ""
+            "api_key": "",
+            "groq": true
         },
         {
             "model": "llama3-70b-8192",
             "base_url": "https://api.groq.com/openai/v1",
             "api_type": "openai",
-            "api_key": ""
+            "api_key": "",
+            "groq": true
         },
         {
             "model": "llama3-8b-8192",
             "base_url": "https://api.groq.com/openai/v1",
             "api_type": "openai",
-            "api_key": ""
+            "api_key": "",
+            "groq": true
         },
         {
             "model": "llama2-70b-4096",
             "base_url": "https://api.groq.com/openai/v1",
             "api_type": "openai",
-            "api_key": ""
+            "api_key": "",
+            "groq": true
         }
     ]
 }
