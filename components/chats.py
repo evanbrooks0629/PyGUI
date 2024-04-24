@@ -777,24 +777,24 @@ class ChatsFrame(QFrame):
             interactionBox = self.createInteractionBox(interaction, agentName)
             scrollLayout.addWidget(interactionBox)
 
-        self.textBox = QPlainTextEdit()
-        self.textBox.setMinimumHeight(QLabel().sizeHint().height() * 6)
-        self.textBox.setMaximumHeight(QLabel().sizeHint().height() * 6)
-        self.textBox.setVerticalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff) 
-        self.textBox.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff) 
-        self.textBox.setDisabled(False)
-        self.textBox.setStyleSheet("""
-            background-color: #5E5E5E;
-            color: #ffffff;
-            padding: 20;
-        """)
-        self.textBox.setPlaceholderText("Ask a follow up question...")
-        self.sendChatButton.show()  
-        self.sendChatButton.raise_()
+        # self.textBox = QPlainTextEdit()
+        # self.textBox.setMinimumHeight(QLabel().sizeHint().height() * 6)
+        # self.textBox.setMaximumHeight(QLabel().sizeHint().height() * 6)
+        # self.textBox.setVerticalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff) 
+        # self.textBox.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff) 
+        # self.textBox.setDisabled(False)
+        # self.textBox.setStyleSheet("""
+        #     background-color: #5E5E5E;
+        #     color: #ffffff;
+        #     padding: 20;
+        # """)
+        # self.textBox.setPlaceholderText("Ask a follow up question...")
+        # self.sendChatButton.show()  
+        # self.sendChatButton.raise_()
 
         scrollLayout.addStretch()
         self.chatVBox.addWidget(self.scrollArea)
-        self.chatVBox.addWidget(self.textBox)
+        # self.chatVBox.addWidget(self.textBox)
         # Add stretch to push everything up and make the layout scrollable if needed
         self.chatFrame.setStyleSheet("""
             background-color: #464545;
@@ -880,10 +880,21 @@ class ChatsFrame(QFrame):
     def create_assistant_agent(self, agent_info):
         #Assuming AssistantAgent creation logic based on agent_info
         if len(agent_info["skills"]) == 0:
+            file = open("./data/llm.json")
+            data = json.load(file)
+            llm_config = data["llm_config"]
+            
+            file = open("./data/groq.json")
+            data = json.load(file)
+            api_key = data["groq_api_key"]
+            llm_config["api_key"] = api_key
+
+            print("LLM:")
+            print(llm_config)
             return autogen.AssistantAgent(
                 name=agent_info["name"],
                 system_message=agent_info["description"],
-                llm_config=agent_info["llm_config"],
+                llm_config=llm_config,
                 #Add other parameters based on your agent_info structure
             )
         else: 
@@ -911,7 +922,21 @@ class ChatsFrame(QFrame):
                             fmap[node.name] = node
             #print(allSkills)
             #print(fmap)
-            llm_config = agent_info["llm_config"]
+
+            # get llm_config from llm.json
+            # llm_config = agent_info["llm_config"]
+            file = open("./data/llm.json")
+            data = json.load(file)
+            llm_config = data["llm_config"]
+            
+            file = open("./data/groq.json")
+            data = json.load(file)
+            api_key = data["groq_api_key"]
+            llm_config["api_key"] = api_key
+
+            print("LLM:")
+            print(llm_config)
+
             # llm_config["functions"] = allSkills
             agent = autogen.AssistantAgent(
                 name=agent_info["name"],
@@ -959,14 +984,23 @@ class ChatsFrame(QFrame):
         messages = []
         # if len(self.messages) > 0:
         #     messages = self.processConversation(self.messages)
+        file = open("./data/llm.json")
+        data = json.load(file)
+        llm_config = data["llm_config"]
+        
+        file = open("./data/groq.json")
+        data = json.load(file)
+        api_key = data["groq_api_key"]
+        llm_config["api_key"] = api_key
 
+        print("LLM:")
+        print(llm_config)
 
         groupchat = autogen.GroupChat(agents=all_agents, messages=messages, max_round=5, allow_repeat_speaker=False)
-        manager = autogen.GroupChatManager(system_message="You are responsible for managing the agents in your team. Make sure they do not provide more than what the user asked.", groupchat=groupchat, llm_config = {"model": "llama3-70b-8192",
-                                                                              "base_url": "https://api.groq.com/openai/v1",
-                                                                              "api_type": "openai",
-                                                                              "api_key": "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"
-                                                                            }
+        manager = autogen.GroupChatManager(
+            system_message="You are responsible for managing the agents in your team. Make sure they do not provide more than what the user asked.", 
+            groupchat=groupchat, 
+            llm_config=llm_config
         )
 
          # # Start the chat with the specified message
@@ -974,8 +1008,8 @@ class ChatsFrame(QFrame):
         chat_result = user_proxy.initiate_chat(manager, message=systemMessage)
 
         chat_history = chat_result.chat_history
-        print("history")
-        print(chat_history)
+        # print("history")
+        # print(chat_history)
 
         # get date
         today = date.today()
@@ -1017,7 +1051,7 @@ class ChatsFrame(QFrame):
         chat_object["conversation"] = conversation["conversation"]
         self.messages = conversation
 
-        print("process")
+        # print("process")
 
         file = open('./data/chats.json')
         data = json.load(file)
@@ -1028,26 +1062,26 @@ class ChatsFrame(QFrame):
                 # Write the updated data back to the file
                 json.dump(data, file, indent=2)
 
-        print("written")
+        # print("written")
 
             
 
     def uploadPrompt(self):
-        systemMessage = self.textBox.toPlainText()
+        self.systemMessage = self.textBox.toPlainText()
         
 
-        self.loadLoadingView(systemMessage)
+        self.loadLoadingView(self.systemMessage)
 
         # self.loadingWidget.start_animation()
         QApplication.processEvents()
 
-        worker = Worker(lambda: self.runPrompt(systemMessage))
-        worker.signals.error.connect(self.errorEvent)
-        worker.signals.finished.connect(lambda: self.finishedEvent(self.isChatError))
-        self.threadpool.start(worker)
+        self.worker = Worker(lambda: self.runPrompt(self.systemMessage))
+        self.worker.signals.error.connect(self.errorEvent)
+        self.worker.signals.finished.connect(lambda: self.finishedEvent(self.isChatError))
+        self.threadpool.start(self.worker)
 
-    def errorEvent(self):
-        print("error")
+    def errorEvent(self, message):
+        print("error: " + message)
         self.isChatError = True
         # chat_object = {
         #     "name": "Title",
@@ -1089,7 +1123,7 @@ class ChatsFrame(QFrame):
             self.clickableChats.append(chatBoxAddition)
             self.chatsLayout.insertWidget(0, chatBoxAddition)
         else:
-            print(self.currentView)
+            # print(self.currentView)
             # if theres an error it loads the last screen
 
             if self.currentView == "CONVO":
@@ -1114,7 +1148,7 @@ class WorkerSignals(QObject):
 
     '''
     finished = pyqtSignal()
-    error = pyqtSignal()
+    error = pyqtSignal(str)
 
 class Worker(QRunnable):
     '''
@@ -1147,7 +1181,7 @@ class Worker(QRunnable):
             self.fn(
                 *self.args, **self.kwargs
             )
-        except:
-            self.signals.error.emit() # Error
+        except Exception as e:
+            self.signals.error.emit(str(e)) # Error
         finally:
             self.signals.finished.emit() # Done

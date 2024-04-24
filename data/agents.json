@@ -94,6 +94,21 @@
         "Test"
       ],
       "system_message": "You are a back end developer specializing in Express.js"
+    },
+    {
+      "id": "63476556",
+      "name": "QA Engineer",
+      "description": "Tests Python code",
+      "max_consecutive_auto_reply": 0,
+      "default_auto_reply": "",
+      "llm_config": {
+        "model": "Mistral-7B Chat Int4",
+        "base_url": "127.0.0.1:8081",
+        "api_type": "openai",
+        "api_key": "NULL"
+      },
+      "skills": [],
+      "system_message": "You are proficient in writing test cases for Python code"
     }
   ]
 }

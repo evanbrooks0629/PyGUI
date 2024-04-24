@@ -351,11 +351,43 @@ class ClickableFrame(QFrame):
         if self.clicked:
             self.widget.editPanel.clickedModel = self
             self.widget.editPanel.currentModel = self.model 
-            self.widget.editPanel.setFields(self.model)    
+            # self.widget.editPanel.setFields(self.model)    
             self.widget.editPanel.update() 
-            self.widget.editPanel.editLabel.setText("Edit Your Model")
-            self.widget.editPanel.createButton.setText("Edit Model")
-            self.widget.editPanel.deleteButton.show()
+            # self.widget.editPanel.editLabel.setText("Edit Your Model")
+            # self.widget.editPanel.createButton.setText("Edit Model")
+            # self.widget.editPanel.deleteButton.show()
+            # set clicked value in llm_config with passed-in api-key
+            file = open('./data/models.json')
+            data = json.load(file)
+            selected_model = {
+                "llm_config": {}
+            }
+
+            for model in data["models"]:
+                if model["model"] == self.name:
+                    selected_model["llm_config"] = model
+
+            with open('./data/llm.json', 'w') as file:
+                # Write the updated data back to the file
+                json.dump(selected_model, file, indent=2)
+
+            dialog = Alert("SUCCESS", "Model selected successfully.")
+            dialog_width = 250
+            dialog_height = 50
+
+            main_window = self.window()
+
+            # Calculate the new position
+            new_x = main_window.geometry().x() + main_window.geometry().width() - dialog_width - 100
+            new_y = main_window.geometry().y() + main_window.geometry().height() - dialog_height - 50
+
+            # Move the dialog to the bottom right corner of the main application window
+            dialog.move(new_x, new_y)
+            
+            # Optional: Set dialog window flags, like making it frameless
+            dialog.setWindowFlags(Qt.WindowType.FramelessWindowHint)
+            
+            dialog.exec()
         else:
             self.widget.editPanel.currentModel = {
                 "model": "",
@@ -363,10 +395,10 @@ class ClickableFrame(QFrame):
                 "api_type": "",
                 "api_key": ""
             }
-            self.widget.editPanel.setFields(self.widget.editPanel.currentModel)
-            self.widget.editPanel.editLabel.setText("Build Your Model")
-            self.widget.editPanel.createButton.setText("Create Model")
-            self.widget.editPanel.deleteButton.hide()
+            # self.widget.editPanel.setFields(self.widget.editPanel.currentModel)
+            # self.widget.editPanel.editLabel.setText("Build Your Model")
+            # self.widget.editPanel.createButton.setText("Create Model")
+            # self.widget.editPanel.deleteButton.hide()
             self.widget.editPanel.update()
         self.update()
 
@@ -426,9 +458,13 @@ class ModelsValues(QFrame):
             """)
 
         #text fields
+        # load api key
+        file = open('./data/groq.json')
+        data = json.load(file)
+        key = data["groq_api_key"]
         self.groq_input = QLineEdit()
         self.groq_input.setFixedWidth(500)
-        self.groq_input.setText("")
+        self.groq_input.setText(key)
         fieldLabel = self.setLabel("Add your groq API key:")
         self.groq_input.setStyleSheet("QLineEdit { background-color: #5E5E5E; border-radius: 10px; padding: 5px; }")
         
@@ -476,56 +512,25 @@ class ModelsValues(QFrame):
         self.setLayout(editLayout)
 
     def setFields(self, model):
-        self.name_input.setText(model['model'])
-        self.base_url_input.setText(model['base_url'])
-        self.api_type_input.setText(model['api_type'])
-        self.api_key_input.setText(model['api_key'])   
+        return
+        # self.name_input.setText(model['model'])
+        # self.base_url_input.setText(model['base_url'])
+        # self.api_type_input.setText(model['api_type'])
+        # self.api_key_input.setText(model['api_key'])   
 
     def createClicked(self):
-        #upload new edits into json
-        print('create clicked')
-        file = open('./data/models.json')
-        data = json.load(file)
-        filtered_models = filter(lambda model: model.get('model') == self.currentModel['model'], data.get('models', []))
+        # save API key
+        # get api key input
+        key = self.groq_input.text()
+        data = {
+            "groq_api_key": key
+        }
 
-        found_model = next(filtered_models, None)
-
-        if found_model:
-            found_model['model'] = self.name_input.text() 
-            found_model['base_url'] = self.base_url_input.text()
-            found_model['api_type'] = self.api_type_input.text()
-            found_model['api_key'] = self.api_key_input.text()
-        else:
-            self.currentModel['model'] = self.name_input.text()
-            self.currentModel['base_url'] = self.base_url_input.text()
-            self.currentModel['api_type'] = self.api_type_input.text()
-            self.currentModel['api_key'] = self.api_key_input.text()
-            data['models'].append(self.currentModel)
-
-        with open('./data/models.json', 'w') as file:
+        with open('./data/groq.json', 'w') as file:
                 # Write the updated data back to the file
                 json.dump(data, file, indent=2)
         
-        dialog = Alert("SUCCESS", "Model created successfully.")
-
-        if found_model:
-            self.clickedModel.refreshFrame(found_model)
-            self.clickedModel = QFrame()
-            dialog = Alert("SUCCESS", "Model edited successfully.")
-        else:
-            self.modelsFrame.add_models(self.currentModel)
-
-        self.currentModel = {
-            "model": "",
-            "base_url": "",
-            "api_type": "",
-            "api_key": ""
-        }
-        self.setFields(self.currentModel)
-        self.editLabel.setText("Build Your Model")
-        self.createButton.setText("Create Model")
-        self.deleteButton.hide()
-        self.update()
+        dialog = Alert("SUCCESS", "API key saved successfully.")
 
         dialog_width = 250
         dialog_height = 50
