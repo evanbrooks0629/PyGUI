@@ -8,4 +8,8 @@
 
 ```pip install PyQt6```
 
+```pip install pyautogen```
+
+```pip install groq```
+
 ```python3 app.py```
