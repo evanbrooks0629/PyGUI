@@ -1,8 +1,8 @@
 {
     "models": [
         {
-            "model": "Mistral-7B Chat Int4",
-            "base_url": "127.0.0.1:8081",
+            "model": "openhermes",
+            "base_url": "http://localhost:11434/v1",
             "api_type": "openai",
             "api_key": "NULL",
             "groq": false

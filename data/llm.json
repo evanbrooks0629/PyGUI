@@ -1,9 +1,9 @@
 {
   "llm_config": {
-    "model": "llama3-70b-8192",
-    "base_url": "https://api.groq.com/openai/v1",
+    "model": "openhermes",
+    "base_url": "http://localhost:11434/v1",
     "api_type": "openai",
-    "api_key": "",
-    "groq": true
+    "api_key": "NULL",
+    "groq": false
   }
 }
