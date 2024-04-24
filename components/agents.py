@@ -377,20 +377,20 @@ class ClickableFrame(QFrame):
         agentVBox.addWidget(descriptionLine)
         # agentVBox.addWidget(systemMessageLabel)
 
-        skillsText = QLabel("Functions:")
-        agentVBox.addWidget(skillsText)
-        for i in range(len(self.skills)):
-            skillsLabel = QLabel(self.skills[i])
-            skillsLabel.setAlignment(Qt.AlignmentFlag.AlignCenter)
-            skillsLabel.setStyleSheet("""
-                border: 1px solid white;
-                padding-left: 2;
-                padding-right: 2;
-                border-radius: 5;
-                font-size: 24;
-            """)
-            skillsLabel.setFixedHeight(25)
-            agentVBox.addWidget(skillsLabel)
+        # skillsText = QLabel("Functions:")
+        # agentVBox.addWidget(skillsText)
+        # for i in range(len(self.skills)):
+        #     skillsLabel = QLabel(self.skills[i])
+        #     skillsLabel.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        #     skillsLabel.setStyleSheet("""
+        #         border: 1px solid white;
+        #         padding-left: 2;
+        #         padding-right: 2;
+        #         border-radius: 5;
+        #         font-size: 24;
+        #     """)
+        #     skillsLabel.setFixedHeight(25)
+        #     agentVBox.addWidget(skillsLabel)
         #agentVBox.addWidget(self.skillsLabel)
         self.setLayout(agentVBox)
 
@@ -619,89 +619,89 @@ class AgentValues(QFrame):
 
         #this is for new agents, add functionality for agent's specified skills
         #or just define default values when creating new_agent and ONLY pull from agent.json
-        file = open('./data/functions.json')
-        data = json.load(file)
-        functions = data["functions"]
+        # file = open('./data/functions.json')
+        # data = json.load(file)
+        # functions = data["functions"]
 
-        for currentFunction in functions:
-            checkbox = QCheckBox('   ' + currentFunction['name'])
-            checkbox_layout.addWidget(checkbox)
-            self.checkboxes.append(checkbox)
+        # for currentFunction in functions:
+        #     checkbox = QCheckBox('   ' + currentFunction['name'])
+        #     checkbox_layout.addWidget(checkbox)
+        #     self.checkboxes.append(checkbox)
     
-        select_all_button = QPushButton("Select All")
-        select_all_button.setCursor(QCursor(Qt.CursorShape.PointingHandCursor))
-        select_all_button.setStyleSheet('''
-            QPushButton {
-                border: 0px solid #ffffff;
-                border-radius: 10px;
-                padding: 5px;
-                background-color: #5E5E5E;
-                color: #ffffff;
-                font: 12px;
-            }
+        # select_all_button = QPushButton("Select All")
+        # select_all_button.setCursor(QCursor(Qt.CursorShape.PointingHandCursor))
+        # select_all_button.setStyleSheet('''
+        #     QPushButton {
+        #         border: 0px solid #ffffff;
+        #         border-radius: 10px;
+        #         padding: 5px;
+        #         background-color: #5E5E5E;
+        #         color: #ffffff;
+        #         font: 12px;
+        #     }
 
-            QPushButton:hover {
-                background-color: #111111;
-            }
+        #     QPushButton:hover {
+        #         background-color: #111111;
+        #     }
 
-            QPushButton:pressed {
-                background-color: #5E5E5E;
-            }
-        ''')
-        deselect_all_button = QPushButton("Deselect All")
-        deselect_all_button.setCursor(QCursor(Qt.CursorShape.PointingHandCursor))
-        deselect_all_button.setStyleSheet('''
-            QPushButton {
-                border: 0px solid #ffffff;
-                border-radius: 10px;
-                padding: 5px;
-                background-color: #5E5E5E;
-                color: #ffffff;
-                font: 12px;
-            }
+        #     QPushButton:pressed {
+        #         background-color: #5E5E5E;
+        #     }
+        # ''')
+        # deselect_all_button = QPushButton("Deselect All")
+        # deselect_all_button.setCursor(QCursor(Qt.CursorShape.PointingHandCursor))
+        # deselect_all_button.setStyleSheet('''
+        #     QPushButton {
+        #         border: 0px solid #ffffff;
+        #         border-radius: 10px;
+        #         padding: 5px;
+        #         background-color: #5E5E5E;
+        #         color: #ffffff;
+        #         font: 12px;
+        #     }
 
-            QPushButton:hover {
-                background-color: #111111;
-            }
+        #     QPushButton:hover {
+        #         background-color: #111111;
+        #     }
 
-            QPushButton:pressed {
-                background-color: #5E5E5E;
-            }
-        ''')
+        #     QPushButton:pressed {
+        #         background-color: #5E5E5E;
+        #     }
+        # ''')
 
-        select_all_button.clicked.connect(self.select_all_checkboxes)
-        deselect_all_button.clicked.connect(self.deselect_all_checkboxes)
+        # select_all_button.clicked.connect(self.select_all_checkboxes)
+        # deselect_all_button.clicked.connect(self.deselect_all_checkboxes)
         allWidget = QWidget()
         allLayout = QHBoxLayout()
-        allLayout.addWidget(select_all_button)
-        allLayout.addWidget(deselect_all_button)
+        # allLayout.addWidget(select_all_button)
+        # allLayout.addWidget(deselect_all_button)
         allWidget.setLayout(allLayout)
 
-        scroll_area.setWidget(checkbox_widget)
-        skillsWidget = QWidget()
-        skillLayout = QHBoxLayout()
-        skillLabel = self.setLabel('Skills')
+        # scroll_area.setWidget(checkbox_widget)
+        # skillsWidget = QWidget()
+        # skillLayout = QHBoxLayout()
+        # skillLabel = self.setLabel('Skills')
         #skillLabel.setContentsMargins(0,0,50,0)
 
-        checksWidget = QWidget()
-        checksWidget.setContentsMargins(0,0,125,0)
-        checksLayout = QVBoxLayout()
-        separateLine = QLabel()
-        separateLine.setStyleSheet("""
-            background-color: #5E5E5E;
-            border-radius: 0;
-        """)
-        separateLine.setFixedHeight(2)
-        checksLayout.addWidget(scroll_area)
-        checksLayout.addWidget(separateLine)
-        checksLayout.addWidget(allWidget)
-        checksWidget.setLayout(checksLayout)
-        skillLabel.setAlignment(Qt.AlignmentFlag.AlignTop)
-        skillLayout.addWidget(skillLabel)
-        skillLayout.addWidget(checksWidget)
-        skillsWidget.setLayout(skillLayout)
-        skillsWidget.setFixedHeight(250)
-        contentLayout.addWidget(skillsWidget)
+        # checksWidget = QWidget()
+        # checksWidget.setContentsMargins(0,0,125,0)
+        # checksLayout = QVBoxLayout()
+        # separateLine = QLabel()
+        # separateLine.setStyleSheet("""
+        #     background-color: #5E5E5E;
+        #     border-radius: 0;
+        # """)
+        # separateLine.setFixedHeight(2)
+        # checksLayout.addWidget(scroll_area)
+        # checksLayout.addWidget(separateLine)
+        # checksLayout.addWidget(allWidget)
+        # checksWidget.setLayout(checksLayout)
+        # skillLabel.setAlignment(Qt.AlignmentFlag.AlignTop)
+        # skillLayout.addWidget(skillLabel)
+        # skillLayout.addWidget(checksWidget)
+        # skillsWidget.setLayout(skillLayout)
+        # skillsWidget.setFixedHeight(250)
+        # contentLayout.addWidget(skillsWidget)
 
         self.deleteButton = QPushButton("Delete Agent")
         self.deleteButton.setCursor(QCursor(Qt.CursorShape.PointingHandCursor))
@@ -971,140 +971,3 @@ class AgentValues(QFrame):
         fieldLabel.setFixedWidth(110)  # Set a fixed width for the label
 
         return fieldLabel
-
-#skeleton of basic moving parts without visual display details to understand the code structure between classes
-
-# class AgentsFrame(QFrame):
-#     def __init__(self, parent=None):
-#         super().__init__()
-
-#         # for agents display on left panel
-#         self.agentPanel = AgentsPanel(self)
-
-#         #for changing contents of right panel
-#         self.editPanel = AgentValues(self)
-
-
-
-# #left side panel that holds one AddAgentButton and a ClickableFrame for each agent
-# class AgentsPanel(QFrame):
-#     def __init__(self, parent=None):
-#         super().__init__(parent)
-#         # Keep track of all agent boxes
-#         self.mainFrame = parent #parent is the AgentsFrame class
-#         self.clickableAgents = [] #tracks all the ClickableFrames it creates and displays
-
-#         self.agentInfo = self.loadAgents()
-#         self.agentBox(self.agentInfo)
-
-#     def agentBox(self, list_of_agent_objects):
-#         addButton = AddAgentButton() #call class for new agent button
-#         
-#         for currentAgent in list_of_agent_objects: #traverse the raw json agents
-#             obj = currentAgent
-#             agentBox = ClickableFrame(obj, self.mainFrame, ind, self) #display each raw json in a ClickableFrame
-#             ind = ind + 1 #tracks the position of the ClickableFrame in the clickableAgents array - eventually used for replacing the ClickableFrame in clickableAgents that has been edited (seen in ClickableFrame's refreshFrame)
-#             self.clickableAgents.append(agentBox) 
-#             self.agentsLayout.addWidget(agentBox, row, col)
-
-#     def loadAgents(self):
-#         file = open('./data/agents.json')
-#         data = json.load(file)
-#         agents = data['agents']
-#         return agents
-        
-#     def refreshFrame(self): #for refreshing AgentPanel class when adding or deleting an agent
-#         #for each clickable frame, delete (works without - may be redundant since clickable is child of panel so it deletes when panel deletes, but safer to delete than leave it hanging)
-#         #clear out children ClickableFrames
-#         for current in self.clickableAgents:
-#             current.setParent(None)  # Remove from layout
-#             current.deleteLater()  # Delete widget
-
-#         new_frame = AgentsPanel(parent=self.parent()) #create new panel
-#         self.mainFrame.editPanel.agentFrame = new_frame #replace panel in all associated connections
-#         self.mainFrame.agentPanel = new_frame #same as above
-#         self.parent().layout().replaceWidget(self, new_frame) #replace panel in mainframe (AgentsFrame)
-#         self.deleteLater() #delete old frame
-
-# #button class for a new agent
-# class AddAgentButton(QPushButton):
-#     def __init__(self):
-#         super().__init__()
-
-
-# #button box class for holding/selecting an agent
-# class ClickableFrame(QFrame):
-#     # acts as a button
-#     # note: we could implement multi-select functionality in the future for team creation?
-#     def __init__(self, currentAgent, widget, pos, parent=None):
-#         super().__init__(parent)
-#         self.agentPanel = parent
-#         self.position = pos
-#         self.widget = widget # Keeps track of associated AgentsFrame class
-#         self.agent = currentAgent #raw json information
-#         self.clicked = False #variable to keep tracked of click
-
-#     def mousePressEvent(self, event):
-#         self.clicked = not self.clicked
-#         if self.clicked:
-#             self.widget.editPanel.update() #make right side editing panel match the chosen clicked agent
-#         self.update()
-
-#     def refreshFrame(self, obj):
-#         #for editing agents, only replace the one agent box instead of the entire AgentsPanel
-#         new_box = ClickableFrame(obj, self.widget, self.position, self.agentPanel)
-
-# #right side panel for editing the selected or new agent
-# class AgentValues(QFrame):
-#     def __init__(self, frame):
-#         super().__init__()
-
-#         #agent panel (left side)
-#         self.agentFrame = frame.agentPanel 
-#         
-#         #button for saving edits
-#         createButton = QPushButton(
-#             text=" Create Agent", icon=QIcon('./assets/Sparkling.png')
-#         )
-#        
-#         createButton.clicked.connect(self.createClicked) 
-
-#     def createClicked(self):
-#         file = open('./data/agents.json')
-#         data = json.load(file)
-#         filtered_agents = filter(lambda agent: agent.get('id') == self.currentAgent['id'], data.get('agents', []))
-
-#         found_agent = next(filtered_agents, None)
-
-#         if found_agent:
-#             #Update raw json at agent id
-#             found_agent['id'] = self.currentAgent['id'] 
-#             found_agent['name'] = self.name_input.text()
-#             found_agent['description'] = self.descrip_input.text()
-#             found_agent['max_consecutive_auto_reply'] = self.slider.value()
-#             found_agent['default_auto_reply'] = self.currentAgent['default_auto_reply'] #have to check if json has these fields (threw error on first one)
-#             found_agent['llm_config'] = self.currentAgent['llm_config'] #same issue as above
-#             found_agent['skills'] = self.currentAgent['skills']
-#             found_agent['system_message'] = self.sys_input.text()
- 
-#         else:
-#             #Create new agent to be added to raw json
-#             self.currentAgent['id'] = str(int(self.agentFrame.agentInfo[-1]['id']) + 1)  #add id functionality
-#             self.currentAgent['name'] = self.name_input.text()
-#             self.currentAgent['description'] = self.descrip_input.text()
-#             self.currentAgent['max_consecutive_auto_reply'] = self.slider.value()
-#             self.currentAgent['default_auto_reply'] = self.currentAgent['default_auto_reply'] #have to check if json has these fields (threw error on first one)
-#             self.currentAgent['llm_config'] = self.currentAgent['llm_config'] #same issue as above
-#             self.currentAgent['skills'] = self.currentAgent['skills']
-#             self.currentAgent['system_message'] = self.sys_input.text()
-#             data['agents'].append(self.currentAgent)
-
-#         with open('./data/agents.json', 'w') as file:
-#                 # Write the updated data back to the file
-#                 json.dump(data, file, indent=2)
-        
-#         if found_agent: #if agent exists, only update it's ClickableFrame
-#             self.clickedAgent.refreshFrame(found_agent)
-#             self.clickedAgent = QFrame()
-#         else: #if brand new agent, update whole AgentPanel
-#             self.agentFrame.refreshFrame()
