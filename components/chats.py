@@ -898,28 +898,28 @@ class ChatsFrame(QFrame):
                 #Add other parameters based on your agent_info structure
             )
         else: 
-            allSkills = []
-            with open('./data/functions.json') as funcFile:
-                func = json.load(funcFile)
-            functions = func["functions"]
+            # allSkills = []
+            # with open('./data/functions.json') as funcFile:
+            #     func = json.load(funcFile)
+            # functions = func["functions"]
 
-            fmap = {}
-            o = open("./functions/skills.py", "r")
-            text = o.read()
-            p = ast.parse(text)
+            # fmap = {}
+            # o = open("./functions/skills.py", "r")
+            # text = o.read()
+            # p = ast.parse(text)
 
-            for i in agent_info["skills"]:
-                for j in functions:
-                    if i == j["name"]:
-                        toadd = {"name": j["name"],
-                                "description": j["description"],
-                                "parameters": j["parameters"]
-                                }
-                        allSkills.append(toadd)
-                for node in ast.walk(p):
-                    if isinstance(node, ast.FunctionDef):
-                        if node.name == i:
-                            fmap[node.name] = node
+            # for i in agent_info["skills"]:
+            #     for j in functions:
+            #         if i == j["name"]:
+            #             toadd = {"name": j["name"],
+            #                     "description": j["description"],
+            #                     "parameters": j["parameters"]
+            #                     }
+            #             allSkills.append(toadd)
+            #     for node in ast.walk(p):
+            #         if isinstance(node, ast.FunctionDef):
+            #             if node.name == i:
+            #                 fmap[node.name] = node
             #print(allSkills)
             #print(fmap)
 
