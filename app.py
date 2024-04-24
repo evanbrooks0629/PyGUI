@@ -6,7 +6,7 @@ from components.customTabBar import CustomTabBar
 # from components.dashboard import DashboardFrame
 from components.agents import AgentsFrame
 from components.teams import TeamsFrame
-from components.functions import FunctionsFrame
+# from components.functions import FunctionsFrame
 from components.chats import ChatsFrame
 from components.models import ModelsFrame
 
@@ -32,7 +32,7 @@ class App(QMainWindow):
         self.agentsFrame = AgentsFrame()
         self.chats = QWidget()
         self.chatsFrame = ChatsFrame()
-        self.functionsFrame = FunctionsFrame()
+        # self.functionsFrame = FunctionsFrame()
         self.teamsFrame = TeamsFrame()
         self.modelsFrame = ModelsFrame()
 
@@ -135,16 +135,16 @@ class App(QMainWindow):
         teams.setLayout(teamsLayout)
 
         # Teams Tab 
-        functions = QWidget()
-        functions.setStyleSheet("background-color: #5E5E5E")
+        # functions = QWidget()
+        # functions.setStyleSheet("background-color: #5E5E5E")
 
-        functionsLayout = QVBoxLayout()
-        functionsLayout.setSpacing(20)
-        functionsLayout.addWidget(functionsLogoLabel)
+        # functionsLayout = QVBoxLayout()
+        # functionsLayout.setSpacing(20)
+        # functionsLayout.addWidget(functionsLogoLabel)
 
-        functionsLayout.addWidget(self.functionsFrame)
+        # functionsLayout.addWidget(self.functionsFrame)
 
-        functions.setLayout(functionsLayout)
+        # functions.setLayout(functionsLayout)
 
         # Settings Tab
         models = QWidget()
@@ -163,7 +163,7 @@ class App(QMainWindow):
         self.tab_widget.addTab(self.chats, "Chats")
         self.tab_widget.addTab(agents, "Agents")
         self.tab_widget.addTab(teams, "Teams")
-        self.tab_widget.addTab(functions, "Functions")
+        # self.tab_widget.addTab(functions, "Functions")
         self.tab_widget.addTab(models, "Models")
 
     def tab_changed(self, index):
@@ -175,8 +175,8 @@ class App(QMainWindow):
             new_frame = AgentsFrame() 
         if current_tab_text == "Teams":
             new_frame = TeamsFrame() 
-        if current_tab_text == "Functions":
-            new_frame = FunctionsFrame()
+        # if current_tab_text == "Functions":
+        #     new_frame = FunctionsFrame()
         if current_tab_text == "Models":
             new_frame = ModelsFrame()
         old_frame = self.tab_widget.widget(index).layout().itemAt(1).widget()  # Get the old frame from the layout
