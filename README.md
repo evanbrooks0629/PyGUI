@@ -1,4 +1,6 @@
-# PyGUI
+# TaskForceAI
+
+A desktop application built with PyQt6 and Microsoft Autogen that allows users to customize and configure teams of AI agents who can carry out specialized tasks.
 
 ## Installation
 
