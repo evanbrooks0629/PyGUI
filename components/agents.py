@@ -921,4 +921,6 @@ class AgentValues(QFrame):
         fieldLabel = QLabel(label)
         fieldLabel.setFont(bold)
         fieldLabel.setStyleSheet(f"color: {text_color.name()};")
-        fieldLabel.setFixedWidth(110)  # Set a fixed 
+        fieldLabel.setFixedWidth(110)  # Set a fixed width for the label
+
+        return fieldLabel
