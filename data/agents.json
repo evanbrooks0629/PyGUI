@@ -1,114 +1,31 @@
 {
   "agents": [
     {
-      "id": "53489553",
-      "name": "User",
-      "code_execution_config": {
-        "work_dir": "coding",
-        "use_docker": false
-      },
-      "description": "User",
-      "termination_msg": "finished",
-      "human_input_mode": "NEVER",
-      "max_consecutive_auto_reply": 1,
-      "system_message": "",
-      "skills": []
-    },
-    {
-      "id": "53412553",
-      "name": "Researcher",
-      "description": "Searches the web for information",
-      "max_consecutive_auto_reply": 1,
+      "id": "1",
+      "name": "Front-End Python Developer",
+      "description": "Codes front-end code in Python using PyQt6",
+      "max_consecutive_auto_reply": 3,
       "default_auto_reply": "",
-      "llm_config": {
-        "model": "llama3-70b-8192",
-        "base_url": "https://api.groq.com/openai/v1",
-        "api_type": "openai",
-        "api_key": "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"
-      },
       "skills": [],
-      "system_message": "You are great at digging into the depths of the internet and finding hard-to-get data."
+      "system_message": "You are great at delivering clean, concise, and functional python code for front-end development using PyQt6."
     },
     {
-      "id": "53476553",
-      "name": "Writer",
-      "description": "Is great at writing books",
-      "max_consecutive_auto_reply": 2,
+      "id": "2",
+      "name": "Back-End Python Developer",
+      "description": "Codes back-end code in Python using PyQt6",
+      "max_consecutive_auto_reply": 3,
       "default_auto_reply": "",
-      "llm_config": {
-        "model": "llama3-70b-8192",
-        "base_url": "https://api.groq.com/openai/v1",
-        "api_type": "openai",
-        "api_key": "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"
-      },
       "skills": [],
-      "system_message": "You are a professional writer, known for your insightful and engaging articles. You transform complex concepts into compelling narratives. Reply 'TERMINATE' in the end when everything is done."
+      "system_message": "You are great at writing clean, concise, and functional python code for back-end systems that connect to PyQt6 front-end systems."
     },
     {
-      "id": "53476554",
-      "name": "Test Dummy",
-      "description": "You are proficient in writing unit tests for python scripts",
-      "max_consecutive_auto_reply": 2,
-      "default_auto_reply": "",
-      "llm_config": {
-        "model": "llama3-70b-8192",
-        "base_url": "https://api.groq.com/openai/v1",
-        "api_type": "openai",
-        "api_key": "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"
-      },
-      "skills": [
-        "Test"
-      ],
-      "system_message": "Given a set of Python code, define unit tests in Python"
-    },
-    {
-      "id": "63476554",
-      "name": "Python Dev",
-      "description": "Writes code in python",
-      "max_consecutive_auto_reply": 2,
-      "default_auto_reply": "",
-      "llm_config": {
-        "model": "llama3-70b-8192",
-        "base_url": "https://api.groq.com/openai/v1",
-        "api_type": "openai",
-        "api_key": "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"
-      },
-      "skills": [
-        "Test"
-      ],
-      "system_message": "You have 10 years of experience with Python"
-    },
-    {
-      "id": "63476555",
-      "name": "Back End Dev",
-      "description": "Codes back end code in JavaScript",
-      "max_consecutive_auto_reply": 2,
-      "default_auto_reply": "",
-      "llm_config": {
-        "model": "llama3-70b-8192",
-        "base_url": "https://api.groq.com/openai/v1",
-        "api_type": "openai",
-        "api_key": "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"
-      },
-      "skills": [
-        "Test"
-      ],
-      "system_message": "You are a back end developer specializing in Express.js"
-    },
-    {
-      "id": "63476556",
-      "name": "QA Engineer",
+      "id": "3",
+      "name": "Python QA Engineer",
       "description": "Tests Python code",
-      "max_consecutive_auto_reply": 0,
+      "max_consecutive_auto_reply": 3,
       "default_auto_reply": "",
-      "llm_config": {
-        "model": "Mistral-7B Chat Int4",
-        "base_url": "127.0.0.1:8081",
-        "api_type": "openai",
-        "api_key": "NULL"
-      },
       "skills": [],
-      "system_message": "You are proficient in writing test cases for Python code"
+      "system_message": "You write detailed unit tests in Python and test code from the front and back-end developers."
     }
   ]
 }

@@ -332,117 +332,156 @@ class ChatsFrame(QFrame):
             if widget is not None:
                 widget.deleteLater()
 
-        chatBox = QLabel("Welcome to TaskForceAI. Select a Team of Agents to complete your task. Then, type the task you’d like your Team to complete.")
-        chatBox.setStyleSheet("""
-            background-color: #464545; 
-            border-radius: 20;
-            padding: 20;
-            font: 16px;
-        """)
-        # chatBox.setFixedHeight(80)
-        chatBox.setWordWrap(True)
-        chatBox.setAlignment(Qt.AlignmentFlag.AlignTop)
-
-        self.teamSelectFrame = QFrame()
-        self.teamSelectFrame.setStyleSheet("""
-            background-color: #464545;
-            color: #ffffff;
-            padding: 20px;
-        """)
-        self.teamSelectFrame.setFixedHeight(300)
-
-        selectFrame = QFrame()
-        self.agentsFrame = QFrame()
-        self.teamBox = QHBoxLayout()
-        selectBox = QVBoxLayout()
-        self.agentsBox = QVBoxLayout()
-        self.agentsFrame.setLayout(self.agentsBox)
-        self.agentsFrame.setStyleSheet("background-color: #464545;")
-
-        verticalLine = QLabel("")
-        verticalLine.setStyleSheet("""
-            background-color: #5E5E5E;
-        """)
-        verticalLine.setFixedWidth(2)
-
-        selectTeamLabel = QLabel('Select a Team')
-        selectTeamLabel.setStyleSheet("""
-            background-color: #464545;
-            padding: 0;
-            padding-bottom: 10px;
-        """)
-
-        self.teamComboBox = CustomComboBox()
-        self.teamComboBox.currentIndexChanged[int].connect(self.retrieveTeamOnChange)
-        
         teamsFile = open('./data/teams.json')
         teamsData = json.load(teamsFile)
         teams = teamsData["teams"]
+        if len(teams) == 0:
+            chatBox = QLabel("Welcome to TaskForceAI. Create a Team of Agents to complete your task.")
+            chatBox.setStyleSheet("""
+                background-color: #464545; 
+                border-radius: 20;
+                padding: 20;
+                font: 16px;
+            """)
+            chatBox.setWordWrap(True)
+            chatBox.setAlignment(Qt.AlignmentFlag.AlignTop)
 
-        agentsFile = open('./data/agents.json')
-        agentsData = json.load(agentsFile)
-        agents = agentsData["agents"]
+            noTeamsFrame = QFrame()
+            noTeamsBox = QHBoxLayout()
+            noTeamsLabel = QLabel("Please create a Team of Agents in order to start a chat.")
+            noTeamsBox.addWidget(noTeamsLabel, alignment=Qt.AlignmentFlag.AlignCenter)
+            noTeamsFrame.setLayout(noTeamsBox)
 
-        teamsList = []
+            self.chatVBox.addWidget(chatBox)
+            self.chatVBox.addWidget(noTeamsFrame, 1)
+            self.chatFrame.setStyleSheet("""
+                background-color: #5E5E5E;
+            """)
+            self.resetBorders(None)
 
-        for team in teams:
-            agentIds = team['agents']
+            self.sendChatButton.hide()  
+        else:
+            chatBox = QLabel("Welcome to TaskForceAI. Select a Team of Agents to complete your task. Then, type the task you’d like your Team to complete.")
+            chatBox.setStyleSheet("""
+                background-color: #464545; 
+                border-radius: 20;
+                padding: 20;
+                font: 16px;
+            """)
+            chatBox.setWordWrap(True)
+            chatBox.setAlignment(Qt.AlignmentFlag.AlignTop)
 
-            teamObj = {
-                "name": team["name"],
-                "id": team["id"],
-                "agents": []
-            }
+            self.teamSelectFrame = QFrame()
+            self.teamSelectFrame.setStyleSheet("""
+                background-color: #464545;
+                color: #ffffff;
+                padding: 20px;
+            """)
+            self.teamSelectFrame.setFixedHeight(300)
 
-            teamAgents = []
+            selectFrame = QFrame()
+            self.agentsFrame = QFrame()
+            self.teamBox = QHBoxLayout()
+            selectBox = QVBoxLayout()
+            self.agentsBox = QVBoxLayout()
+            self.agentsFrame.setLayout(self.agentsBox)
+            self.agentsFrame.setStyleSheet("background-color: #464545;")
 
-            for id in agentIds:
-                agent = [agent for agent in agents if agent["id"] == id][0]
-                teamAgents.append(agent)
+            verticalLine = QLabel("")
+            verticalLine.setStyleSheet("""
+                background-color: #5E5E5E;
+            """)
+            verticalLine.setFixedWidth(2)
 
-            teamObj["agents"] = teamAgents
-            teamsList.append(teamObj)
+            selectTeamLabel = QLabel('Select a Team')
+            selectTeamLabel.setStyleSheet("""
+                background-color: #464545;
+                padding: 0;
+                padding-bottom: 10px;
+            """)
 
-            self.teamComboBox.addItem(team["name"], teamObj)
+            self.teamComboBox = CustomComboBox()
+            self.teamComboBox.currentIndexChanged[int].connect(self.retrieveTeamOnChange)
+            
+            teamsFile = open('./data/teams.json')
+            teamsData = json.load(teamsFile)
+            teams = teamsData["teams"]
 
-        self.allTeams = teamsList
-        self.selectedTeam = self.allTeams[0]
+            agentsFile = open('./data/agents.json')
+            agentsData = json.load(agentsFile)
+            agents = agentsData["agents"]
 
-        selectBox.addWidget(selectTeamLabel)
-        selectBox.addWidget(self.teamComboBox, 1)
-        selectBox.addStretch(1)
-        selectFrame.setLayout(selectBox)
+            teamsList = []
 
-        self.teamBox.addWidget(selectFrame)
-        self.teamBox.addWidget(verticalLine)
-        self.teamBox.addWidget(self.agentsFrame)
-        self.teamSelectFrame.setLayout(self.teamBox)
+            for team in teams:
+                agentIds = team['agents']
 
-        self.bottom = QFrame()
-        self.bottomlay = QHBoxLayout()
-        self.bottomlay.setContentsMargins(0, 0, 0, 0)
-        
-        self.textBox = QPlainTextEdit()
-        self.textBox.setDisabled(False)
-        self.textBox.setStyleSheet("""
-            background-color: #464545;
-            color: #ffffff;
-            padding: 20;
-        """)
-        self.textBox.setPlaceholderText("Type anything...")
-        self.sendChatButton.show()  
-        self.sendChatButton.raise_()  
+                teamObj = {
+                    "name": team["name"],
+                    "id": team["id"],
+                    "agents": []
+                }
 
-        self.bottomlay.addWidget(self.textBox)
-        self.bottom.setLayout(self.bottomlay)
+                teamAgents = []
 
-        self.chatVBox.addWidget(chatBox)
-        self.chatVBox.addWidget(self.teamSelectFrame)
-        self.chatVBox.addWidget(self.bottom, 1)
-        self.chatFrame.setStyleSheet("""
-            background-color: #5E5E5E;
-        """)
-        self.resetBorders(None)
+                for id in agentIds:
+                    agent = [agent for agent in agents if agent["id"] == id][0]
+                    teamAgents.append(agent)
+
+                teamObj["agents"] = teamAgents
+                teamsList.append(teamObj)
+
+                self.teamComboBox.addItem(team["name"], teamObj)
+
+            self.allTeams = teamsList
+            self.selectedTeam = {}
+
+            if len(self.allTeams) != 0:
+                self.selectedTeam = self.allTeams[0]
+
+            
+
+            self.createTeamLabel = QLabel("Create a Team to initiate a chat.")
+
+            if len(self.allTeams) == 0:
+                selectBox.addWidget(self.createTeamLabel)
+            else:
+                selectBox.addWidget(selectTeamLabel)
+                selectBox.addWidget(self.teamComboBox, 1)
+            
+            selectBox.addStretch(1)
+            selectFrame.setLayout(selectBox)
+
+            self.teamBox.addWidget(selectFrame)
+            self.teamBox.addWidget(verticalLine)
+            self.teamBox.addWidget(self.agentsFrame)
+            self.teamSelectFrame.setLayout(self.teamBox)
+
+            self.bottom = QFrame()
+            self.bottomlay = QHBoxLayout()
+            self.bottomlay.setContentsMargins(0, 0, 0, 0)
+            
+            self.textBox = QPlainTextEdit()
+            self.textBox.setDisabled(False)
+            self.textBox.setStyleSheet("""
+                background-color: #464545;
+                color: #ffffff;
+                padding: 20;
+            """)
+            self.textBox.setPlaceholderText("Type anything...")
+            self.sendChatButton.show()  
+            self.sendChatButton.raise_()  
+
+            self.bottomlay.addWidget(self.textBox)
+            self.bottom.setLayout(self.bottomlay)
+
+            self.chatVBox.addWidget(chatBox)
+            self.chatVBox.addWidget(self.teamSelectFrame)
+            self.chatVBox.addWidget(self.bottom, 1)
+            self.chatFrame.setStyleSheet("""
+                background-color: #5E5E5E;
+            """)
+            self.resetBorders(None)
 
     def loadLoadingView(self, prompt):
     # Remove all existing widgets in the layout
@@ -1048,7 +1087,10 @@ class ChatsFrame(QFrame):
         # get last id and increase by 1
         file = open('./data/chats.json')
         data = json.load(file)
-        newID = str(int(data.get('chats', [])[-1]['id']) + 1)
+
+        newID = "1"
+        if len(data["chats"]) != 0:
+            newID = str(int(data.get('chats', [])[-1]['id']) + 1)
 
         # clean the json
         chat_object = {

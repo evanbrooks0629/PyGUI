@@ -593,8 +593,13 @@ class AddAgents(QFrame):
             found_team['agents'] = self.currentTeam['agents']
  
         else:
-            self.currentTeam['id'] = str(int(data.get('teams', [])[-1]['id']) + 1)  #add id functionality
-            print(str(int(data.get('teams', [])[-1]['id'])))
+            teams = data["teams"]
+            
+            if len(teams) == 0:
+                self.currentTeam['id'] = "1"
+            else:
+                self.currentTeam['id'] = str(int(data.get('teams', [])[-1]['id']) + 1)  #add id functionality
+
             self.currentTeam['name'] = self.name_input.text()
             self.currentTeam['agents'] = selected_agents
             data['teams'].append(self.currentTeam)

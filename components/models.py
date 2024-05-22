@@ -357,6 +357,13 @@ class ClickableFrame(QFrame):
         if self.clicked:
             self.widget.editPanel.clickedModel = self
             self.widget.editPanel.currentModel = self.model 
+
+            selectedModelText = ""
+            if self.model["groq"]:
+                selectedModelText = "[Groq] " + self.model["model"]
+            else:
+                selectedModelText = "[Ollama] " + self.model["model"]
+            self.widget.editPanel.selectedModelText.setText("Selected Model: " + selectedModelText)
             # self.widget.editPanel.setFields(self.model)    
             self.widget.editPanel.update() 
             # self.widget.editPanel.editLabel.setText("Edit Your Model")
@@ -429,6 +436,12 @@ class ModelsValues(QFrame):
         super().__init__()
         
         self.modelsFrame = frame.modelsPanel 
+
+        file = open('./data/llm.json')
+        data = json.load(file)
+        llm_config = data["llm_config"]
+        model_name = llm_config["model"]
+        is_groq = llm_config["groq"]
 
         #Keep track of all skills checkboxes
         self.checkboxes = []
@@ -509,11 +522,31 @@ class ModelsValues(QFrame):
         self.bottomButtonBox.addWidget(self.createButton)
         self.bottomButtonFrame.setLayout(self.bottomButtonBox)
 
+        self.selectedModelFrame = QFrame()
+        self.selectedModelBox = QHBoxLayout()
+        model_text = "No Model Selected."
+        if model_name != "":
+            if is_groq:
+                model_text = "Selected Model: [Groq] " + model_name
+            else:
+                model_text = "Selected Model: [Ollama] " + model_name
+        self.selectedModelText = QLabel(model_text)
+        self.selectedModelText.setStyleSheet("""
+            color: #75DBE9;
+            font-weight: bold;
+        """)
+        self.selectedModelBox.addWidget(self.selectedModelText)
+        self.selectedModelFrame.setLayout(self.selectedModelBox)
+
         contentLayout.addWidget(self.bottomButtonFrame, alignment=Qt.AlignmentFlag.AlignCenter)
+        contentLayout.addWidget(self.selectedModelFrame, alignment=Qt.AlignmentFlag.AlignCenter)
+        
         contentLayout.setAlignment(Qt.AlignmentFlag.AlignTop)
         contentBox.setLayout(contentLayout)
 
         editLayout.addWidget(contentBox)
+
+        
         # editLayout.setStretchFactor(contentBox, 1)
         self.setLayout(editLayout)
 

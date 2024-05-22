@@ -282,12 +282,12 @@ class AddAgentButton(QPushButton):
             "description": "",
             "max_consecutive_auto_reply": 0,
             "default_auto_reply": "",
-            "llm_config": {
-                "model": "Mistral-7B Chat Int4",
-                "base_url": "127.0.0.1:8081",
-                "api_type": "openai",
-                "api_key": "NULL"
-            },
+            # "llm_config": {
+            #     "model": "Mistral-7B Chat Int4",
+            #     "base_url": "127.0.0.1:8081",
+            #     "api_type": "openai",
+            #     "api_key": "NULL"
+            # },
             "skills": [],
             "system_message": ""
         }
@@ -424,12 +424,12 @@ class ClickableFrame(QFrame):
                 "description": "",
                 "max_consecutive_auto_reply": 0,
                 "default_auto_reply": "",
-                "llm_config": {
-                    "model": "Mistral-7B Chat Int4",
-                    "base_url": "127.0.0.1:8081",
-                    "api_type": "openai",
-                    "api_key": "NULL"
-                },
+                # "llm_config": {
+                #     "model": "Mistral-7B Chat Int4",
+                #     "base_url": "127.0.0.1:8081",
+                #     "api_type": "openai",
+                #     "api_key": "NULL"
+                # },
                 "skills": [],
                 "system_message": ""
             }  
@@ -475,12 +475,12 @@ class AgentValues(QFrame):
             "description": "",
             "max_consecutive_auto_reply": 0,
             "default_auto_reply": "",
-            "llm_config": {
-                "model": "Mistral-7B Chat Int4",
-                "base_url": "127.0.0.1:8081",
-                "api_type": "openai",
-                "api_key": "NULL"
-            },
+            # "llm_config": {
+            #     "model": "Mistral-7B Chat Int4",
+            #     "base_url": "127.0.0.1:8081",
+            #     "api_type": "openai",
+            #     "api_key": "NULL"
+            # },
             "skills": [],
             "system_message": ""
         }
@@ -530,55 +530,6 @@ class AgentValues(QFrame):
         self.sys_input.setText(self.currentAgent['system_message'])
         self.sys_input.setStyleSheet("QLineEdit { background-color: #5E5E5E; border-radius: 10px; padding: 5px; }")
         contentLayout.addWidget(self.alignTextEditFields("System Message", self.sys_input))
-
-        # LLM dropdown
-        #add functionality for importing and saved LLMs
-        LLM_label = self.setLabel('LLM')
-        LLMcombobox = QComboBox()
-        LLMcombobox.setStyleSheet("QComboBox { background-color: #5E5E5E; border-radius: 10px; padding: 5px; }")
-        LLMcombobox.setCursor(QCursor(Qt.CursorShape.PointingHandCursor))
-        
-        #pull from models.json
-        file = open('./data/models.json')
-        data = json.load(file)
-        models = data["models"]
-
-        #pulls default models for new agent (add functionality for pulling from agents.json)
-        for currentModel in models:
-            LLMcombobox.addItem(currentModel['model'])
-
-        importButton = QPushButton(
-            text=" Import", icon=QIcon('./assets/PlusIcon.png')
-        )
-        importButton.setFixedHeight(30)
-        importButton.setCursor(QCursor(Qt.CursorShape.PointingHandCursor))
-        importButton.setStyleSheet('''
-            QPushButton {
-                border: 0px solid #ffffff;
-                border-radius: 10px;
-                padding: 5px;
-                background-color: #5E5E5E;
-                color: #ffffff;
-                font: 12px;
-            }
-
-            QPushButton:hover {
-                background-color: #111111;
-            }
-
-            QPushButton:pressed {
-                background-color: #5E5E5E;
-            }
-        ''')
-
-        box = QFrame()
-        layout = QHBoxLayout()
-        layout.addWidget(LLM_label)
-        layout.addWidget(LLMcombobox)
-        layout.addWidget(importButton)
-        box.setLayout(layout)
-
-        contentLayout.addWidget(box)
 
         # Max consec auto reply
         self.sliderValue = 0
@@ -796,21 +747,23 @@ class AgentValues(QFrame):
             found_agent['max_consecutive_auto_reply'] = self.slider.value()
             if hasattr(self.currentAgent, 'default_auto_reply'):
                 found_agent['default_auto_reply'] = self.currentAgent['default_auto_reply'] #have to check if json has these fields (threw error on first one)
-            if hasattr(self.currentAgent, 'llm_config'):
-                found_agent['llm_config'] = self.currentAgent['llm_config'] #same issue as above
+            # if hasattr(self.currentAgent, 'llm_config'):
+            #     found_agent['llm_config'] = self.currentAgent['llm_config'] #same issue as above
             found_agent['skills'] = self.currentAgent['skills']
             found_agent['system_message'] = self.sys_input.text()
  
         else:
             #Create new agent
             print('new added')
-            self.currentAgent['id'] = str(int(data.get('agents', [])[-1]['id']) + 1)  #add id functionality
-            print(str(int(data.get('agents', [])[-1]['id'])))
+            if len(data["agents"]) == 0:
+                self.currentAgent['id'] = "1"
+            else:
+                self.currentAgent['id'] = str(int(data.get('agents', [])[-1]['id']) + 1)  #add id functionality
             self.currentAgent['name'] = self.name_input.text()
             self.currentAgent['description'] = self.descrip_input.text()
             self.currentAgent['max_consecutive_auto_reply'] = self.slider.value()
             self.currentAgent['default_auto_reply'] = self.currentAgent['default_auto_reply'] #have to check if json has these fields (threw error on first one)
-            self.currentAgent['llm_config'] = self.currentAgent['llm_config'] #same issue as above
+            # self.currentAgent['llm_config'] = self.currentAgent['llm_config'] #same issue as above
             self.currentAgent['skills'] = selected_skills
             self.currentAgent['system_message'] = self.sys_input.text()
             data['agents'].append(self.currentAgent)
@@ -834,12 +787,12 @@ class AgentValues(QFrame):
             "description": "",
             "max_consecutive_auto_reply": 0,
             "default_auto_reply": "",
-            "llm_config": {
-                "model": "Mistral-7B Chat Int4",
-                "base_url": "127.0.0.1:8081",
-                "api_type": "openai",
-                "api_key": "NULL"
-            },
+            # "llm_config": {
+            #     "model": "Mistral-7B Chat Int4",
+            #     "base_url": "127.0.0.1:8081",
+            #     "api_type": "openai",
+            #     "api_key": "NULL"
+            # },
             "skills": [],
             "system_message": ""
         }  
@@ -906,12 +859,12 @@ class AgentValues(QFrame):
                 "description": "",
                 "max_consecutive_auto_reply": 0,
                 "default_auto_reply": "",
-                "llm_config": {
-                    "model": "Mistral-7B Chat Int4",
-                    "base_url": "127.0.0.1:8081",
-                    "api_type": "openai",
-                    "api_key": "NULL"
-                },
+                # "llm_config": {
+                #     "model": "Mistral-7B Chat Int4",
+                #     "base_url": "127.0.0.1:8081",
+                #     "api_type": "openai",
+                #     "api_key": "NULL"
+                # },
                 "skills": [],
                 "system_message": ""
             }  
@@ -968,6 +921,4 @@ class AgentValues(QFrame):
         fieldLabel = QLabel(label)
         fieldLabel.setFont(bold)
         fieldLabel.setStyleSheet(f"color: {text_color.name()};")
-        fieldLabel.setFixedWidth(110)  # Set a fixed width for the label
-
-        return fieldLabel
+        fieldLabel.setFixedWidth(110)  # Set a fixed 

@@ -1,27 +1,12 @@
 {
   "teams": [
     {
-      "name": "Research Crew",
-      "id": "18183843",
+      "name": "Python Developer Team",
+      "id": "1",
       "agents": [
-        "53412553",
-        "53476553"
-      ]
-    },
-    {
-      "name": "Developer Team",
-      "id": "59493944",
-      "agents": [
-        "63476554",
-        "63476556"
-      ]
-    },
-    {
-      "name": "Another New",
-      "id": "59493946",
-      "agents": [
-        "53412553",
-        "53476554"
+        "1",
+        "2",
+        "3"
       ]
     }
   ]
