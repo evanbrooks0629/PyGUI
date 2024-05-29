@@ -49,9 +49,9 @@ Please note that output is nondeterministic, meaning you won't get the same outp
 ## Things to Do
 
 This project is very far from complete. Some things to add include:
-[ ] Conversation flow in chats (respond to a response)
-[ ] Document uploads for agents and chats
-[ ] Adding functions or "Skills" to Autogen Agents (see an example [here](https://microsoft.github.io/autogen/docs/notebooks/agentchat_function_call_currency_calculator))
+- [ ] Conversation flow in chats (respond to a response)
+- [ ] Document uploads for agents and chats
+- [ ] Adding functions or "Skills" to Autogen Agents (see an example [here](https://microsoft.github.io/autogen/docs/notebooks/agentchat_function_call_currency_calculator))
 
 ## Contribution / Help / Support / Questions
 
